@@ -27,13 +27,24 @@ function H.options()
     -- Others
     vim.opt.mouse = "a"
     vim.opt.confirm = true -- > Confirm before exiting with unsaved bufffer(s)
+
+    -- Case insensitive searching
+    vim.o.ignorecase = true
+    vim.o.smartcase = true
+
+    -- Enable yaml filetype detection for .yml files
+    vim.filetype.add({
+        pattern = {
+            ["%.yml$"] = "yaml",
+        },
+    })
 end
 
 function M.setup()
     require("vim._core.ui2").enable({})
 
-    H.options()
 
+    H.options()
     require("kbroominit.lsp").setup()
     require("kbroominit.plugins").setup()
     require("kbroominit.keymaps").setup()

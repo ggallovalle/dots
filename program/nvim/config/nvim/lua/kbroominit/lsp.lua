@@ -4,6 +4,14 @@ local M = {}
 
 local H = {}
 
+function H.diagnostic()
+    vim.diagnostic.config({
+        severity_sort = true,
+        update_in_insert = false,
+        float = { source = "if_many" }
+    })
+end
+
 function H.lsp_config()
     vim.lsp.config("emmylua_ls", {
         root_markers = { ".emmyrc.json" }
@@ -99,6 +107,30 @@ function H.lsp_config()
             }
         }
     })
+
+    vim.lsp.config("jsonls", {
+        filetypes = { "json", "jsonc" },
+        root_markers = { "package.json", "tsconfig.json", ".git" },
+        settings = {
+            json = {
+                format = { enabled = true },
+                validate = { enabled = true }
+            }
+        }
+    })
+
+    vim.lsp.config("yamlls", {
+        filetypes = { "yaml", "yml" },
+        root_markers = { ".yaml", ".yml", ".git" },
+        settings = {
+            yaml = {
+                format = { enabled = true },
+                validate = true,
+                hover = true,
+                completion = true
+            }
+        }
+    })
 end
 
 function H.lsp_keymaps()
@@ -149,7 +181,9 @@ function H.mason()
             "svelte",
             "gopls",
             "rust_analyzer",
-            "pyright"
+            "pyright",
+            "jsonls",
+            "yamlls"
         }
     })
 end
@@ -252,6 +286,7 @@ function H.cmp()
 end
 
 function M.setup()
+    H.diagnostic()
     H.lsp_config()
     H.lsp_keymaps()
     H.cmp()

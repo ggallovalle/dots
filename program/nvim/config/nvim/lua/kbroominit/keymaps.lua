@@ -28,6 +28,7 @@ function M.setup()
     )
     vim.keymap.set("n", "<ESC>", "<CMD>nohlsearch<CR>")
     vim.keymap.set({ "n", "v" }, "<leader>y", '"+y', { desc = "Copy to system clipboard" })
+    vim.keymap.set({ "n", "v" }, "<leader>p", '"+p', { desc = "Paste from system clipboard" })
 
     wk.add({ "<leader>c", group = "[C]ode" })
     wk.add({ "<leader>d", group = "[D]ocument" })
@@ -51,7 +52,14 @@ function M.setup()
     vim.keymap.set("n", "<leader>sk", snacks.picker.keymaps, { desc = "[S]earch [K]eymaps" })
     vim.keymap.set("n", "<leader>sg", snacks.picker.grep, { desc = "[S]earch by rip[G]rep" })
     vim.keymap.set("n", "<leader>sb", snacks.picker.buffers, { desc = "[S]earch [B]uffer" })
-    vim.keymap.set("n", "<leader>sf", snacks.picker.files, { desc = "[S]earch [F]file" })
+    vim.keymap.set("n", "<leader>sf", function()
+        local cwd = vim.fn.getcwd()
+        snacks.picker.git_files({
+            untracked = true,
+            cwd = cwd,
+            filter = { cwd = cwd },
+        })
+    end, { desc = "[S]earch [F]ile (git)" })
 end
 
 ---@param bufnr        integer
@@ -78,6 +86,7 @@ function M.lsp_on_attach(bufnr, client, capabilities)
             buffer = bufnr,
             desc = "vim.lsp.buf.definition()"
         })
+
         vim.keymap.set("n", "grd", vim.lsp.buf.definition, {
             buffer = bufnr,
             desc = "vim.lsp.buf.definition()"
@@ -85,7 +94,9 @@ function M.lsp_on_attach(bufnr, client, capabilities)
 
         vim.keymap.set("n", "gO", snacks.picker.lsp_symbols, { desc = "lsp.symbols" })
     end
+
     vim.keymap.set("n", "gs", snacks.picker.lsp_symbols, { desc = "lsp.symbols" })
+
     vim.keymap.set("n", "<leader>cd", function()
         vim.diagnostic.setqflist({ open = true })
     end, { buffer = bufnr, desc = "Diagnostics to quickfix" }
