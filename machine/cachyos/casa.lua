@@ -47,6 +47,8 @@ return {
     H.entry_home_file("zsh", "zshenv", ".zshenv"),
     -- git
     H.entry_config_file("git", "config", nil, { "template" }),
+    -- mise
+    H.entry_config_dir("mise"),
     -- gui
     -- niri
     H.entry_config_dir("niri"),
