@@ -55,5 +55,7 @@ return {
     -- niri
     H.entry_config_dir("niri"),
     H.entry_config_dir("noctalia"),
+    -- zellij
+    H.entry_config_dir("zellij"),
   }
 }
