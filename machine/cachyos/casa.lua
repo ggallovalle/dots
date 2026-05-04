@@ -1,6 +1,6 @@
-
 return {
   entries = {
+    -- zsh
     {
       type = "directory",
       source = { "zsh", "config", "zsh" },
@@ -15,6 +15,13 @@ return {
       type = "file",
       source = { "zsh", "home", "zshenv" },
       target = { ".zshenv" }
+    },
+    -- git
+    {
+      type = "file",
+      source = { "git", "config", "git", "config" },
+      target = { ".config", "git", "config" },
+      attributes = { "template" }
     },
   }
 }

@@ -1,0 +1,43 @@
+[user]
+name = {{ .user.name }}
+email = {{ .user.email }}
+
+[alias]
+unstage=reset HEAD --
+amend=commit --amend --no-edit
+nuke=!git reset --hard HEAD && git clean -fd
+
+[core]
+editor=nvim
+pager=delta
+autocrlf=input
+
+[pager]
+diff=delta
+log=delta
+reflog=delta
+show=delta
+
+[interactive]
+diffFilter=delta --color-only --features=iteractive
+
+[delta]
+navigate=true
+features=line-numbers decorations
+syntax-theme=Catppuccin Mocha
+whitespace-error-style=22 reverse
+
+[diff]
+colorMoved=default
+
+[pull]
+rebase=false
+
+[init]
+defaultBranch=main
+
+[merge]
+conflictStyle=zdiff3
+
+[push]
+autoSetupRemote = true
