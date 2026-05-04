@@ -49,6 +49,8 @@ return {
     H.entry_config_file("git", "config", nil, { "template" }),
     -- mise
     H.entry_config_dir("mise"),
+    -- nvim
+    H.entry_config_dir("nvim"),
     -- gui
     -- niri
     H.entry_config_dir("niri"),

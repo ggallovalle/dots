@@ -1,0 +1,12 @@
+[syntax]
+level = "Lua51"
+
+[indent]
+kind = "Space"
+width = 4
+
+[layout]
+max_line_width = 100
+
+[output]
+quote_style = "Double"

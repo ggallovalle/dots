@@ -1,0 +1,33 @@
+{
+    "$schema": "https://raw.githubusercontent.com/EmmyLuaLs/emmylua-analyzer-rust/refs/heads/main/crates/emmylua_code_analysis/resources/schema.json",
+    "runtime": {
+        "version": "Lua5.1",
+        "path": [
+            "lua/?.lua",
+            "lua/?/init.lua"
+        ],
+        "requirePattern": [
+            "?.lua",
+            "?/init.lua"
+        ]
+    },
+    "workspace": {
+        "checkThirdParty": false,
+        "library": [
+            "~/.local/share/mise/installs/neovim/0.12.2/share/nvim/runtime",
+            "~/.local/share/nvim/site/pack/core/opt"
+        ],
+        "ignoreDir": [
+            ".git"
+        ]
+    },
+    "diagnostics": {
+        "globals": [
+            "vim"
+        ]
+    },
+    "hint": {
+        "paramHint": true,
+        "localHint": true
+    }
+}
