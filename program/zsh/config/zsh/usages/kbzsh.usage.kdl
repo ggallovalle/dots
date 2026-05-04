@@ -1,0 +1,18 @@
+name "kbzsh"
+bin "kbzsh"
+about "kbzsh CLI — manage zsh config, run functions, generate completions"
+version "0.0.1"
+author "Gerson Gallo"
+license "MIT"
+
+flag "-h --help" help="Show help information"
+flag "--version" help="Show version information"
+flag "--completions <shell>" help="Print shell completion script"
+
+cmd "secrets" help="Work with system secrets" {
+    cmd "get" help="Get a secret value" {
+        arg "<service>" help="The service"
+        arg "<key>" help="The key"
+        flag "--redacted" help="Show the value in a redacted form"
+    }
+}
