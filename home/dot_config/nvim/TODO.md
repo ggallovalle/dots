@@ -7,6 +7,7 @@
 
 ### keymap `<leader>sf`
 - [x] should search git tracked files including `.` files
+- [x] when not in a git repository, use the `files` picker
 
 ### keyamp `<leader>sb`
 - [x] show snack picker, on select if buffer has window

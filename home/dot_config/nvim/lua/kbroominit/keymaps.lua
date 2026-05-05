@@ -47,11 +47,20 @@ function Keymap.search_file()
 
   return function()
     local cwd = vim.fn.getcwd()
-    snacks.picker.git_files({
-      untracked = true,
-      cwd = cwd,
-      filter = { cwd = cwd },
-    })
+    local git_root = snacks.git.get_root()
+
+    if git_root then
+      snacks.picker.git_files({
+        untracked = true,
+        cwd = cwd,
+        filter = { cwd = cwd },
+      })
+    else
+      snacks.picker.files({
+        cwd = cwd,
+        filter = { cwd = cwd },
+      })
+    end
   end
 end
 

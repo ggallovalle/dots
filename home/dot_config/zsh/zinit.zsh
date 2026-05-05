@@ -73,7 +73,7 @@ zi load z-shell/zui
 zi load z-shell/zbrowse
 
 # # ignore expansion of these regular/global aliases
-# export ZPWR_EXPAND_BLACKLIST=(g gco)
+# export ZPWR_EXPAND_BLACKLIST=()
 # # aliases expand in first position
 # export ZPWR_EXPAND=true
 # # aliases expand in second position after sudo
@@ -90,5 +90,5 @@ zi load z-shell/zbrowse
 # export ZPWR_EXPAND_QUOTE_SINGLE=false
 # # expand into history any unexpanded
 # export ZPWR_EXPAND_TO_HISTORY=false
-zi ice --lucid --nocompile
-zinit load MenkeTechnologies/zsh-expand
+# zi ice --lucid --nocompile
+# zinit load MenkeTechnologies/zsh-expand

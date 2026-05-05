@@ -19,7 +19,7 @@ export QT_QPA_PLATFORMTHEME=gtk3
 
 # secrets
 export BW_SESSION="$(secret-tool lookup service bitwarden name session)"
-export GITHUB_TOKEN="$(secret-tool lookup service github name api_key)"
+# export GITHUB_TOKEN="$(secret-tool lookup service github name api_key)"
 
 # private
 typeset -gA kbroom

@@ -1,0 +1,9 @@
+sourceDir: "/home/kbroom/dots/home"
+diff:
+  command: delta
+data:
+  user:
+    name: "Gerson Gallo"
+    email: "ggallovalle@gmail.com"
+    github: ggallovalle
+
