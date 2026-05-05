@@ -35,14 +35,13 @@ function H.options()
     -- Enable yaml filetype detection for .yml files
     vim.filetype.add({
         pattern = {
-            ["%.yml$"] = "yaml",
-        },
+            ["%.yml$"] = "yaml"
+        }
     })
 end
 
 function M.setup()
     require("vim._core.ui2").enable({})
-
 
     H.options()
     require("kbroominit.lsp").setup()

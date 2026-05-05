@@ -1,5 +1,5 @@
 [tasks.format]
-description = "format lua"
+description = "format"
 run = [
     "luafmt . --write"
 ]
