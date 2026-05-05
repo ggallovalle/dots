@@ -1,0 +1,42 @@
+#!/usr/bin/env zsh
+
+
+0="${ZERO:-${${0:#$ZSH_ARGZERO}:-${(%):-%N}}}"
+0="${${(M)0:#/*}:-$PWD/$0}"
+
+generated_completions_count=0
+
+# command → completion generator mapping
+typeset -A _completion_cmds
+
+_completion_cmds=(
+  # can't be move to zi snippet, has to be generated
+  # https://github.com/zellij-org/zellij/blob/a8372a09cd7ac14af0016b38fd9561f975ec17f3/Cargo.toml#L143
+  zellij   "zellij setup --generate-completion zsh"
+  # can't be move to zi snippet, has to be generated
+  uv       "uv generate-shell-completion zsh"
+  # can't be move to zi snippet, has to be generated
+  hl       "hl --shell-completions zsh _hl"
+  # can't be move to zi snippet, has to be generated
+  codex    "codex completion zsh"
+  # can't be move to zi snippet, has to be generated
+  glab "glab completion -s zsh"
+  # has to be generated
+  chezmoi "chezmoi completion zsh"
+)
+
+for _complete_this _gen_cmd in ${(kv)_completion_cmds}; do
+  _target="${HOME}/.zi/completions/_${_complete_this}"
+
+  if (( ${+commands[${_complete_this}]} )); then
+    echo -n $'\e[2m'"$ "${_gen_cmd}$'\e[0m'
+    echo
+    eval "$_gen_cmd" > "$_target"
+    (( generated_completions_count++ ))
+  fi
+done
+
+if [[ $generated_completions_count -gt 0 ]]; then
+  echo "Generated ${generated_completions_count} completions"
+fi
+

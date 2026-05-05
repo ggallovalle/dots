@@ -21,7 +21,6 @@ autoload -Uz compinit; compinit -u
 
 source ${0:h}/zinit.zsh
 source ${0:h}/alias.zsh
-source ${0:h}/completions.zsh
 
 # j - jump [arg]
 # ji - jump interactive

@@ -18,6 +18,26 @@ zi light-mode for \
   z-shell/z-a-meta-plugins \
   @annexes @zunit
 
+
+zi ice --lucid --wait --as=completion --blockf --has=fd
+zi snippet https://github.com/sharkdp/fd/blob/master/contrib/completion/_fd
+
+zi ice --lucid --wait --as=completion --blockf --has=docker
+zi snippet https://github.com/docker/cli/blob/master/contrib/completion/zsh/_docker
+
+zi ice --lucid --wait --as=completion --blockf --has=bun --mv="bun.zsh -> _bun"
+zi snippet https://github.com/oven-sh/bun/blob/main/completions/bun.zsh
+
+zi ice --lucid --wait --as=completion --blockf --has=just --mv="just.zsh -> _just"
+zi snippet https://github.com/casey/just/blob/master/completions/just.zsh
+
+zi ice --lucid --wait --as=completion --blockf --has=mise
+zi snippet https://github.com/jdx/mise/blob/main/completions/_mise
+
+zi ice --lucid --wait --as=completion --blockf --has=opencode
+zi snippet https://github.com/PEMessage/opencode-zsh-completion/blob/main/_opencode
+
+
 # https://github.com/jeffreytse/zsh-vi-mode
 # better and friendlier vim mode
 # 2025-04-21
