@@ -159,7 +159,7 @@ function H.lsp_keymaps()
                 vim.lsp.document_color.enable(true, { bufnr = bufnr }, { style = "virtual" })
             end
 
-            require("kbroominit.keymaps").lsp_on_attach(bufnr, client, client.server_capabilities)
+            require("kbinit.keymaps").lsp_on_attach(bufnr, client, client.server_capabilities)
         end
     })
 end

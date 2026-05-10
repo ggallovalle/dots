@@ -44,9 +44,9 @@ function M.setup()
     require("vim._core.ui2").enable({})
 
     H.options()
-    require("kbroominit.lsp").setup()
-    require("kbroominit.plugins").setup()
-    require("kbroominit.keymaps").setup()
+    require("kbinit.lsp").setup()
+    require("kbinit.plugins").setup()
+    require("kbinit.keymaps").setup()
 end
 
 return M

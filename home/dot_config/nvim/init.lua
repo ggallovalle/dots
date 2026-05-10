@@ -1,1 +1,1 @@
-require("kbroominit").setup()
+require("kbinit").setup()
