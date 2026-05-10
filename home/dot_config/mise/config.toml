@@ -35,3 +35,7 @@ yazi = "latest"
 yt-dlp = { version = "latest", rename_exe = "yt-dlp" }
 zellij = "latest"
 zoxide = "latest"
+
+# lsps
+"npm:yaml-language-server" = "latest"
+
