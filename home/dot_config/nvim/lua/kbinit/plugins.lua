@@ -93,6 +93,21 @@ function Plugin.folke()
     snacks.setup()
 end
 
+function Plugin.surround()
+    vim.pack.add({
+        "https://github.com/kylechui/nvim-surround"
+    }, { confirm = false })
+    local surround = require("nvim-surround")
+    surround.setup()
+end
+
+function Plugin.autopairs()
+    vim.pack.add({
+        "https://github.com/windwp/nvim-autopairs"
+    }, { confirm = false })
+    require("nvim-autopairs").setup()
+end
+
 function M.setup()
     vim.pack.add({
         { src = "https://github.com/nvim-lua/plenary.nvim" }
