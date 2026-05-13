@@ -181,6 +181,7 @@ function H.mason()
             "svelte",
             "gopls",
             "rust_analyzer",
+            "zls",
             "pyright",
             "jsonls",
             "yamlls"
@@ -210,6 +211,7 @@ function H.treesitter()
         "sql",
         --
         "rust",
+        "zig",
         --
         "lua",
         --
