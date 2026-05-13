@@ -4,7 +4,7 @@
 
 keybinds clear-defaults=true {
     locked {
-        bind "Alt g" { SwitchToMode "normal"; }
+        bind "Alt ;" { SwitchToMode "normal"; }
     }
     pane {
         bind "j" { MoveFocus "down"; }
@@ -27,6 +27,13 @@ keybinds clear-defaults=true {
         bind "tab" { SwitchFocus; }
     }
     tab {
+        bind "S" {
+            OverrideLayout {
+                layout "standard-working-set"
+                apply_only_to_active_tab true
+            }
+            SwitchToMode "locked"
+        }
         bind "1" { GoToTab 1; SwitchToMode "locked"; }
         bind "2" { GoToTab 2; SwitchToMode "locked"; }
         bind "3" { GoToTab 3; SwitchToMode "locked"; }

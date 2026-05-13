@@ -1,0 +1,19 @@
+layout {
+    pane split_direction="horizontal" {
+        pane split_direction="vertical" {
+            pane size="75%" stacked=true {
+                pane command="nvim" name="editor" expanded=true
+                pane command="opencode" name="ai"
+            }
+            pane size="25%" name="term" focus=true
+        }
+        pane size=1 borderless=true {
+            plugin location="compact-bar"
+        }
+    }
+    floating_panes {
+        pane name="TODO" command="zsh" {
+            args "-lc" "mkdir -p ~/TODO/$(date +%F) && cd ~/TODO/$(date +%F) && exec zsh"
+        }
+    }
+}
