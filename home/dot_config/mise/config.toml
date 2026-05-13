@@ -38,4 +38,5 @@ zoxide = "latest"
 
 # lsps
 "npm:yaml-language-server" = "latest"
+zig = "latest"
 
