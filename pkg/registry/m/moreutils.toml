@@ -1,0 +1,5 @@
+[pkg.moreutils]
+provides = "moreutils"
+[pkg.moreutils.via]
+pacman = "moreutils"
+winget = "moreutils"

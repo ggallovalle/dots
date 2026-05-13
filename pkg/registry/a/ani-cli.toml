@@ -1,0 +1,5 @@
+description = "cli to download anime"
+provides = "ani-cli"
+
+[via]
+pacman = "ani-cli"

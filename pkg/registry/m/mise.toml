@@ -1,0 +1,18 @@
+[pkg.mise]
+description = "runtime version manager"
+provides = "mise"
+[pkg.mise.via]
+pacman = "mise"
+winget = "jdx.mise"
+cargo = "mise"
+cargobinstall = "mise"
+debian = {
+  repo = "https://mise.en.dev/deb",
+  key = "https://mise.en.dev/gpg-key.pub",
+  pkg = "mise"
+}
+ubuntu = {
+  requires = ">=26.04",
+  ppa = "ppa:jdxcode/mise",
+  pkg = "mise"
+}

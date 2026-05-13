@@ -1,0 +1,7 @@
+[pkg.worktrunk]
+description = "worktrunk git extensions"
+provides = [ "wt", "git-wt" ]
+[pkg.worktrunk.via]
+pacman = "worktrunk"
+cargo = "worktrunk"
+cargobinstall = "worktrunk"

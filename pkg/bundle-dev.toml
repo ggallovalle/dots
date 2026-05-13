@@ -1,0 +1,7 @@
+[bundle.dev]
+description = "development utilities"
+requires = [
+    "registry/g/git.toml",
+    "registry/w/worktrunk.toml",
+    "registry/m/mise.toml",
+]

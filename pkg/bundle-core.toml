@@ -1,0 +1,7 @@
+[bundle.core]
+description = "core utilities"
+requires = [
+    "registry/c/copyq.toml",
+    "registry/p/toml2json.toml",
+    "registry/b/moreutils.toml",
+]
