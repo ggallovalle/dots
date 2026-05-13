@@ -26,3 +26,4 @@ source ${0:h}/alias.zsh
 # ji - jump interactive
 eval "$(zoxide init zsh --cmd j)"
 eval "$(starship init zsh)"
+eval "$(wt config shell init zsh)"

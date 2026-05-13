@@ -23,6 +23,7 @@ _completion_cmds=(
   glab "glab completion -s zsh"
   # has to be generated
   chezmoi "chezmoi completion zsh"
+  bw "bw completion --shell zsh"
 )
 
 for _complete_this _gen_cmd in ${(kv)_completion_cmds}; do

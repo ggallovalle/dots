@@ -9,17 +9,24 @@ export XDG_CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}"
 
 # default programs
 export EDITOR=nvim
+export BROWSER=firefox
 
 # path
 typeset -U path
 path+=( $HOME/.config/zsh/bin, "${XDG_DATA_HOME}/nvim/mason/bin" )
 
-# dark mode
-export QT_QPA_PLATFORMTHEME=gtk3
 
 # secrets
 export BW_SESSION="$(secret-tool lookup service bitwarden name session)"
 # export GITHUB_TOKEN="$(secret-tool lookup service github name api_key)"
+export KB_JELLYFIN_USER="$(secret-tool lookup service jellyfin name user)"
+export KB_JELLYFIN_PASSWORD="$(secret-tool lookup service jellyfin name password)"
+export KB_JELLYFIN_SERVER="$(secret-tool lookup service jellyfin name server)"
+export KB_JELLYFIN_TOKEN="$(secret-tool lookup service jellyfin name api.token)"
+
+# some programs read this
+export QT_QPA_PLATFORMTHEME=gtk3
+export EZA_STRICT=1
 
 # private
 typeset -gA kbroom
