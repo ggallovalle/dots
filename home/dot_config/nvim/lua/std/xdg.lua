@@ -19,7 +19,7 @@ end
 local M = {}
 
 setmetatable(M, {
-    __index = function(tbl, key)
+    __index = function(_, key)
         if key == "data" then
             return H.data()
         end

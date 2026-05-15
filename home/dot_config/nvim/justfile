@@ -1,0 +1,4 @@
+set shell := ["zsh", "-cu"]
+
+lint:
+	selene . --pattern "lua/**/*.lua"

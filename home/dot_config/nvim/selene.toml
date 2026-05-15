@@ -1,0 +1,6 @@
+std = "lua51+nvim"
+
+[lints]
+empty_if = "allow"
+mixed_table = "allow"
+multiple_statements = "allow"

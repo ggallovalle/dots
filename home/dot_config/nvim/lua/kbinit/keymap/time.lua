@@ -67,7 +67,7 @@ local function parse_input(s)
   end
 
   do
-    local y, mo, d, hh, mm, ss, z = s:match("^(%d%d%d%d)%-(%d%d)%-(%d%d)T(%d%d):(%d%d):(%d%d)([Zz])$")
+    local y, mo, d, hh, mm, ss, _z = s:match("^(%d%d%d%d)%-(%d%d)%-(%d%d)T(%d%d):(%d%d):(%d%d)([Zz])$")
     if y then
       return {
         kind = "rfc3339",
