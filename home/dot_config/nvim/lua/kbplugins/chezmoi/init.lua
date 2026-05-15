@@ -28,4 +28,14 @@ function M.logger()
   return internal.logger()
 end
 
+---@return boolean
+function M.is_enabled()
+  return internal.is_enabled()
+end
+
+---@param enabled boolean
+function M.set_enabled(enabled)
+  internal.set_enabled(enabled)
+end
+
 return M

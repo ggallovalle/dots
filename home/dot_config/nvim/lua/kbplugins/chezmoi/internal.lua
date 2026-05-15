@@ -302,6 +302,20 @@ function M.run_current()
   H.run_for_buffer(vim.api.nvim_get_current_buf())
 end
 
+---@return boolean
+function M.is_enabled()
+  return state.enabled
+end
+
+---@param enabled boolean
+function M.set_enabled(enabled)
+  if enabled then
+    M.enable(false)
+  else
+    M.disable(true)
+  end
+end
+
 function M.register_commands()
   vim.api.nvim_create_user_command("ChezmoiEnable", function(args)
     M.enable(args.bang)

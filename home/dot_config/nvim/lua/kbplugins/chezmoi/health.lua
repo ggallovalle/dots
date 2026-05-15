@@ -32,22 +32,9 @@ function M.check()
   health.info("log_level: " .. tostring(status.config.log_level))
 
   local explore = logger.explorer(plugin.logger())
-  if not explore:exists() then
-    health.info("log file: not created yet")
-    return
-  end
-
-  health.info("log file: " .. explore:path())
-  local tail = explore:tail(10)
-  if #tail == 0 then
-    health.info("last logs: (empty)")
-    return
-  end
-
-  health.info("last 10 log lines:")
-  for _, line in ipairs(tail) do
+  explore:health(function(line)
     health.info(line)
-  end
+  end, { title = "log", tail = 10 })
 end
 
 return M
