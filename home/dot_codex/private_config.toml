@@ -1,0 +1,37 @@
+#:schema https://developers.openai.com/codex/config-schema.json
+
+model = "gpt-5.3-codex"
+model_reasoning_effort = "medium"
+approvals_reviewer = "user"
+personality = "pragmatic"
+[projects."/home/kbroom"]
+trust_level = "trusted"
+
+[projects."/home/kbroom/dev/kbroom/kbpkg"]
+trust_level = "trusted"
+
+[projects."/home/kbroom/dots"]
+trust_level = "trusted"
+
+[tui.keymap.editor]
+insert_newline = ["\\"]
+move_up = ["ctrl+k"]
+move_down = ["ctrl+j"]
+
+[tui.keymap.composer]
+history_search_previous = ["ctrl+p"]
+history_search_next = ["ctrl+n"]
+
+[tui.keymap.pager]
+scroll_up = ["ctrl+u"]
+scroll_down = ["ctrl+d"]
+
+[tui.model_availability_nux]
+"gpt-5.5" = 4
+
+[notice.model_migrations]
+"gpt-5.3-codex" = "gpt-5.4"
+
+[features]
+terminal_resize_reflow = true
+goals = true
