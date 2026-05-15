@@ -199,7 +199,7 @@ local Leader = {
 
 function Keymap.restart()
   return function()
-    require("kbplugins.restart").restart()
+    require("kbplugin.restart").restart()
   end
 end
 

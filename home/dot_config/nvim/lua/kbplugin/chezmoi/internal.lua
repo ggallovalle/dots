@@ -31,7 +31,7 @@ local state = {
 }
 
 local log = logger.new({
-  path = vim.fn.stdpath("state") .. "/kbplugins/chezmoi.log",
+  path = vim.fn.stdpath("state") .. "/kbplugin/chezmoi.log",
   max_bytes = 1024 * 1024,
   level = "info"
 })
@@ -349,7 +349,7 @@ end
 function M.configure(opts)
   state.config = vim.tbl_deep_extend("force", state.config, opts or {})
   log = logger.new({
-    path = vim.fn.stdpath("state") .. "/kbplugins/chezmoi.log",
+    path = vim.fn.stdpath("state") .. "/kbplugin/chezmoi.log",
     max_bytes = 1024 * 1024,
     level = state.config.log_level
   })

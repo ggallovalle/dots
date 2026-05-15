@@ -9,14 +9,14 @@ M.schema = schema.table({
 })
 
 function M.snapshot()
-  local chezmoi = require("kbplugins.chezmoi")
+  local chezmoi = require("kbplugin.chezmoi")
   return {
     enabled = chezmoi.is_enabled()
   }
 end
 
 function M.restore(data)
-  local chezmoi = require("kbplugins.chezmoi")
+  local chezmoi = require("kbplugin.chezmoi")
   if type(data) ~= "table" then
     return
   end

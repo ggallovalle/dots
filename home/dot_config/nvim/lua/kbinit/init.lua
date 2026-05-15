@@ -44,14 +44,14 @@ function M.setup()
     require("vim._core.ui2").enable({})
 
     H.options()
-    require("kbplugins.restart").setup({
-        providers = { "kbplugins.chezmoi" },
+    require("kbplugin.restart").setup({
+        providers = { "kbplugin.chezmoi" },
         log_level = "info"
     })
     require("kbinit.lsp").setup()
     require("kbinit.plugins").setup()
     require("kbinit.keymaps").setup()
-    require("kbplugins.chezmoi").setup({
+    require("kbplugin.chezmoi").setup({
         auto_apply_after_add = false,
         log_level = "info"
     })

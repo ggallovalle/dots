@@ -1,4 +1,4 @@
-local internal = require("kbplugins.restart.internal")
+local internal = require("kbplugin.restart.internal")
 
 ---@class kbplugin.restart.UserConfig
 ---@field providers? string[]

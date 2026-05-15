@@ -234,7 +234,7 @@ function M.default()
     return default_logger
   end
   default_logger = M.new({
-    path = vim.fn.stdpath("state") .. "/kbplugins/default.log"
+    path = vim.fn.stdpath("state") .. "/kbplugin/default.log"
   })
   return default_logger
 end

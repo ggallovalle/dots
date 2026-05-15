@@ -1,4 +1,4 @@
-local internal = require("kbplugins.chezmoi.internal")
+local internal = require("kbplugin.chezmoi.internal")
 
 ---@class kbplugin.chezmoi.UserConfig
 ---@field auto_apply_after_add? boolean

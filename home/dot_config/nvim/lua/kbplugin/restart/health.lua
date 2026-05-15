@@ -8,15 +8,15 @@ function M.check()
     return
   end
 
-  health.start("kbplugins.restart")
+  health.start("kbplugin.restart")
 
-  local ok_plugin, plugin = pcall(require, "kbplugins.restart")
+  local ok_plugin, plugin = pcall(require, "kbplugin.restart")
   if not ok_plugin then
-    health.error("kbplugins.restart failed to load")
+    health.error("kbplugin.restart failed to load")
     return
   end
 
-  health.ok("kbplugins.restart loaded")
+  health.ok("kbplugin.restart loaded")
   local status = plugin.health()
   health.info("providers: " .. table.concat(status.providers, ", "))
   health.info("state_file: " .. status.state_file)

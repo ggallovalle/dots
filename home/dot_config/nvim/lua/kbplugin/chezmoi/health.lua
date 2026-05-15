@@ -8,7 +8,7 @@ function M.check()
     return
   end
 
-  health.start("kbplugins.chezmoi")
+  health.start("kbplugin.chezmoi")
 
   if vim.fn.executable("chezmoi") == 1 then
     health.ok("chezmoi executable found")
@@ -16,13 +16,13 @@ function M.check()
     health.error("chezmoi executable is missing")
   end
 
-  local ok_plugin, plugin = pcall(require, "kbplugins.chezmoi")
+  local ok_plugin, plugin = pcall(require, "kbplugin.chezmoi")
   if not ok_plugin then
-    health.error("kbplugins.chezmoi failed to load")
+    health.error("kbplugin.chezmoi failed to load")
     return
   end
 
-  health.ok("kbplugins.chezmoi loaded")
+  health.ok("kbplugin.chezmoi loaded")
 
   local status = plugin.health()
   health.info("enabled: " .. tostring(status.enabled))

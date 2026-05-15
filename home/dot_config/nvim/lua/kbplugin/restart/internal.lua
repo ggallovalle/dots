@@ -26,15 +26,15 @@ local state = {
   },
   providers = {},
   files = {
-    dir = vim.fn.stdpath("state") .. "/kbplugins/restart",
-    session = vim.fn.stdpath("state") .. "/kbplugins/restart/session.vim",
-    state = vim.fn.stdpath("state") .. "/kbplugins/restart/state.json"
+    dir = vim.fn.stdpath("state") .. "/kbplugin/restart",
+    session = vim.fn.stdpath("state") .. "/kbplugin/restart/session.vim",
+    state = vim.fn.stdpath("state") .. "/kbplugin/restart/state.json"
   },
   restore_done = false
 }
 
 local log = logger.new({
-  path = vim.fn.stdpath("state") .. "/kbplugins/restart.log",
+  path = vim.fn.stdpath("state") .. "/kbplugin/restart.log",
   max_bytes = 1024 * 1024,
   level = "info"
 })
@@ -128,7 +128,7 @@ function M.configure(opts)
   state.config = vim.tbl_deep_extend("force", state.config, opts or {})
   state.providers = {}
   log = logger.new({
-    path = vim.fn.stdpath("state") .. "/kbplugins/restart.log",
+    path = vim.fn.stdpath("state") .. "/kbplugin/restart.log",
     max_bytes = 1024 * 1024,
     level = state.config.log_level
   })
