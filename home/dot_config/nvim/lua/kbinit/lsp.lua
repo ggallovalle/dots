@@ -131,6 +131,12 @@ function H.lsp_config()
             }
         }
     })
+
+    vim.lsp.config("tinymist", {
+        cmd = { "tinymist" },
+        filetypes = { "typst" },
+        root_markers = { ".git" }
+    })
 end
 
 function H.lsp_keymaps()
@@ -184,7 +190,8 @@ function H.mason()
             "zls",
             "pyright",
             "jsonls",
-            "yamlls"
+            "yamlls",
+            "tinymist"
         }
     })
 end
@@ -207,6 +214,7 @@ function H.treesitter()
         -- general
         "markdown",
         "markdown_inline",
+        "typst",
         "gitignore",
         "sql",
         --

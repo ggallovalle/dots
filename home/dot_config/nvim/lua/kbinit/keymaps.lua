@@ -176,6 +176,24 @@ local Leader = {
       vim.keymap.set("n", master .. "b", snacks.picker.buffers, { desc = "[S]earch [B]uffer" })
       vim.keymap.set("n", master .. "f", Keymap.search_file(), { desc = "[S]earch [F]ile (git)" })
     end
+  },
+  {
+    "<leader>d",
+    group = "[D]ocument",
+    setup = function(master)
+      vim.api.nvim_create_autocmd("FileType", {
+        pattern = "typst",
+        callback = function(args)
+          local opts = { buffer = args.buf, silent = true }
+          vim.keymap.set("n", master .. "p", "<cmd>TypstPreview<cr>", vim.tbl_extend("force", opts, {
+            desc = "[P]review"
+          }))
+          vim.keymap.set("n", master .. "P", "<cmd>TypstPreviewStop<cr>", vim.tbl_extend("force", opts, {
+            desc = "Sto[P] preview"
+          }))
+        end
+      })
+    end
   }
 }
 
@@ -265,7 +283,6 @@ function M.setup()
     end
   end
 
-  -- wk.add({ "<leader>t", group = "[T]oggle / [T]erminal" })
   -- wk.add({ "<leader>w", group = "[W]orkspace" })
 end
 

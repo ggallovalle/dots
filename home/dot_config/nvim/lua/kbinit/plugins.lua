@@ -86,6 +86,19 @@ function Plugin.markdown()
   require("render-markdown").setup()
 end
 
+function Plugin.typst()
+  vim.pack.add({
+    { src = "https://github.com/chomosuke/typst-preview.nvim" }
+  }, { confirm = false })
+
+  require("typst-preview").setup({
+    dependencies_bin = {
+      tinymist = "tinymist"
+    },
+    open_cmd = "firefox %s"
+  })
+end
+
 function Plugin.folke()
   vim.pack.add({
     "https://github.com/folke/which-key.nvim",
