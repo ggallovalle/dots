@@ -198,15 +198,8 @@ local Leader = {
 }
 
 function Keymap.restart()
-  local target = "Session-restart-xxx.vim"
-
-  vim.schedule(function()
-    vim.fs.rm(target, { force = true })
-  end)
-
   return function()
-    vim.cmd.mksession({ target, bang = true })
-    vim.cmd.restart("source " .. target)
+    require("kbplugins.restart").restart()
   end
 end
 

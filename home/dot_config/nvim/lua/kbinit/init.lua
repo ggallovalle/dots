@@ -44,6 +44,10 @@ function M.setup()
     require("vim._core.ui2").enable({})
 
     H.options()
+    require("kbplugins.restart").setup({
+        providers = { "kbplugins.chezmoi" },
+        log_level = "info"
+    })
     require("kbinit.lsp").setup()
     require("kbinit.plugins").setup()
     require("kbinit.keymaps").setup()
