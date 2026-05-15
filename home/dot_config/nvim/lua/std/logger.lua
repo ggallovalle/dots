@@ -13,26 +13,31 @@ local LEVELS = { debug = 1, info = 2, warn = 3, error = 4 }
 ---@field op string
 ---@field level std.logger.Level
 ---@field data table
----@field set fun(self: std.logger.Event, ctx: table?): std.logger.Event
----@field set_level fun(self: std.logger.Event, level: std.logger.Level): std.logger.Event
----@field emit fun(self: std.logger.Event, msg?: string)
+---@field set? fun(self: std.logger.Event, ctx: table?): std.logger.Event
+---@field set_level? fun(self: std.logger.Event, level: std.logger.Level): std.logger.Event
+---@field emit? fun(self: std.logger.Event, msg?: string)
 
 ---@class std.logger.Instance
 ---@field _path string
----@field set_level fun(self: std.logger.Instance, level: std.logger.Level)
----@field get_level fun(self: std.logger.Instance): std.logger.Level
----@field debug fun(self: std.logger.Instance, msg: string, ctx?: table)
----@field info fun(self: std.logger.Instance, msg: string, ctx?: table)
----@field warn fun(self: std.logger.Instance, msg: string, ctx?: table)
----@field error fun(self: std.logger.Instance, msg: string, ctx?: table)
----@field event fun(self: std.logger.Instance, op: string, base?: table): std.logger.Event
+---@field set_level? fun(self: std.logger.Instance, level: std.logger.Level)
+---@field get_level? fun(self: std.logger.Instance): std.logger.Level
+---@field debug? fun(self: std.logger.Instance, msg: string, ctx?: table)
+---@field info? fun(self: std.logger.Instance, msg: string, ctx?: table)
+---@field warn? fun(self: std.logger.Instance, msg: string, ctx?: table)
+---@field error? fun(self: std.logger.Instance, msg: string, ctx?: table)
+---@field event? fun(self: std.logger.Instance, op: string, base?: table): std.logger.Event
+
+---@class std.logger.HealthOptions
+---@field title? string
+---@field tail? integer
 
 ---@class std.logger.Explorer
----@field path fun(self: std.logger.Explorer): string
----@field exists fun(self: std.logger.Explorer): boolean
----@field size_bytes fun(self: std.logger.Explorer): integer?
----@field read_all fun(self: std.logger.Explorer): string[]
----@field tail fun(self: std.logger.Explorer, n: integer): string[]
+---@field path? fun(self: std.logger.Explorer): string
+---@field exists? fun(self: std.logger.Explorer): boolean
+---@field size_bytes? fun(self: std.logger.Explorer): integer?
+---@field read_all? fun(self: std.logger.Explorer): string[]
+---@field tail? fun(self: std.logger.Explorer, n: integer): string[]
+---@field health? fun(self: std.logger.Explorer, sink: fun(line: string): nil, opts?: std.logger.HealthOptions): nil
 
 local function encode_ctx(ctx)
   if ctx == nil then
@@ -92,27 +97,27 @@ function M.new(cfg)
   end
 
   ---@param level std.logger.Level
-  function logger:set_level(level)
+  function logger.set_level(_, level)
     min_level = level
   end
 
-  function logger:get_level()
+  function logger.get_level()
     return min_level
   end
 
-  function logger:debug(msg, ctx)
+  function logger.debug(_, msg, ctx)
     write("debug", msg, ctx)
   end
 
-  function logger:info(msg, ctx)
+  function logger.info(_, msg, ctx)
     write("info", msg, ctx)
   end
 
-  function logger:warn(msg, ctx)
+  function logger.warn(_, msg, ctx)
     write("warn", msg, ctx)
   end
 
-  function logger:error(msg, ctx)
+  function logger.error(_, msg, ctx)
     write("error", msg, ctx)
   end
 
@@ -158,15 +163,15 @@ function M.explorer(instance)
   ---@type std.logger.Explorer
   local explorer = {}
 
-  function explorer:path()
+  function explorer.path()
     return path
   end
 
-  function explorer:exists()
+  function explorer.exists()
     return vim.uv.fs_stat(path) ~= nil
   end
 
-  function explorer:size_bytes()
+  function explorer.size_bytes()
     local stat = vim.uv.fs_stat(path)
     if stat == nil then
       return nil
@@ -174,15 +179,15 @@ function M.explorer(instance)
     return stat.size
   end
 
-  function explorer:read_all()
-    if not self:exists() then
+  function explorer.read_all()
+    if not explorer.exists() then
       return {}
     end
     return vim.fn.readfile(path)
   end
 
-  function explorer:tail(n)
-    local lines = self:read_all()
+  function explorer.tail(_, n)
+    local lines = explorer.read_all()
     if n == nil or n <= 0 then
       return {}
     end
@@ -193,6 +198,30 @@ function M.explorer(instance)
       out[#out + 1] = lines[i]
     end
     return out
+  end
+
+  ---@param sink fun(line: string): nil
+  ---@param opts? std.logger.HealthOptions
+  function explorer:health(sink, opts)
+    local title = (opts and opts.title) or "log"
+    local tail_count = (opts and opts.tail) or 10
+
+    if not self:exists() then
+      sink(title .. " file: not created yet")
+      return
+    end
+
+    sink(title .. " file: " .. self:path())
+    local lines = self:tail(tail_count)
+    if #lines == 0 then
+      sink("last logs: (empty)")
+      return
+    end
+
+    sink("last " .. tostring(tail_count) .. " log lines:")
+    for _, line in ipairs(lines) do
+      sink(line)
+    end
   end
 
   return explorer
