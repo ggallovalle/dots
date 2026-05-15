@@ -17,7 +17,8 @@ keybinds clear-defaults=true {
     }
     shared_among "normal" "locked" {
         bind "Alt f" { ToggleFloatingPanes; }
-        bind "Alt p" { TogglePaneInGroup; }
+        bind "Alt p" { SwitchToMode "pane"; }
+        // bind "Alt p" { TogglePaneInGroup; }
         bind "Alt Shift p" { ToggleGroupMarking; }
 
         bind "Alt h" { MoveFocus "left"; }
