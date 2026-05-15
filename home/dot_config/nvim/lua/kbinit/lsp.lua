@@ -132,6 +132,21 @@ function H.lsp_config()
         }
     })
 
+    vim.lsp.config("taplo", {
+        filetypes = { "toml" },
+        root_markers = { "taplo.toml", ".taplo.toml", "pyproject.toml", "Cargo.toml", ".git" },
+        settings = {
+            evenBetterToml = {
+                schema = {
+                    enabled = true,
+                    -- associations = {
+                    --     ["config.toml"] = "https://developers.openai.com/codex/config-schema.json"
+                    -- }
+                }
+            }
+        }
+    })
+
     vim.lsp.config("tinymist", {
         cmd = { "tinymist" },
         filetypes = { "typst" },
@@ -191,6 +206,7 @@ function H.mason()
             "pyright",
             "jsonls",
             "yamlls",
+            "taplo",
             "tinymist"
         }
     })
