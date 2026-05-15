@@ -13,7 +13,7 @@ export BROWSER=firefox
 
 # path
 typeset -U path
-path+=( $HOME/.config/zsh/bin, "${XDG_DATA_HOME}/nvim/mason/bin" )
+path+=( "${XDG_CONFIG_HOME}/zsh/bin" "${XDG_DATA_HOME}/nvim/mason/bin" )
 
 
 # secrets
