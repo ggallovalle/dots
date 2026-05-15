@@ -1,0 +1,21 @@
+{
+  "id": "kb-media-get",
+  "name": "KB Media Get",
+  "version": "1.0.0",
+  "minNoctaliaVersion": "4.4.3",
+  "author": "kbroom",
+  "license": "MIT",
+  "repository": "https://github.com/kbroom/dots",
+  "description": "Paste a media URL and run kbsh media get in the background.",
+  "entryPoints": {
+    "main": "Main.qml"
+  },
+  "dependencies": {
+    "plugins": []
+  },
+  "metadata": {
+    "defaultSettings": {
+      "commandPath": "/home/kbroom/ghq/github.com/ggallovalle/kbzsh.jelly/apps/cli/src/main.ts"
+    }
+  }
+}
