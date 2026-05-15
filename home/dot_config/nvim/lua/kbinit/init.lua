@@ -47,6 +47,10 @@ function M.setup()
     require("kbinit.lsp").setup()
     require("kbinit.plugins").setup()
     require("kbinit.keymaps").setup()
+    require("kbplugins.chezmoi").setup({
+        auto_apply_after_add = false,
+        log_level = "info"
+    })
 end
 
 return M
