@@ -2,8 +2,10 @@
 
 model = "gpt-5.3-codex"
 model_reasoning_effort = "medium"
+moddel_verbosity = "low"
 approvals_reviewer = "user"
 personality = "pragmatic"
+
 [projects."/home/kbroom"]
 trust_level = "trusted"
 
@@ -13,21 +15,11 @@ trust_level = "trusted"
 [projects."/home/kbroom/dots"]
 trust_level = "trusted"
 
-[tui.keymap.editor]
-insert_newline = ["\\"]
-move_up = ["ctrl+k"]
-move_down = ["ctrl+j"]
+[tui]
+notifications = true
+vim_mode = true
+vim_mode_initial_state = "insert"
 
-[tui.keymap.composer]
-history_search_previous = ["ctrl+p"]
-history_search_next = ["ctrl+n"]
-
-[tui.keymap.pager]
-scroll_up = ["ctrl+u"]
-scroll_down = ["ctrl+d"]
-
-[tui.model_availability_nux]
-"gpt-5.5" = 4
 
 [notice.model_migrations]
 "gpt-5.3-codex" = "gpt-5.4"
@@ -35,3 +27,4 @@ scroll_down = ["ctrl+d"]
 [features]
 terminal_resize_reflow = true
 goals = true
+undo = true

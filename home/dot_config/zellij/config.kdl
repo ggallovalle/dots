@@ -19,7 +19,8 @@ keybinds clear-defaults=true {
         bind "Alt f" { ToggleFloatingPanes; }
         bind "Alt p" { SwitchToMode "pane"; }
         // bind "Alt p" { TogglePaneInGroup; }
-        bind "Alt Shift p" { ToggleGroupMarking; }
+        // bind "Alt Shift p" { ToggleGroupMarking; }
+        bind "Alt Shift p" { SwitchToMode "tab"; }
 
         bind "Alt h" { MoveFocus "left"; }
         bind "Alt j" { MoveFocus "down"; }
