@@ -18,7 +18,7 @@ Item {
         if (defaults && defaults.commandPath)
             return defaults.commandPath;
 
-        return "/home/kbroom/ghq/github.com/ggallovalle/kbzsh.jelly/apps/cli/src/main.ts";
+        return "/home/kbroom/ghq/github.com/ggallovalle/kbzsh/apps/cli/src/main.ts";
     }
 
     function closePopup() {

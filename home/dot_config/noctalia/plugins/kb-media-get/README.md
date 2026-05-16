@@ -40,7 +40,7 @@ Examples:
 
 ```bash
 qs -c noctalia-shell ipc call plugin:kb-media-get showCommandPath
-qs -c noctalia-shell ipc call plugin:kb-media-get setCommandPath "/home/kbroom/ghq/github.com/ggallovalle/kbzsh.jelly/apps/cli/src/main.ts"
+qs -c noctalia-shell ipc call plugin:kb-media-get setCommandPath "/home/kbroom/ghq/github.com/ggallovalle/kbzsh/apps/cli/src/main.ts"
 ```
 
 ## Command Execution
@@ -55,7 +55,7 @@ bun run <commandPath> -- media get --json <url>
 
 Default path in this repo:
 
-- `/home/kbroom/ghq/github.com/ggallovalle/kbzsh.jelly/apps/cli/src/main.ts`
+- `/home/kbroom/ghq/github.com/ggallovalle/kbzsh/apps/cli/src/main.ts`
 
 ## Reload
 
