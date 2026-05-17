@@ -1,0 +1,29 @@
+# https://alacritty.org/config-alacritty-bindings.html
+
+[mouse]
+hide_when_typing = true
+
+[[mouse.bindings]]
+mouse = "Middle"
+action = "PasteSelection"
+
+[keyboard]
+# <ctrl>l        - clear log
+# <ctrl><shift><space> - enter vim mode
+# <ctrl><shift>c - copy
+# <ctrl><shift>v - past
+# <ctrl><shift>f - search forward
+# <ctrl><shift>b - search backwards
+
+[[keyboard.bindings]]
+key = "L"
+mods = "Control"
+mode = "~Vi"
+chars = "\f"
+
+
+[[keyboard.bindings]]
+key = "Key0"
+mods = "Control"
+action = "ResetFontSize"
+
