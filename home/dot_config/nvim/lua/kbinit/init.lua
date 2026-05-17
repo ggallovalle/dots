@@ -50,7 +50,7 @@ function M.setup()
     })
     require("kbinit.lsp").setup()
     require("kbinit.plugins").setup()
-    require("kbinit.keymaps").setup()
+    require("kbinit.keymap").setup()
     require("kbplugin.chezmoi").setup({
         auto_apply_after_add = false,
         log_level = "info"
