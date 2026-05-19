@@ -1,0 +1,76 @@
+#!/usr/bin/env -S uv run --script
+# vim: ft=python
+# /// script
+# requires-python = ">=3.11"
+# dependencies = [
+#   "tomli-w>=1.0.0",
+# ]
+# ///
+
+import sys
+import tomllib
+import tomli_w
+
+PORTABLE = {
+    "model": "gpt-5.4-mini",
+    "model_reasoning_effort": "low",
+    "model_verbosity": "low",
+    "approvals_reviewer": "auto_review",
+    "personality": "pragmatic",
+
+    "tui": {
+        "notifications": True,
+        "vim_mode_default": True,
+        "model_availability_nux": {
+            "gpt-5.5": 4,
+        },
+        "keymap": {
+            "composer": {
+                "submit": "\\",
+            },
+        },
+    },
+
+    "notice": {
+        "hide_full_access_warning": True,
+        "model_migrations": {
+            "gpt-5.3-codex": "gpt-5.4",
+        },
+    },
+
+    "features": {
+        "hooks": True,
+        "terminal_resize_reflow": True,
+        "goals": True,
+        "undo": True,
+    },
+}
+
+PORTABLE_TOP_KEYS = {
+    "model",
+    "model_reasoning_effort",
+    "model_verbosity",
+    "approvals_reviewer",
+    "personality",
+    "tui",
+    "notice",
+    "features",
+}
+
+raw = sys.stdin.read()
+
+try:
+    existing = tomllib.loads(raw) if raw.strip() else {}
+except tomllib.TOMLDecodeError as err:
+    sys.stderr.write(f"Codex config.toml is invalid TOML; refusing to modify: {err}\n")
+    sys.exit(1)
+
+for key in PORTABLE_TOP_KEYS:
+    existing.pop(key, None)
+
+merged = {}
+merged.update(PORTABLE)
+merged.update(existing)
+
+print("#:schema https://developers.openai.com/codex/config-schema.json\n")
+sys.stdout.write(tomli_w.dumps(merged))
