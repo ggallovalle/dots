@@ -55,6 +55,7 @@ function M.setup()
         auto_apply_after_add = false,
         log_level = "info"
     })
+    vim.cmd.colorscheme("catppuccin-nvim")
 end
 
 return M

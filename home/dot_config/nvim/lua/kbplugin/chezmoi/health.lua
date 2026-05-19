@@ -3,38 +3,31 @@ local logger = require("std.logger")
 local M = {}
 
 function M.check()
-  local ok_start, health = pcall(require, "vim.health")
-  if not ok_start then
-    return
-  end
+    vim.health.start("kbplugin.chezmoi")
 
-  health.start("kbplugin.chezmoi")
+    if vim.fn.executable("chezmoi") == 1 then
+        vim.health.ok("chezmoi executable found")
+    else
+        vim.health.error("chezmoi executable is missing")
+    end
 
-  if vim.fn.executable("chezmoi") == 1 then
-    health.ok("chezmoi executable found")
-  else
-    health.error("chezmoi executable is missing")
-  end
+    local ok_plugin, plugin = pcall(require, "kbplugin.chezmoi")
+    if not ok_plugin then
+        vim.health.error("kbplugin.chezmoi failed to load")
+        return
+    end
 
-  local ok_plugin, plugin = pcall(require, "kbplugin.chezmoi")
-  if not ok_plugin then
-    health.error("kbplugin.chezmoi failed to load")
-    return
-  end
+    vim.health.ok("kbplugin.chezmoi loaded")
 
-  health.ok("kbplugin.chezmoi loaded")
+    local status = plugin.health()
+    vim.health.info("enabled: " .. tostring(status.enabled))
+    vim.health.info("tracked_buffers: " .. tostring(status.tracked_buffers))
+    vim.health.info("in_flight_jobs: " .. tostring(status.in_flight_jobs))
+    vim.health.info("auto_apply_after_add: " .. tostring(status.config.auto_apply_after_add))
+    vim.health.info("log_level: " .. tostring(status.config.log_level))
 
-  local status = plugin.health()
-  health.info("enabled: " .. tostring(status.enabled))
-  health.info("tracked_buffers: " .. tostring(status.tracked_buffers))
-  health.info("in_flight_jobs: " .. tostring(status.in_flight_jobs))
-  health.info("auto_apply_after_add: " .. tostring(status.config.auto_apply_after_add))
-  health.info("log_level: " .. tostring(status.config.log_level))
-
-  local explore = logger.explorer(plugin.logger())
-  explore:health(function(line)
-    health.info(line)
-  end, { title = "log", tail = 10 })
+    local explore = logger.explorer(plugin.logger())
+    explore:health({ title = "log", tail = 10, sink = vim.health.info })
 end
 
 return M

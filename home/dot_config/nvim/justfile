@@ -1,7 +1,10 @@
 set shell := ["zsh", "-cu"]
 
 lint:
-	selene . --pattern "lua/**/*.lua"
+    selene . --pattern "lua/**/*.lua"
 
 nvim:
-	XDG_CONFIG_HOME="{{justfile_directory()}}/.." nvim
+    XDG_CONFIG_HOME="{{ justfile_directory() }}/.." nvim
+
+format:
+    luafmt lua --write
