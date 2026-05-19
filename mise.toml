@@ -3,3 +3,12 @@ description = "format"
 run = [
     "luafmt . --write"
 ]
+
+[tools]
+bun = "1.3.13"
+chezmoi = "2.70.2"
+codex = "0.130.0"
+neovim = "0.12.2"
+node = "25.9.0"
+usage = "3.2.1"
+uv = "0.11.14"
