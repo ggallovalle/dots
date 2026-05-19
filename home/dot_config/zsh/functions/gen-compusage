@@ -1,0 +1,29 @@
+#!/usr/bin/env zsh
+
+0="${ZERO:-${${0:#$ZSH_ARGZERO}:-${(%):-%N}}}"
+0="${${(M)0:#/*}:-$PWD/$0}"
+
+generated_completions_count=0
+
+typeset -a _completion_cmds
+_completion_cmds=(
+  herdr
+)
+
+for _complete_this in "${_completion_cmds[@]}"; do
+  _target="${HOME}/.zi/completions/_${_complete_this}"
+
+  _gen_cmd=(usage generate completion zsh "$_complete_this" -f "${0:h}/usage/${_complete_this}.kdl")
+
+  if (( ${+commands[$_complete_this]} )); then
+    print -r -- $'\e[2m$ '"${(j: :)${(q+)_gen_cmd[@]}}"$'\e[0m'
+
+    "${_gen_cmd[@]}" >| "$_target"
+    (( generated_completions_count++ ))
+  fi
+done
+
+if (( generated_completions_count > 0 )); then
+  print -r -- "Generated ${generated_completions_count} completions from usage"
+fi
+

@@ -8,7 +8,7 @@ zmodload zsh/zutil
 export HISTFILE="${XDG_STATE_HOME}/zsh/history"
 export HISTSIZE=10000
 export SAVEHIST=10000
-setopt INC_APPEND_HISTORY SHARE_HISTORY HIST_IGNORE_ALL_DUPS HIST_REDUCE_BLANKS
+setopt INC_APPEND_HISTORY HIST_IGNORE_ALL_DUPS HIST_REDUCE_BLANKS
 
 eval "$(mise activate zsh)"
 
@@ -27,3 +27,4 @@ source ${0:h}/alias.zsh
 eval "$(zoxide init zsh --cmd j)"
 eval "$(starship init zsh)"
 eval "$(wt config shell init zsh)"
+
