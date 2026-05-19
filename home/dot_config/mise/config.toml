@@ -42,4 +42,5 @@ zig = "latest"
 claude = "latest"
 caddy = "latest"
 just = "latest"
+shellspec = "latest"
 
