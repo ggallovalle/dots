@@ -1,6 +1,6 @@
 # Neovim Config
 
-A minimal Neovim configuration using `vim.pack` for plugin management.
+A minimal Neovim configuration using `lazy.nvim` for plugin management.
 
 ## Keymaps
 
@@ -21,6 +21,5 @@ nvim
 
 ```bash
 nvim
-vim.pack.update()  -- or :lua vim.pack.update()
+:Lazy update
 ```
-

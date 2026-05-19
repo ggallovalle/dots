@@ -155,9 +155,9 @@ function M.register()
 end
 
 ---@param bufnr integer
----@param client vim.lsp.Client
+---@param _client vim.lsp.Client
 ---@param capabilities lsp.ServerCapabilities
-function M.on_lsp_attach(bufnr, client, capabilities)
+function M.on_lsp_attach(bufnr, _client, capabilities)
   wk.add({
     ---@diagnostic disable-next-line: assign-type-mismatch
     { "grn", desc = "Re[n]ame" },
