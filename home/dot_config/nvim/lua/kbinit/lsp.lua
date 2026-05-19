@@ -95,19 +95,6 @@ function H.lsp_config()
         root_markers = { "Cargo.toml", ".git" }
     })
 
-    vim.lsp.config("pyright", {
-        cmd = { "pyright-langserver", "--stdio" },
-        filetypes = { "python" },
-        root_markers = { "pyproject.toml", "setup.py", ".git" },
-        settings = {
-            python = {
-                analysis = {
-                    typeCheckingMode = "standard"
-                }
-            }
-        }
-    })
-
     vim.lsp.config("jsonls", {
         filetypes = { "json", "jsonc" },
         root_markers = { "package.json", "tsconfig.json", ".git" },

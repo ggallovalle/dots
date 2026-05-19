@@ -71,12 +71,14 @@ local MasonLspconfig = {
             "gopls",
             "rust_analyzer",
             "zls",
-            "pyright",
+            -- "pyright",
             "jsonls",
             "yamlls",
             "taplo",
             "tinymist",
-            "just"
+            "just",
+            "basedpyright",
+            "ruff"
         }
     }
 }
