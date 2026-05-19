@@ -4,6 +4,59 @@ local opencode = require("opencode")
 
 local M = {}
 
+local function open_diagnostic_qf(title, diagnostics)
+    if #diagnostics == 0 then
+        return
+    end
+
+    local items = vim.tbl_map(function(diagnostic)
+        local source = diagnostic.source
+        local text = diagnostic.message
+
+        if source and source ~= "" then
+            text = string.format("[%s] %s", source, text)
+        end
+
+        return {
+            bufnr = diagnostic.bufnr,
+            lnum = diagnostic.lnum + 1,
+            col = diagnostic.col + 1,
+            end_lnum = diagnostic.end_lnum and (diagnostic.end_lnum + 1) or nil,
+            end_col = diagnostic.end_col and (diagnostic.end_col + 1) or nil,
+            severity = diagnostic.severity,
+            text = text
+        }
+    end, diagnostics)
+
+    vim.fn.setqflist({}, " ", {
+        title = title,
+        items = items
+    })
+    vim.cmd.copen()
+end
+
+vim.api.nvim_create_autocmd("FileType", {
+    pattern = "qf",
+    callback = function(args)
+        vim.keymap.set("n", "<Esc>", "<cmd>cclose<cr>", {
+            buffer = args.buf,
+            silent = true,
+            nowait = true
+        })
+        vim.keymap.set("n", "<CR>", function()
+            local win = vim.api.nvim_get_current_win()
+            vim.cmd.cc()
+            vim.schedule(function()
+                pcall(vim.api.nvim_win_close, win, true)
+            end)
+        end, {
+            buffer = args.buf,
+            silent = true,
+            nowait = true
+        })
+    end
+})
+
 local function search_file()
     local cwd = vim.fn.getcwd()
     local git_root = snacks.git.get_root()
@@ -213,19 +266,33 @@ function M.on_lsp_attach(bufnr, _client, capabilities)
 
     vim.keymap.set("n", "gs", snacks.picker.lsp_symbols, { desc = "[S]ymbols" })
 
-    vim.keymap.set("n", "<leader>cf", vim.lsp.buf.format, {
+    vim.keymap.set("n", "<leader>df", vim.lsp.buf.format, {
         buffer = bufnr,
-        desc = "[F]ormat Buffer"
+        desc = "[D]ocument [F]ormat"
     })
 
     vim.keymap.set(
-        "n", "<leader>cd",
+        "n", "<leader>dd",
         function()
-            vim.diagnostic.setqflist({ open = true })
+            open_diagnostic_qf(
+                string.format("Diagnostics for %s", vim.api.nvim_buf_get_name(bufnr)),
+                vim.diagnostic.get(0)
+            )
         end,
         {
             buffer = bufnr,
-            desc = "[D]iagnostics to Quickfix"
+            desc = "[D]ocument [D]iagnostics"
+        }
+    )
+
+    vim.keymap.set(
+        "n", "<leader>wd",
+        function()
+            open_diagnostic_qf("Workspace Diagnostics", vim.diagnostic.get())
+        end,
+        {
+            buffer = bufnr,
+            desc = "[W]orkspace [D]iagnostics"
         }
     )
 
