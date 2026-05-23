@@ -48,6 +48,9 @@ function M.setup()
         providers = { "kbplugin.chezmoi" },
         log_level = "info"
     })
+    require("kbplugin.luarocks").setup({
+        dependencies = { "kbstd == dev-1" }
+    })
     require("kbinit.lsp").setup()
     require("kbinit.plugins").setup()
     require("kbinit.keymap").setup()
