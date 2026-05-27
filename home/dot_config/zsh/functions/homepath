@@ -1,0 +1,50 @@
+#!/usr/bin/env zsh
+
+emulate -L zsh
+
+local p input name value best_name best_value best_len
+
+if (( $# )); then
+  input=$1
+else
+  IFS= read -r input
+fi
+
+p=${input:A}
+
+best_name=''
+best_value=''
+best_len=0
+
+if [[ $p == $HOME || $p == $HOME/* ]]; then
+  best_name='$HOME'
+  best_value=$HOME
+  best_len=${#HOME}
+fi
+
+for name in XDG_CONFIG_HOME XDG_DATA_HOME XDG_CACHE_HOME XDG_STATE_HOME; do
+  value=${(P)name}
+  [[ -z $value ]] && continue
+
+  value=${value:A}
+
+  if [[ ( $p == $value || $p == $value/* ) && ${#value} -gt $best_len ]]; then
+    best_name="\$$name"
+    best_value=$value
+    best_len=${#value}
+  fi
+done
+
+local out
+
+if [[ -n $best_name ]]; then
+  out="${best_name}${p#$best_value}"
+else
+  out="$p"
+fi
+
+if [[ -t 1 ]]; then
+  print -r -- "$out"
+else
+  print -rn -- "$out"
+fi
