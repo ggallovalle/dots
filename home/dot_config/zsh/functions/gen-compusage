@@ -5,15 +5,14 @@
 
 generated_completions_count=0
 
-typeset -a _completion_cmds
-_completion_cmds=(
-  herdr
-)
+typeset -a _usage_files
+_usage_files=("${0:h}"/usage/*.kdl(N))
 
-for _complete_this in "${_completion_cmds[@]}"; do
+for _usage_file in "${_usage_files[@]}"; do
+  _complete_this="${${_usage_file:t}:r}"
   _target="${HOME}/.zi/completions/_${_complete_this}"
 
-  _gen_cmd=(usage generate completion zsh "$_complete_this" -f "${0:h}/usage/${_complete_this}.kdl")
+  _gen_cmd=(usage generate completion zsh "$_complete_this" -f "$_usage_file")
 
   if (( ${+commands[$_complete_this]} )); then
     print -r -- $'\e[2m$ '"${(j: :)${(q+)_gen_cmd[@]}}"$'\e[0m'
@@ -26,4 +25,3 @@ done
 if (( generated_completions_count > 0 )); then
   print -r -- "Generated ${generated_completions_count} completions from usage"
 fi
-

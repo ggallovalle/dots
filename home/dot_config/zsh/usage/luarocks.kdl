@@ -1,0 +1,218 @@
+name "luarocks"
+bin "luarocks"
+about "LuaRocks main command-line interface"
+version "3.13.0"
+
+flag "-h --help" help="Show this help message and exit." global=#true
+flag "--version" help="Show version info and exit." global=#true
+flag "--dev" help="Enable the sub-repositories in rocks servers for rockspecs of in-development versions." global=#true
+flag "--server <server>" help="Fetch rocks/rockspecs from this server (takes priority over config file)." global=#true
+flag "--only-server <server>" help="Fetch rocks/rockspecs from this server only (overrides any entries in the config file)." global=#true
+flag "--only-sources <url>" help="Restrict downloads to paths matching the given URL." global=#true
+flag "--namespace <namespace>" help="Specify the rocks server namespace to use." global=#true
+flag "--lua-dir <prefix>" help="Which Lua installation to use." global=#true
+flag "--lua-version <ver>" help="Which Lua version to use." global=#true
+complete "ver" run="""
+    printf '%s\n' \
+      '5.1:5.1' \
+      '5.2:5.2' \
+      '5.3:5.3' \
+      '5.4:5.4' \
+      '5.5:5.5' \
+      'LuaJIT:luajit'
+    """ descriptions=#true
+flag "--tree <tree>" help="Which tree to operate on." global=#true
+flag "--local" help="Use the tree in the user's home directory." global=#true
+flag "--global" help="Use the system tree when `local_by_default` is `true`." global=#true
+flag "--no-project" help="Do not use project tree even if running from a project folder." global=#true
+flag "--force-lock" help="Attempt to overwrite the lock for commands that require exclusive access, such as 'install'" global=#true
+flag "--verbose" help="Display verbose output of commands executed." global=#true
+flag "--timeout <seconds>" help="Timeout on network operations, in seconds. 0 means no timeout (wait forever). Default is 30." global=#true
+
+cmd "help" help="Show help for commands." {
+    arg "[<command>]" help="Command to show help for"
+}
+
+cmd "completion" help="Output a shell completion script." {
+    arg "<shell>" help="The shell to output a completion script for."
+    complete "shell" run="""
+        printf '%s\n' \
+          'bash:bash' \
+          'zsh:zsh' \
+          'fish:fish'
+        """ descriptions=#true
+}
+
+cmd "build" help="Build and install a rock, compiling its C parts if any." {
+    arg "[<rock>]" help="A rockspec file, a source rock file, or the name of a rock to be fetched from a repository."
+    arg "[<version>]" help="Rock version."
+    flag "--only-deps --deps-only" help="Install only the dependencies of the rock."
+    flag "--branch <name>" help="Override the `source.branch` field in the loaded rockspec."
+    flag "--pin" help="Create a luarocks.lock file listing the exact versions of each dependency found for this rock (recursively), and store it in the rock's directory."
+    flag "--no-install" help="Do not install the rock."
+    flag "--no-doc" help="Install the rock without its documentation."
+    flag "--pack-binary-rock" help="Do not install rock. Instead, produce a .rock file with the contents of compilation in the current directory."
+    flag "--keep" help="Do not remove previously installed versions of the rock after building a new one."
+    flag "--force" help="If --keep is not specified, force removal of previously installed versions if it would break dependencies. If rock is already installed, reinstall it anyway."
+    flag "--force-fast" help="Like --force, but performs a forced removal without reporting dependency issues."
+    flag "--verify" help="Verify signature of the rockspec or src.rock being built."
+    flag "--sign" help="To be used with --pack-binary-rock. Also produce a signature file for the generated .rock file."
+    flag "--check-lua-versions" help="If the rock can't be found, check repository and report if it is available for another Lua version."
+    flag "--no-manifest" help="Skip creating/updating the manifest"
+    flag "--deps-mode <mode>" help="How to handle dependencies."
+    complete "mode" run="""
+        printf '%s\n' \
+          'all:all' \
+          'one:one' \
+          'order:order' \
+          'none:none'
+        """ descriptions=#true
+}
+cmd "config" help="Query information about the LuaRocks configuration." {
+    arg "[<key>]" help="The configuration key."
+    arg "[<value>]" help="The configuration value."
+    flag "--scope <scope>" help="The scope indicates which config file should be rewritten."
+    flag "--unset" help="Delete the key from the configuration file."
+    flag "--json" help="Output as JSON."
+    complete "key" run="""
+        luarocks config --json | jq -r '
+          (
+            keys[]
+            | select(. != "variables" and . != "config_files")
+          ),
+          (
+            .variables? // {}
+            | keys[]
+            | "variables." + .
+          )
+        '
+        """ descriptions=#true
+    complete "scope" run="""
+        printf '%s\n' \
+          'system:system' \
+          'user:user' \
+          'project:project'
+        """ descriptions=#true
+}
+cmd "doc" help="Show documentation for an installed rock." {
+    arg "[<rock>]" help="Name of the rock."
+    arg "[<version>]" help="Version of the rock."
+}
+cmd "download" help="Download a specific rock file from a rocks server." {
+    arg "[<name>]" help="Name of the rock."
+    arg "[<version>]" help="Version of the rock."
+    flag "--source" help="Download .src.rock if available."
+    flag "--rockspec" help="Download .rockspec if available."
+    flag "--arch <arch>" help="Download rock for a specific architecture."
+    flag "--all" help="Download all files if there are multiple matches."
+    flag "--check-lua-versions" help="If the rock can't be found, check repository and report if it is available for another Lua version."
+}
+cmd "init" help="Initialize a directory for a Lua project using LuaRocks." {
+    arg "[<name>]" help="The project name."
+    arg "[<version>]" help="An optional project version."
+    flag "--wrapper-dir <wrapper_dir>" help="Location where the 'lua' and 'luarocks' wrapper scripts should be generated; if not given, the current directory is used as a default."
+    flag "--reset" help="Delete any .luarocks/config-5.x.lua and ./lua and generate new ones."
+    flag "--no-wrapper-scripts" help="Do not generate wrapper ./lua and ./luarocks launcher scripts."
+    flag "--no-gitignore" help="Do not generate a .gitignore file."
+    flag "--output <file>" help="Write the rockspec with the given filename."
+    flag "--license <string>" help="A license string, such as \"MIT/X11\" or \"GNU GPL v3\"."
+    flag "--summary <txt>" help="A short one-line description summary."
+    flag "--detailed <txt>" help="A longer description string."
+    flag "--homepage <txt>" help="Project homepage."
+    flag "--lua-versions <ver>" help="Supported Lua versions."
+    complete "ver" run="""
+        printf '%s\n' \
+          '5.1' \
+          '5.2' \
+          '5.3' \
+          '5.4' \
+          '5.5' \
+          '5.1,5.2' \
+          '5.2,5.3' \
+          '5.3,5.4' \
+          '5.4,5.5' \
+          '5.1,5.2,5.3' \
+          '5.2,5.3,5.4' \
+          '5.3,5.4,5.5' \
+          '5.1,5.2,5.3,5.4' \
+          '5.2,5.3,5.4,5.5' \
+          '5.1,5.2,5.3,5.4,5.5'
+        """
+    flag "--rockspec-format <ver>" help="Rockspec format version, such as \"1.0\" or \"1.1\"."
+    flag "--tag <tag>" help="Tag to use. Will attempt to extract version number from it."
+    flag "--lib <libs>" help="A comma-separated list of libraries that C files need to link to."
+}
+cmd "install" help="Install a rock." {
+    arg "<rock>" help="The name of a rock to be fetched from a repository or a filename of a locally available rock."
+    arg "<version>" help="Version of the rock."
+    flag "--keep" help="Do not remove previously installed versions of the rock after building a new one."
+    flag "--force" help="If --keep is not specified, force removal of previously installed versions if it would break dependencies. If rock is already installed, reinstall it anyway."
+    flag "--force-fast" help="Like --force, but performs a forced removal without reporting dependency issues."
+    flag "--only-deps --deps-only" help="Install only the dependencies of the rock."
+    flag "--no-doc" help="Install the rock without its documentation."
+    flag "--verify" help="Verify signature of the rockspec or src.rock being built."
+    flag "--check-lua-versions" help="If the rock can't be found, check repository and report if it is available for another Lua version."
+    flag "--deps-mode <mode>" help="How to handle dependencies."
+    flag "--no-manifest" help="Skip creating/updating the manifest"
+    flag "--pin" help="Create a luarocks.lock file listing exact dependency versions for the rock."
+    complete "mode" run="""
+        printf '%s\n' \
+          'all:all' \
+          'one:one' \
+          'order:order' \
+          'none:none'
+        """ descriptions=#true
+}
+cmd "lint" help="Check syntax of a rockspec."
+cmd "list" help="List currently installed rocks."
+cmd "make" help="Compile package in current directory using a rockspec."
+cmd "new_version" help="Auto-write a rockspec for a new version of a rock."
+cmd "pack" help="Create a rock, packing sources or binaries."
+cmd "path" help="Return the currently configured package path."
+cmd "purge" help="Remove all installed rocks from a tree."
+cmd "remove" help="Uninstall a rock."
+cmd "search" help="Query the LuaRocks servers." {
+    arg "[<name>]" help="Name of the rock to search for."
+    arg "[<version>]" help="Rock version."
+    flag "--source" help="Return only rockspecs and source rocks, to be used with the \"build\" command."
+    flag "--binary" help="Return only pure Lua and binary rocks."
+    flag "--all" help="List all contents of the server that are suitable to this platform, do not filter by name."
+    flag "--porcelain" help="Return a machine readable format."
+}
+cmd "show" help="Show information about an installed rock." {
+    arg "[<rock>]" help="Name of an installed rock."
+    arg "[<version>]" help="Rock version."
+}
+cmd "test" help="Run the test suite in the current directory."
+cmd "unpack" help="Unpack the contents of a rock."
+cmd "upload" help="Upload a rockspec to the public rocks repository."
+cmd "which" help="Tell which file corresponds to a given module name." {
+    arg "<modname>" help="Module name."
+    complete "modname" run="""
+        set -- {% for word in words %}'{{ word }}'{% if not loop.last %} {% endif %}{% endfor %}
+        lua_version=
+        while [ "$#" -gt 0 ]; do
+          case "$1" in
+            --lua-version)
+              shift
+              lua_version=${1-}
+              break
+              ;;
+            --lua-version=*)
+              lua_version=${1#*=}
+              break
+              ;;
+          esac
+          shift
+        done
+
+        rocks_cmd=luarocks
+        [ -n "$lua_version" ] && rocks_cmd="$rocks_cmd --lua-version $lua_version"
+
+        $rocks_cmd list --porcelain 2>/dev/null | awk -F'\t' '$3=="installed"{print $1}' | sort -u |
+          while IFS= read -r rock; do
+            [ -n "$rock" ] && $rocks_cmd show "$rock" --modules 2>/dev/null
+          done | sort -u
+        """
+}
+cmd "write_rockspec" help="Write a template for a rockspec file."
