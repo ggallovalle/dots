@@ -3,13 +3,15 @@
 # /// script
 # requires-python = ">=3.11"
 # dependencies = [
-#   "tomli-w>=1.0.0",
+#   "tomlkit>=0.13.0",
 # ]
 # ///
 
+import os
 import sys
-import tomllib
-import tomli_w
+from pathlib import Path
+
+import tomlkit
 
 PORTABLE = {
     "model": "gpt-5.4-mini",
@@ -44,6 +46,11 @@ PORTABLE = {
         "goals": True,
         "undo": True,
     },
+    "sandbox_workspace_write": {
+        "writable_roots": [
+            os.environ.get("XDG_CACHE_HOME", str(Path.home() / ".cache"))
+            ]
+    }
 }
 
 PORTABLE_TOP_KEYS = {
@@ -60,17 +67,20 @@ PORTABLE_TOP_KEYS = {
 raw = sys.stdin.read()
 
 try:
-    existing = tomllib.loads(raw) if raw.strip() else {}
-except tomllib.TOMLDecodeError as err:
+    existing = tomlkit.parse(raw) if raw.strip() else tomlkit.document()
+except tomlkit.exceptions.ParseError as err:
     sys.stderr.write(f"Codex config.toml is invalid TOML; refusing to modify: {err}\n")
     sys.exit(1)
 
 for key in PORTABLE_TOP_KEYS:
-    existing.pop(key, None)
+    if key in existing:
+        del existing[key]
 
-merged = {}
-merged.update(PORTABLE)
-merged.update(existing)
+merged = tomlkit.document()
+for key, value in PORTABLE.items():
+    merged[key] = value
+for key, value in existing.items():
+    merged[key] = value
 
 print("#:schema https://developers.openai.com/codex/config-schema.json\n")
-sys.stdout.write(tomli_w.dumps(merged))
+sys.stdout.write(tomlkit.dumps(merged))
