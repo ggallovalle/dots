@@ -21,12 +21,15 @@ path+=(
 
 
 # secrets
-export BW_SESSION="$(secret-tool lookup service bitwarden name session)"
-# export GITHUB_TOKEN="$(secret-tool lookup service github name api_key)"
-export KB_JELLYFIN_USER="$(secret-tool lookup service jellyfin name user)"
-export KB_JELLYFIN_PASSWORD="$(secret-tool lookup service jellyfin name password)"
-export KB_JELLYFIN_SERVER="$(secret-tool lookup service jellyfin name server)"
-export KB_JELLYFIN_TOKEN="$(secret-tool lookup service jellyfin name api.token)"
+if [[ -o interactive ]] && command -v secret-tool >/dev/null 2>&1; then
+  local secret_value
+  secret_value="$(secret-tool lookup service bitwarden name session 2>/dev/null)" && [[ -n $secret_value ]] && export BW_SESSION="$secret_value"
+  # export GITHUB_TOKEN="$(secret-tool lookup service github name api_key)"
+  secret_value="$(secret-tool lookup service jellyfin name user 2>/dev/null)" && [[ -n $secret_value ]] && export KB_JELLYFIN_USER="$secret_value"
+  secret_value="$(secret-tool lookup service jellyfin name password 2>/dev/null)" && [[ -n $secret_value ]] && export KB_JELLYFIN_PASSWORD="$secret_value"
+  secret_value="$(secret-tool lookup service jellyfin name server 2>/dev/null)" && [[ -n $secret_value ]] && export KB_JELLYFIN_SERVER="$secret_value"
+  secret_value="$(secret-tool lookup service jellyfin name api.token 2>/dev/null)" && [[ -n $secret_value ]] && export KB_JELLYFIN_TOKEN="$secret_value"
+fi
 
 # some programs read this
 export QT_QPA_PLATFORMTHEME=gtk3
