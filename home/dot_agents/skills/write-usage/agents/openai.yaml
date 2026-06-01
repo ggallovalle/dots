@@ -1,0 +1,4 @@
+interface:
+  display_name: "Write Usage"
+  short_description: "Derive Usage KDL from help and man pages"
+  default_prompt: "Use $write-usage to derive Usage KDL recursively from `--help` output and man pages."

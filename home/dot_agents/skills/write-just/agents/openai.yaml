@@ -1,0 +1,4 @@
+interface:
+  display_name: "Write Just"
+  short_description: "Write and refactor Justfiles"
+  default_prompt: "Use this skill to write or refactor Justfiles, especially when handling recipes, dependencies, working directories, arguments, shell settings, and validation. Use migration from mise tasks as a secondary path when the user is converting existing shell workflows into Just recipes."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Write Mise Tasks"
+  short_description: "Turn scripts into idiomatic mise tasks"
+  default_prompt: "Use $write-mise-task to turn a shell script into an idiomatic mise task, splitting into file tasks when needed and adding usage-powered args and completions when appropriate."
