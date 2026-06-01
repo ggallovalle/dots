@@ -5,7 +5,13 @@
 zmodload zsh/param/private
 zmodload zsh/zutil
 
-eval "$(mise activate zsh)"
+eval "$(
+  ARGV0=/usr/bin/mise /usr/bin/mise activate zsh |
+    sed \
+      -e 's|command /usr/bin/mise|ARGV0=/usr/bin/mise command /usr/bin/mise|g' \
+      -e 's|$(/usr/bin/mise|$(ARGV0=/usr/bin/mise /usr/bin/mise|g' \
+      -e 's|&& /usr/bin/mise|&& ARGV0=/usr/bin/mise /usr/bin/mise|g'
+)"
 
 
 fpath+=( ${0:h}/functions ${0:h}/completions )
@@ -17,9 +23,17 @@ source ${0:h}/alias.zsh
 
 # j - jump [arg]
 # ji - jump interactive
-eval "$(zoxide init zsh --cmd j)"
-if [[ -o interactive ]]; then
-  eval "$(starship init zsh)"
+if command -v zoxide >/dev/null 2>&1; then
+  eval "$(zoxide init zsh --cmd j)"
 fi
-eval "$(wt config shell init zsh)"
-eval "$(tv init zsh)"
+if [[ -o interactive && ${TERM:-} != dumb ]]; then
+  if command -v starship >/dev/null 2>&1; then
+    eval "$(starship init zsh)"
+  fi
+fi
+if command -v wt >/dev/null 2>&1; then
+  eval "$(wt config shell init zsh)"
+fi
+if command -v tv >/dev/null 2>&1; then
+  eval "$(tv init zsh)"
+fi

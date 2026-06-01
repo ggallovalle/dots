@@ -2,49 +2,113 @@
 
 emulate -L zsh
 
-local p input name value best_name best_value best_len
+local -A _homepath
+local -a _homepath_inputs _homepath_outputs
+local _homepath_input _homepath_name _homepath_value _homepath_out _homepath_display _homepath_target
+local -A _homepath_opts
+
+zparseopts -D -E -A _homepath_opts \
+  -format: \
+  u \
+  c \
+  f \
+  -uri \
+  -copy \
+  -full
+
+_homepath[uri]=$(( ${+_homepath_opts[-u]} || ${+_homepath_opts[--uri]} ))
+_homepath[copy]=$(( ${+_homepath_opts[-c]} || ${+_homepath_opts[--copy]} ))
+_homepath[full]=$(( ${+_homepath_opts[-f]} || ${+_homepath_opts[--full]} ))
+_homepath[format]=${_homepath_opts[--format]-}
+
+if (( $# > 0 )) && [[ $1 == -- ]]; then
+  shift
+fi
+
+: ${_homepath[uri]:=0}
+: ${_homepath[copy]:=0}
+: ${_homepath[full]:=0}
+: ${_homepath[format]:=}
 
 if (( $# )); then
-  input=$1
+  _homepath_inputs=("$@")
 else
-  IFS= read -r input
+  while IFS= read -r input; do
+    _homepath_inputs+=("$input")
+  done
 fi
 
-p=${input:A}
-
-best_name=''
-best_value=''
-best_len=0
-
-if [[ $p == $HOME || $p == $HOME/* ]]; then
-  best_name='$HOME'
-  best_value=$HOME
-  best_len=${#HOME}
+if (( ${#_homepath_inputs} == 0 )); then
+  print -u2 -- "usage: homepath [--uri|-u] [--copy|-c] [--full|-f] [--format md|typ] [path ...]"
+  return 2
 fi
 
-for name in XDG_CONFIG_HOME XDG_DATA_HOME XDG_CACHE_HOME XDG_STATE_HOME; do
-  value=${(P)name}
-  [[ -z $value ]] && continue
+for _homepath_input in "${_homepath_inputs[@]}"; do
+  _homepath[p]=${_homepath_input:A}
 
-  value=${value:A}
+  _homepath[best_name]=''
+  _homepath[best_value]=''
+  _homepath[best_len]=0
 
-  if [[ ( $p == $value || $p == $value/* ) && ${#value} -gt $best_len ]]; then
-    best_name="\$$name"
-    best_value=$value
-    best_len=${#value}
+  if [[ ${_homepath[p]} == $HOME || ${_homepath[p]} == $HOME/* ]]; then
+    _homepath[best_name]='$HOME'
+    _homepath[best_value]=$HOME
+    _homepath[best_len]=${#HOME}
   fi
+
+  for _homepath_name in XDG_CONFIG_HOME XDG_DATA_HOME XDG_CACHE_HOME XDG_STATE_HOME; do
+    _homepath[value]=${(P)_homepath_name}
+    [[ -z ${_homepath[value]} ]] && continue
+
+    _homepath[value]=${_homepath[value]:A}
+
+    if [[ ( ${_homepath[p]} == ${_homepath[value]} || ${_homepath[p]} == ${_homepath[value]}/* ) && ${#_homepath[value]} -gt ${_homepath[best_len]} ]]; then
+      _homepath[best_name]="\\$_homepath_name"
+      _homepath[best_value]=${_homepath[value]}
+      _homepath[best_len]=${#_homepath[value]}
+    fi
+  done
+
+  if (( ${_homepath[full]} )); then
+    _homepath_out="${_homepath[p]}"
+  elif [[ -n ${_homepath[best_name]} ]]; then
+    _homepath_out="${_homepath[best_name]}${_homepath[p]#${_homepath[best_value]}}"
+  else
+    _homepath_out="${_homepath[p]}"
+  fi
+
+  _homepath_display=$_homepath_out
+  _homepath_target="$_homepath_out"
+
+  if (( ${_homepath[uri]} )); then
+    _homepath_out="file://${_homepath_out}"
+    _homepath_target="file://${_homepath_target}"
+  fi
+
+  if [[ -n ${_homepath[format]} ]]; then
+    case ${_homepath[format]} in
+      md)
+        _homepath_out="[${_homepath_display}](${_homepath_target})"
+        ;;
+      typ)
+        _homepath_out="link(\"${_homepath_target}\")[${_homepath_display}]"
+        ;;
+      *)
+        print -u2 -- "usage: homepath [--uri|-u] [--copy|-c] [--full|-f] [--format md|typ] [path ...]"
+        return 2
+        ;;
+    esac
+  fi
+
+  _homepath_outputs+=("$_homepath_out")
 done
 
-local out
-
-if [[ -n $best_name ]]; then
-  out="${best_name}${p#$best_value}"
-else
-  out="$p"
+if (( ${_homepath[copy]} )); then
+  printf '%s\n' "${_homepath_outputs[@]}" | wl-copy
 fi
 
 if [[ -t 1 ]]; then
-  print -r -- "$out"
+  printf '%s\n' "${_homepath_outputs[@]}"
 else
-  print -rn -- "$out"
+  printf '%s' "${(pj:\n:)_homepath_outputs}"
 fi

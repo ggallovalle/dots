@@ -6,7 +6,7 @@
 generated_completions_count=0
 
 typeset -a _usage_files
-_usage_files=("${0:h}"/usage/*.kdl(N))
+_usage_files=("${kbroom[ZDOTDIR]}"/usage/*.kdl(N))
 
 for _usage_file in "${_usage_files[@]}"; do
   _complete_this="${${_usage_file:t}:r}"
