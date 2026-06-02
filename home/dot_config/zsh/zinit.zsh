@@ -43,6 +43,29 @@ zi snippet https://github.com/PEMessage/opencode-zsh-completion/blob/main/_openc
 # 2025-04-21
 function zvm_config() {
   ZVM_VI_EDITOR='nvim'
+  ZVM_SYSTEM_CLIPBOARD_ENABLED=true
+  ZVM_CLIPBOARD_COPY_CMD='wl-copy'
+  ZVM_CLIPBOARD_PASTE_CMD='wl-paste -n'
+}
+
+function zvm_after_init() {
+  if command -v tv >/dev/null 2>&1; then
+    eval "$(tv init zsh)"
+    # Custom ^T: always open tv as a file picker in current directory
+    function _tv_file_picker() {
+      _disable_bracketed_paste
+      zle -I
+      local result
+      result=$(tv . --no-status-bar < /dev/tty)
+      if [[ -n $result ]]; then
+        LBUFFER+="$result "
+      fi
+      _enable_bracketed_paste
+      zle reset-prompt
+    }
+    zle -N tv-file-picker _tv_file_picker
+    bindkey -M viins '^T' tv-file-picker
+  fi
 }
 zi ice --light-mode --ver="f82c4c8"
 zi load jeffreytse/zsh-vi-mode
@@ -81,11 +104,12 @@ zi load zsh-users/zsh-autosuggestions
 zi ice --wait --lucid --atinit="source ${0:h}/atinit/zsh-history-substring-search.zsh"
 zi load zsh-users/zsh-history-substring-search
 
-zstyle ":history-search-multi-word" page-size "8"
-zstyle :plugin:history-search-multi-word reset-prompt-protect 1
-# `<C-r>` to search backwards
-zi ice --wait --lucid
-zi load z-shell/H-S-MW
+# replaced by tv-shell-history via tv init zsh
+# zstyle ":history-search-multi-word" page-size "8"
+# zstyle :plugin:history-search-multi-word reset-prompt-protect 1
+# # `<C-r>` to search backwards
+# zi ice --wait --lucid
+# zi load z-shell/H-S-MW
 
 ## end section - better history navigation and search
 
