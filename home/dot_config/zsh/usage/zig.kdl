@@ -1,0 +1,744 @@
+name "zig"
+bin "zig"
+about "Zig compiler toolchain"
+version "0.16.0"
+
+flag "-h --help" help="Print command-specific usage" global=#true
+
+cmd "build" help="Build project from build.zig" {
+    arg "[<step>]" help="Build step to run (default: install)"
+
+    // NOTE: -D options require removing inserted space (usage limitation for attached values)
+    flag "-D <option>" help="Project-specific option from build.zig"
+    complete "option" run="""
+        (zig build -h 2>/dev/null || true) | grep '^  -D' | while IFS= read -r line; do
+            opt=$(echo "$line" | sed 's/^  -D//; s/=.*$/=/')
+            desc=$(echo "$line" | sed 's/^  -D[^ ]* *//')
+            echo "${opt}:${desc}"
+        done
+        """ descriptions=#true
+
+    complete "<step>" run="""
+        (zig build -l 2>/dev/null || true) | while IFS= read -r line; do
+            line=$(echo "$line" | sed 's/^  //; s/ (default)//')
+            step=$(echo "$line" | awk '{print $1}')
+            desc=$(echo "$line" | sed 's/^[^ ]*  *//' | sed 's/^  *//')
+            echo "${step}:${desc}"
+        done
+        """ descriptions=#true
+
+    flag "--error-style <style>" help="Control how build errors are printed"
+    complete "style" run="""
+        printf '%s\n' \
+          'verbose:verbose (Default)' \
+          'minimal:minimal' \
+          'verbose_clear:verbose_clear' \
+          'minimal_clear:minimal_clear'
+        """ descriptions=#true
+    flag "--multiline-errors <style>" help="Control how multi-line error messages are printed"
+    complete "style" run="""
+        printf '%s\n' \
+          'indent:indent (Default)' \
+          'newline:newline' \
+          'none:none'
+        """ descriptions=#true
+    flag "--summary <mode>" help="Control the printing of the build summary"
+    complete "mode" run="""
+        printf '%s\n' \
+          'all:all' \
+          'new:new' \
+          'failures:failures (Default if short-lived)' \
+          'line:line (Default if long-lived)' \
+          'none:none'
+        """ descriptions=#true
+    flag "-p --prefix <path>" help="Where to install files (default: zig-out)"
+    flag "--prefix-lib-dir <path>" help="Where to install libraries"
+    flag "--prefix-exe-dir <path>" help="Where to install executables"
+    flag "--prefix-include-dir <path>" help="Where to install C header files"
+    flag "--release[=<mode>]" help="Request release mode (fast, safe, small)"
+    flag "--verbose" help="Print commands before executing them"
+    flag "-j <N>" help="Limit concurrent jobs (default is to use all CPU cores)"
+    flag "--maxrss <bytes>" help="Limit memory usage (default is to use available memory)"
+    flag "--skip-oom-steps" help="Skip steps that would exceed --maxrss instead of failing"
+    flag "--test-timeout <timeout>" help="Limit execution time of unit tests"
+    flag "--watch" help="Continuously rebuild when source files are modified"
+    flag "--debounce <ms>" help="Delay before rebuilding after changed file detected"
+    flag "--webui[=<ip>]" help="Enable the web interface on the given IP address"
+    flag "--fuzz[=<limit>]" help="Continuously search for unit test failures"
+    flag "--time-report" help="Force full rebuild and provide detailed compilation time info"
+    flag "---fincremental" help="Enable incremental compilation"
+    flag "---fno-incremental" help="Disable incremental compilation"
+    flag "--search-prefix <path>" help="Add a path to look for binaries, libraries, headers"
+    flag "--sysroot <path>" help="Set the system root directory"
+    flag "--libc <file>" help="Provide a file which specifies libc paths"
+    flag "--system <pkgdir>" help="Disable package fetching; enable all integrations"
+    flag "---fsys=<name>" help="Enable a system integration"
+    flag "---fno-sys=<name>" help="Disable a system integration"
+    flag "---fdarling" help="Integration with system-installed Darling"
+    flag "---fno-darling" help="Disable Darling integration"
+    flag "---fqemu" help="Integration with system-installed QEMU"
+    flag "---fno-qemu" help="Disable QEMU integration"
+    flag "--libc-runtimes <path>" help="Enhances QEMU integration by providing dynamic libc"
+    flag "---frosetta" help="Rely on Rosetta to execute x86_64 on ARM64 macOS"
+    flag "---fno-rosetta" help="Disable Rosetta integration"
+    flag "---fwasmtime" help="Integration with system-installed wasmtime"
+    flag "---fno-wasmtime" help="Disable wasmtime integration"
+    flag "---fwine" help="Integration with system-installed Wine"
+    flag "---fno-wine" help="Disable Wine integration"
+    flag "--fetch[=<mode>]" help="Fetch dependency tree and exit"
+    complete "mode" run="""
+        printf '%s\n' 'needed:needed (Default)' 'all:all'
+        """ descriptions=#true
+    flag "--fork=<path>" help="Override one or more projects from dependency tree"
+    flag "---freference-trace[=<num>]" help="How many lines of reference trace per compile error"
+    flag "---fno-reference-trace" help="Disable reference trace"
+    flag "---fallow-so-scripts" help="Allows .so files to be GNU ld scripts"
+    flag "---fno-allow-so-scripts" help="(default) .so files must be ELF files"
+    flag "--build-file <file>" help="Override path to build.zig"
+    flag "--cache-dir <path>" help="Override path to local Zig cache directory"
+    flag "--global-cache-dir <path>" help="Override path to global Zig cache directory"
+    flag "--zig-lib-dir <path>" help="Override path to Zig installation lib directory"
+    flag "--build-runner <file>" help="Override path to build runner"
+    flag "--seed <integer>" help="For shuffling dependency traversal order"
+    flag "--build-id[=<style>]" help="Embeds a build ID in binaries"
+    complete "style" run="""
+        printf '%s\n' \
+          'fast:fast 8-byte non-cryptographic hash' \
+          'sha1:sha1 20-byte cryptographic hash' \
+          'tree:tree 20-byte cryptographic hash' \
+          'md5:md5 16-byte cryptographic hash' \
+          'uuid:uuid 16-byte random UUID' \
+          'none:none (default)'
+        """ descriptions=#true
+    flag "--debug-log <scope>" help="Enable debugging the compiler"
+    flag "--debug-pkg-config" help="Fail if unknown pkg-config flags encountered"
+    flag "--debug-rt" help="Debug compiler runtime libraries"
+    flag "--verbose-link" help="Enable compiler debug output for linking"
+    flag "--verbose-air" help="Enable compiler debug output for Zig AIR"
+    flag "--verbose-llvm-ir[=<file>]" help="Enable compiler debug output for LLVM IR"
+    flag "--verbose-llvm-bc[=<file>]" help="Enable compiler debug output for LLVM BC"
+    flag "--verbose-cimport" help="Enable compiler debug output for C imports"
+    flag "--verbose-cc" help="Enable compiler debug output for C compilation"
+    flag "--verbose-llvm-cpu-features" help="Enable compiler debug output for LLVM CPU features"
+}
+
+cmd "fetch" help="Copy a package into global cache and print its hash" {
+    arg "<url|path>" help="URL or path to the package"
+    flag "--global-cache-dir <path>" help="Override path to global Zig cache directory"
+    flag "--debug-hash" help="Print verbose hash information to stdout"
+    flag "--save" help="Add the fetched package to build.zig.zon"
+    flag "--save=<name>" help="Add the fetched package to build.zig.zon as name"
+    flag "--save-exact" help="Add the fetched package to build.zig.zon, storing the URL verbatim"
+    flag "--save-exact=<name>" help="Add the fetched package to build.zig.zon as name, storing the URL verbatim"
+}
+
+cmd "init" help="Initialize a Zig package in the current directory" {
+    flag "-m --minimal" help="Use minimal init template"
+    flag "-h --help" help="Print this help and exit"
+}
+
+cmd "build-exe" help="Create executable from source or object files" {
+    arg "[<files>...]" help="Source files"
+    flag "-j <N>" help="Limit concurrent jobs (default is to use all CPU cores)"
+    flag "--color <mode>" help="Enable or disable colored error messages"
+    complete "mode" run="""
+        printf '%s\n' 'auto:auto' 'off:off' 'on:on'
+        """ descriptions=#true
+    flag "---fincremental" help="Enable incremental compilation"
+    flag "---fno-incremental" help="Disable incremental compilation"
+    flag "---femit-bin[=<path>]" help="(default) Output machine code"
+    flag "---fno-emit-bin" help="Do not output machine code"
+    flag "---femit-asm[=<path>]" help="Output .s (assembly code)"
+    flag "---fno-emit-asm" help="(default) Do not output .s (assembly code)"
+    flag "---femit-llvm-ir[=<path>]" help="Produce a .ll file with optimized LLVM IR (requires LLVM extensions)"
+    flag "---fno-emit-llvm-ir" help="(default) Do not produce .ll file with optimized LLVM IR"
+    flag "---femit-llvm-bc[=<path>]" help="Produce an optimized LLVM module as a .bc file (requires LLVM extensions)"
+    flag "---fno-emit-llvm-bc" help="(default) Do not produce optimized LLVM module as a .bc file"
+    flag "---femit-h[=<path>]" help="Generate a C header file (.h)"
+    flag "---fno-emit-h" help="(default) Do not generate a C header file (.h)"
+    flag "---femit-docs[=<path>]" help="Create a docs/ dir with html documentation"
+    flag "---fno-emit-docs" help="(default) Do not produce docs/ dir with html documentation"
+    flag "---femit-implib[=<path>]" help="(default) Produce an import .lib when building a Windows DLL"
+    flag "---fno-emit-implib" help="Do not produce an import .lib when building a Windows DLL"
+    flag "--show-builtin" help="Output the source of @import(\"builtin\") then exit"
+    flag "--cache-dir <path>" help="Override the local cache directory"
+    flag "--global-cache-dir <path>" help="Override the global cache directory"
+    flag "--zig-lib-dir <path>" help="Override path to Zig installation lib directory"
+    flag "--name <name>" help="Compilation unit name (not a file path)"
+    flag "--libc <file>" help="Provide a file which specifies libc paths"
+    flag "-x <language>" help="Treat subsequent input files as having type <language>"
+    flag "--dep <name>" help="Add an entry to the next module's import table"
+    flag "-M <module-spec>" help="Create a module based on current per-module settings"
+    flag "--error-limit <num>" help="Set the maximum amount of distinct error values"
+    flag "---fllvm" help="Force using LLVM as the codegen backend"
+    flag "---fno-llvm" help="Prevent using LLVM as the codegen backend"
+    flag "---flibllvm" help="Force using the LLVM API in the codegen backend"
+    flag "---fno-libllvm" help="Prevent using the LLVM API in the codegen backend"
+    flag "---fclang" help="Force using Clang as the C/C++ compilation backend"
+    flag "---fno-clang" help="Prevent using Clang as the C/C++ compilation backend"
+    flag "---fPIE" help="Force-enable Position Independent Executable"
+    flag "---fno-PIE" help="Force-disable Position Independent Executable"
+    flag "---flto" help="Force-enable Link Time Optimization (requires LLVM extensions)"
+    flag "---fno-lto" help="Force-disable Link Time Optimization"
+    flag "---fdll-export-fns" help="Mark exported functions as DLL exports (Windows)"
+    flag "---fno-dll-export-fns" help="Force-disable marking exported functions as DLL exports"
+    flag "---freference-trace[=<num>]" help="Show num lines of reference trace per compile error"
+    flag "---fno-reference-trace" help="Disable reference trace"
+    flag "---ffunction-sections" help="Places each function in a separate section"
+    flag "---fno-function-sections" help="All functions go into same section"
+    flag "---fdata-sections" help="Places each data in a separate section"
+    flag "---fno-data-sections" help="All data go into same section"
+    flag "---fformatted-panics" help="Enable formatted safety panics"
+    flag "---fno-formatted-panics" help="Disable formatted safety panics"
+    flag "---fstructured-cfg" help="(SPIR-V) force SPIR-V kernels to use structured control flow"
+    flag "---fno-structured-cfg" help="(SPIR-V) force SPIR-V kernels to not use structured control flow"
+    flag "---mexec-model=<value>" help="(WASI) Execution model"
+    flag "---municode" help="(Windows) Use wmain/wWinMain as entry point"
+    flag "--time-report" help="Send timing diagnostics to '--listen' clients"
+    flag "---target <name>" help="<arch><sub>-<os>-<abi> see the targets command"
+    flag "-O <mode>" help="Choose what to optimize for"
+    complete "mode" run="""
+        printf '%s\n' \
+          'Debug:Debug (default) Optimizations off, safety on' \
+          'ReleaseFast:ReleaseFast Optimize for performance, safety off' \
+          'ReleaseSafe:ReleaseSafe Optimize for performance, safety on' \
+          'ReleaseSmall:ReleaseSmall Optimize for small binary, safety off'
+        """ descriptions=#true
+    flag "---ofmt=<fmt>" help="Override target object format"
+    complete "fmt" run="""
+        printf '%s\n' \
+          'elf:ELF' \
+          'c:C source code' \
+          'wasm:WebAssembly' \
+          'coff:COFF (Windows)' \
+          'macho:mach-O (macOS)' \
+          'spirv:SPIR-V' \
+          'plan9:Plan 9'
+        """ descriptions=#true
+    flag "---mcpu <cpu>" help="Specify target CPU and feature set"
+    flag "---mcmodel=<model>" help="Limit range of code and data virtual addresses"
+    complete "model" run="""
+        printf '%s\n' \
+          'default' 'extreme' 'kernel' 'large' 'medany' 'medium' \
+          'medlow' 'medmid' 'normal' 'small' 'tiny'
+        """
+    flag "---mred-zone" help="Force-enable the \"red-zone\""
+    flag "---mno-red-zone" help="Force-disable the \"red-zone\""
+    flag "---fomit-frame-pointer" help="Omit the stack frame pointer"
+    flag "---fno-omit-frame-pointer" help="Store the stack frame pointer"
+    flag "---fPIC" help="Force-enable Position Independent Code"
+    flag "---fno-PIC" help="Force-disable Position Independent Code"
+    flag "---fstack-check" help="Enable stack probing in unsafe builds"
+    flag "---fno-stack-check" help="Disable stack probing in safe builds"
+    flag "---fstack-protector" help="Enable stack protection in unsafe builds"
+    flag "---fno-stack-protector" help="Disable stack protection in safe builds"
+    flag "---fvalgrind" help="Include valgrind client requests in release builds"
+    flag "---fno-valgrind" help="Omit valgrind client requests in debug builds"
+    flag "---fsanitize-c[=<mode>]" help="Enable C undefined behavior detection in unsafe builds"
+    complete "mode" run="""
+        printf '%s\n' 'trap:trap' 'full:full (Default)'
+        """ descriptions=#true
+    flag "---fno-sanitize-c" help="Disable C undefined behavior detection in safe builds"
+    flag "---fsanitize-thread" help="Enable Thread Sanitizer"
+    flag "---fno-sanitize-thread" help="Disable Thread Sanitizer"
+    flag "---ffuzz" help="Enable fuzz testing instrumentation"
+    flag "---fno-fuzz" help="Disable fuzz testing instrumentation"
+    flag "---fbuiltin" help="Enable implicit builtin knowledge of functions"
+    flag "---fno-builtin" help="Disable implicit builtin knowledge of functions"
+    flag "---funwind-tables" help="Always produce unwind table entries for all functions"
+    flag "---fasync-unwind-tables" help="Always produce asynchronous unwind table entries for all functions"
+    flag "---fno-unwind-tables" help="Never produce unwind table entries"
+    flag "---ferror-tracing" help="Enable error tracing in release builds"
+    flag "---fno-error-tracing" help="Disable error tracing in debug builds"
+    flag "---fsingle-threaded" help="Code assumes there is only one thread"
+    flag "---fno-single-threaded" help="Code may not assume there is only one thread"
+    flag "---fstrip" help="Omit debug symbols"
+    flag "---fno-strip" help="Keep debug symbols"
+    flag "---idirafter <dir>" help="Add directory to AFTER include search path"
+    flag "---isystem <dir>" help="Add directory to SYSTEM include search path"
+    flag "-I <dir>" help="Add directory to include search path"
+    flag "--embed-dir=<dir>" help="Add directory to embed search path"
+    flag "-D <macro>=<value>" help="Define C macro to value (1 if value omitted)"
+    flag "---cflags <flags>" help="Set extra flags for the next positional C source files"
+    flag "---rcflags <flags>" help="Set extra flags for the next positional .rc source files"
+    flag "---rcincludes=<type>" help="Set the type of includes to use when compiling .rc source files"
+    complete "type" run="""
+        printf '%s\n' \
+          'any:any (default) Use msvc if available, fall back to gnu' \
+          'msvc:msvc' \
+          'gnu:gnu mingw include paths' \
+          'none:none'
+        """ descriptions=#true
+    flag "-T --script <script>" help="Use a custom linker script"
+    flag "--version-script <path>" help="Provide a version .map file"
+    flag "--undefined-version" help="Allow version scripts to refer to undefined symbols"
+    flag "--no-undefined-version" help="(default) Disallow version scripts from referring to undefined symbols"
+    flag "--enable-new-dtags" help="Use the new behavior for dynamic tags (RUNPATH)"
+    flag "--disable-new-dtags" help="Use the old behavior for dynamic tags (RPATH)"
+    flag "--dynamic-linker <path>" help="Set the dynamic interpreter path"
+    flag "--no-dynamic-linker" help="Do not set any dynamic interpreter path"
+    flag "--sysroot <path>" help="Set the system root directory"
+    flag "--version <ver>" help="Dynamic library semver"
+    flag "---fentry" help="Enable entry point with default symbol name"
+    flag "---fentry=<name>" help="Override the entry point symbol name"
+    flag "---fno-entry" help="Do not output any entry point"
+    flag "--force_undefined <name>" help="Specify the symbol must be defined for the link to succeed"
+    flag "---fsoname[=<name>]" help="Override the default SONAME value"
+    flag "---fno-soname" help="Disable emitting a SONAME"
+    flag "---flld" help="Force using LLD as the linker"
+    flag "---fno-lld" help="Prevent using LLD as the linker"
+    flag "---fcompiler-rt" help="Always include compiler-rt symbols in output"
+    flag "---fno-compiler-rt" help="Prevent including compiler-rt symbols in output"
+    flag "---fubsan-rt" help="Always include ubsan-rt symbols in the output"
+    flag "---fno-ubsan-rt" help="Prevent including ubsan-rt symbols in the output"
+    flag "---rdynamic" help="Add all symbols to the dynamic symbol table"
+    flag "---feach-lib-rpath" help="Ensure adding rpath for each used dynamic library"
+    flag "---fno-each-lib-rpath" help="Prevent adding rpath for each used dynamic library"
+    flag "---fallow-shlib-undefined" help="Allows undefined symbols in shared libraries"
+    flag "---fno-allow-shlib-undefined" help="Disallows undefined symbols in shared libraries"
+    flag "---fallow-so-scripts" help="Allows .so files to be GNU ld scripts"
+    flag "---fno-allow-so-scripts" help="(default) .so files must be ELF files"
+    flag "--build-id[=<style>]" help="Embeds a build ID in binaries"
+    complete "style" run="""
+        printf '%s\n' \
+          'fast:fast 8-byte non-cryptographic hash' \
+          'sha1:sha1 20-byte cryptographic hash' \
+          'tree:tree 20-byte cryptographic hash' \
+          'md5:md5 16-byte cryptographic hash' \
+          'uuid:uuid 16-byte random UUID' \
+          'none:none (default)'
+        """ descriptions=#true
+    flag "--eh-frame-hdr" help="Enable C++ exception handling"
+    flag "--no-eh-frame-hdr" help="Disable C++ exception handling"
+    flag "--emit-relocs" help="Enable output of relocation sections for post build tools"
+    flag "-z <arg>" help="Set linker extension flags"
+    complete "arg" run="""
+        printf '%s\n' \
+          'nodelete:object cannot be deleted' \
+          'notext:permit read-only relocations' \
+          'defs:error if undefined symbols remain' \
+          'undefs:reverse of -z defs' \
+          'origin:object must have origin processed' \
+          'nocopyreloc:disable copy relocations' \
+          'now:force relocations processed on load (default)' \
+          'lazy:lazy relocations' \
+          'relro:read-only after processing (default)' \
+          'norelro:not read-only' \
+          'common-page-size=:common page size' \
+          'max-page-size=:max page size'
+        """ descriptions=#true
+    flag "---dynamic" help="Force output to be dynamically linked"
+    flag "---static" help="Force output to be statically linked"
+    flag "---Bsymbolic" help="Bind global references locally"
+    flag "--compress-debug-sections=<e>" help="Debug section compression settings"
+    complete "e" run="""
+        printf '%s\n' 'none:No compression' 'zlib:deflate/inflate' 'zstd:zstandard'
+        """ descriptions=#true
+    flag "--gc-sections" help="Force removal of functions and data unreachable by entry point"
+    flag "--no-gc-sections" help="Don't force removal of unreachable functions and data"
+    flag "--sort-section=<value>" help="Sort wildcard section patterns"
+    complete "value" run="""
+        printf '%s\n' 'name:name' 'alignment:alignment'
+        """ descriptions=#true
+    flag "--subsystem <subsystem>" help="(Windows) /SUBSYSTEM:<subsystem> to the linker"
+    flag "--stack <size>" help="Override default stack size"
+    flag "--image-base <addr>" help="Set base address for executable image"
+    flag "---install_name=<value>" help="(Darwin) add dylib's install name"
+    flag "--entitlements <path>" help="(Darwin) add path to entitlements file"
+    flag "---pagezero_size <value>" help="(Darwin) size of __PAGEZERO segment"
+    flag "---headerpad <value>" help="(Darwin) set minimum space for future expansion"
+    flag "---headerpad_max_install_names" help="(Darwin) set enough space as if all paths were MAXPATHLEN"
+    flag "---dead_strip" help="(Darwin) remove unreachable functions and data"
+    flag "---dead_strip_dylibs" help="(Darwin) remove unreachable dylibs"
+    flag "---ObjC" help="(Darwin) force load all members of static archives that implement Objective-C class"
+    flag "--import-memory" help="(WebAssembly) import memory from the environment"
+    flag "--export-memory" help="(WebAssembly) export memory to the host"
+    flag "--import-symbols" help="(WebAssembly) import missing symbols from the host environment"
+    flag "--import-table" help="(WebAssembly) import function table from the host environment"
+    flag "--export-table" help="(WebAssembly) export function table to the host environment"
+    flag "--initial-memory=<bytes>" help="(WebAssembly) initial size of the linear memory"
+    flag "--max-memory=<bytes>" help="(WebAssembly) maximum size of the linear memory"
+    flag "--shared-memory" help="(WebAssembly) use shared linear memory"
+    flag "--global-base=<addr>" help="(WebAssembly) where to start to place global data"
+    flag "-l <lib> --library <lib>" help="Link against system library (only if actually used)"
+    flag "---needed-l <lib> --needed-library <lib>" help="Link against system library (even if unused)"
+    flag "---weak-l <lib> ---weak_library <lib>" help="Link against system library marking it and all referenced symbols as weak"
+    flag "-L <d> --library-directory <d>" help="Add a directory to the library search path"
+    flag "---search_paths_first" help="Check for dynamic lib then static lib per search path"
+    flag "---search_paths_first_static" help="Check for static lib then dynamic lib per search path"
+    flag "---search_dylibs_first" help="Search for dynamic libs in all paths, then static libs"
+    flag "---search_static_first" help="Search for static libs in all paths, then dynamic libs"
+    flag "---search_dylibs_only" help="Only search for dynamic libs"
+    flag "---search_static_only" help="Only search for static libs"
+    flag "---rpath <path>" help="Add directory to the runtime library search path"
+    flag "---framework <name>" help="(Darwin) link against framework"
+    flag "---needed_framework <name>" help="(Darwin) link against framework (even if unused)"
+    flag "---weak_framework <name>" help="(Darwin) link against framework and mark as weak"
+    flag "---F <dir>" help="(Darwin) add search path for frameworks"
+    flag "--export=<value>" help="(WebAssembly) Force a symbol to be exported"
+}
+
+cmd "build-lib" help="Create library from source or object files" {
+    arg "[<files>...]" help="Source files"
+    flag "-j <N>" help="Limit concurrent jobs (default is to use all CPU cores)"
+    flag "--color <mode>" help="Enable or disable colored error messages"
+    complete "mode" run="""
+        printf '%s\n' 'auto:auto' 'off:off' 'on:on'
+        """ descriptions=#true
+    flag "---fincremental" help="Enable incremental compilation"
+    flag "---fno-incremental" help="Disable incremental compilation"
+    flag "---femit-bin[=<path>]" help="(default) Output machine code"
+    flag "---fno-emit-bin" help="Do not output machine code"
+    flag "---femit-asm[=<path>]" help="Output .s (assembly code)"
+    flag "---fno-emit-asm" help="(default) Do not output .s (assembly code)"
+    flag "---femit-llvm-ir[=<path>]" help="Produce a .ll file with optimized LLVM IR (requires LLVM extensions)"
+    flag "---fno-emit-llvm-ir" help="(default) Do not produce .ll file with optimized LLVM IR"
+    flag "---femit-llvm-bc[=<path>]" help="Produce an optimized LLVM module as a .bc file (requires LLVM extensions)"
+    flag "---fno-emit-llvm-bc" help="(default) Do not produce optimized LLVM module as a .bc file"
+    flag "---femit-h[=<path>]" help="Generate a C header file (.h)"
+    flag "---fno-emit-h" help="(default) Do not generate a C header file (.h)"
+    flag "---femit-docs[=<path>]" help="Create a docs/ dir with html documentation"
+    flag "---fno-emit-docs" help="(default) Do not produce docs/ dir with html documentation"
+    flag "---femit-implib[=<path>]" help="(default) Produce an import .lib when building a Windows DLL"
+    flag "---fno-emit-implib" help="Do not produce an import .lib when building a Windows DLL"
+    flag "--show-builtin" help="Output the source of @import(\"builtin\") then exit"
+    flag "--cache-dir <path>" help="Override the local cache directory"
+    flag "--global-cache-dir <path>" help="Override the global cache directory"
+    flag "--zig-lib-dir <path>" help="Override path to Zig installation lib directory"
+    flag "--name <name>" help="Compilation unit name (not a file path)"
+    flag "--libc <file>" help="Provide a file which specifies libc paths"
+    flag "-x <language>" help="Treat subsequent input files as having type <language>"
+    flag "-M <module-spec>" help="Create a module based on current per-module settings"
+    flag "--error-limit <num>" help="Set the maximum amount of distinct error values"
+    flag "---fllvm" help="Force using LLVM as the codegen backend"
+    flag "---fno-llvm" help="Prevent using LLVM as the codegen backend"
+    flag "---fclang" help="Force using Clang as the C/C++ compilation backend"
+    flag "---fno-clang" help="Prevent using Clang as the C/C++ compilation backend"
+    flag "---fPIE" help="Force-enable Position Independent Executable"
+    flag "---fno-PIE" help="Force-disable Position Independent Executable"
+    flag "---flto" help="Force-enable Link Time Optimization (requires LLVM extensions)"
+    flag "---fno-lto" help="Force-disable Link Time Optimization"
+    flag "---target <name>" help="<arch><sub>-<os>-<abi> see the targets command"
+    flag "-O <mode>" help="Choose what to optimize for"
+    complete "mode" run="""
+        printf '%s\n' \
+          'Debug:Debug (default) Optimizations off, safety on' \
+          'ReleaseFast:ReleaseFast Optimize for performance, safety off' \
+          'ReleaseSafe:ReleaseSafe Optimize for performance, safety on' \
+          'ReleaseSmall:ReleaseSmall Optimize for small binary, safety off'
+        """ descriptions=#true
+    flag "---ofmt=<fmt>" help="Override target object format"
+    complete "fmt" run="""
+        printf '%s\n' \
+          'elf:ELF' 'c:C source code' 'wasm:WebAssembly' \
+          'coff:COFF (Windows)' 'macho:mach-O (macOS)' \
+          'spirv:SPIR-V' 'plan9:Plan 9'
+        """ descriptions=#true
+    flag "---mcpu <cpu>" help="Specify target CPU and feature set"
+    flag "---mcmodel=<model>" help="Limit range of code and data virtual addresses"
+    flag "---fPIC" help="Force-enable Position Independent Code"
+    flag "---fno-PIC" help="Force-disable Position Independent Code"
+    flag "---fstrip" help="Omit debug symbols"
+    flag "---fno-strip" help="Keep debug symbols"
+    flag "---idirafter <dir>" help="Add directory to AFTER include search path"
+    flag "---isystem <dir>" help="Add directory to SYSTEM include search path"
+    flag "-I <dir>" help="Add directory to include search path"
+    flag "--embed-dir=<dir>" help="Add directory to embed search path"
+    flag "-D <macro>=<value>" help="Define C macro to value (1 if value omitted)"
+    flag "-l <lib> --library <lib>" help="Link against system library (only if actually used)"
+    flag "-L <d> --library-directory <d>" help="Add a directory to the library search path"
+    flag "---rpath <path>" help="Add directory to the runtime library search path"
+    flag "---framework <name>" help="(Darwin) link against framework"
+    flag "---F <dir>" help="(Darwin) add search path for frameworks"
+    flag "---dynamic" help="Force output to be dynamically linked"
+    flag "---static" help="Force output to be statically linked"
+    flag "--sysroot <path>" help="Set the system root directory"
+    flag "--version <ver>" help="Dynamic library semver"
+    flag "---fsoname[=<name>]" help="Override the default SONAME value"
+    flag "---fno-soname" help="Disable emitting a SONAME"
+    flag "--script <script>" help="Use a custom linker script"
+    flag "--version-script <path>" help="Provide a version .map file"
+}
+
+cmd "build-obj" help="Create object from source or object files" {
+    arg "[<files>...]" help="Source files"
+    flag "-j <N>" help="Limit concurrent jobs (default is to use all CPU cores)"
+    flag "--color <mode>" help="Enable or disable colored error messages"
+    complete "mode" run="""
+        printf '%s\n' 'auto:auto' 'off:off' 'on:on'
+        """ descriptions=#true
+    flag "---fincremental" help="Enable incremental compilation"
+    flag "---fno-incremental" help="Disable incremental compilation"
+    flag "---femit-bin[=<path>]" help="(default) Output machine code"
+    flag "---fno-emit-bin" help="Do not output machine code"
+    flag "---femit-asm[=<path>]" help="Output .s (assembly code)"
+    flag "---fno-emit-asm" help="(default) Do not output .s (assembly code)"
+    flag "---femit-h[=<path>]" help="Generate a C header file (.h)"
+    flag "---fno-emit-h" help="(default) Do not generate a C header file (.h)"
+    flag "--show-builtin" help="Output the source of @import(\"builtin\") then exit"
+    flag "--cache-dir <path>" help="Override the local cache directory"
+    flag "--global-cache-dir <path>" help="Override the global cache directory"
+    flag "--zig-lib-dir <path>" help="Override path to Zig installation lib directory"
+    flag "--name <name>" help="Compilation unit name (not a file path)"
+    flag "---target <name>" help="<arch><sub>-<os>-<abi> see the targets command"
+    flag "-O <mode>" help="Choose what to optimize for"
+    flag "---ofmt=<fmt>" help="Override target object format"
+    flag "---mcpu <cpu>" help="Specify target CPU and feature set"
+    flag "---fPIC" help="Force-enable Position Independent Code"
+    flag "---fno-PIC" help="Force-disable Position Independent Code"
+    flag "---fstrip" help="Omit debug symbols"
+    flag "---fno-strip" help="Keep debug symbols"
+    flag "-I <dir>" help="Add directory to include search path"
+    flag "-D <macro>=<value>" help="Define C macro to value (1 if value omitted)"
+}
+
+cmd "test" help="Perform unit testing" {
+    arg "[<files>...]" help="Source files containing tests"
+    flag "-j <N>" help="Limit concurrent jobs (default is to use all CPU cores)"
+    flag "--color <mode>" help="Enable or disable colored error messages"
+    complete "mode" run="""
+        printf '%s\n' 'auto:auto' 'off:off' 'on:on'
+        """ descriptions=#true
+    flag "---fincremental" help="Enable incremental compilation"
+    flag "---fno-incremental" help="Disable incremental compilation"
+    flag "---femit-bin[=<path>]" help="(default) Output machine code"
+    flag "---fno-emit-bin" help="Do not output machine code"
+    flag "---femit-asm[=<path>]" help="Output .s (assembly code)"
+    flag "---fno-emit-asm" help="(default) Do not output .s (assembly code)"
+    flag "---femit-h[=<path>]" help="Generate a C header file (.h)"
+    flag "---fno-emit-h" help="(default) Do not generate a C header file (.h)"
+    flag "--show-builtin" help="Output the source of @import(\"builtin\") then exit"
+    flag "--cache-dir <path>" help="Override the local cache directory"
+    flag "--global-cache-dir <path>" help="Override the global cache directory"
+    flag "--zig-lib-dir <path>" help="Override path to Zig installation lib directory"
+    flag "--name <name>" help="Compilation unit name (not a file path)"
+    flag "---fllvm" help="Force using LLVM as the codegen backend"
+    flag "---fno-llvm" help="Prevent using LLVM as the codegen backend"
+    flag "---fclang" help="Force using Clang as the C/C++ compilation backend"
+    flag "---fno-clang" help="Prevent using Clang as the C/C++ compilation backend"
+    flag "---target <name>" help="<arch><sub>-<os>-<abi> see the targets command"
+    flag "-O <mode>" help="Choose what to optimize for"
+    flag "---ofmt=<fmt>" help="Override target object format"
+    flag "---mcpu <cpu>" help="Specify target CPU and feature set"
+    flag "---fPIC" help="Force-enable Position Independent Code"
+    flag "---fno-PIC" help="Force-disable Position Independent Code"
+    flag "---fstrip" help="Omit debug symbols"
+    flag "---fno-strip" help="Keep debug symbols"
+    flag "-I <dir>" help="Add directory to include search path"
+    flag "-D <macro>=<value>" help="Define C macro to value (1 if value omitted)"
+    flag "-l <lib> --library <lib>" help="Link against system library"
+    flag "-L <d> --library-directory <d>" help="Add a directory to the library search path"
+    flag "---rpath <path>" help="Add directory to the runtime library search path"
+    flag "---framework <name>" help="(Darwin) link against framework"
+    flag "--test-filter <text>" help="Skip tests that do not match any filter"
+    flag "--test-cmd <arg>" help="Specify test execution command one arg at a time"
+    flag "--test-cmd-bin" help="Appends test binary path to test cmd args"
+    flag "--test-no-exec" help="Compiles test binary without running it"
+    flag "--test-runner <path>" help="Specify a custom test runner"
+    flag "--test-execve" help="Runs the test binary with execve if available"
+}
+
+cmd "test-obj" help="Create object for unit testing" {
+    arg "[<files>...]" help="Source files"
+    flag "-j <N>" help="Limit concurrent jobs"
+    flag "--color <mode>" help="Enable or disable colored error messages"
+    complete "mode" run="""
+        printf '%s\n' 'auto:auto' 'off:off' 'on:on'
+        """ descriptions=#true
+    flag "---target <name>" help="<arch><sub>-<os>-<abi>"
+    flag "-O <mode>" help="Choose what to optimize for"
+    flag "---fstrip" help="Omit debug symbols"
+    flag "---fno-strip" help="Keep debug symbols"
+    flag "-I <dir>" help="Add directory to include search path"
+    flag "--cache-dir <path>" help="Override the local cache directory"
+    flag "--global-cache-dir <path>" help="Override the global cache directory"
+}
+
+cmd "run" help="Create executable and run immediately" {
+    arg "[<files>...]" help="Source files (use -- to forward arguments to the executed program)"
+    flag "-j <N>" help="Limit concurrent jobs (default is to use all CPU cores)"
+    flag "--color <mode>" help="Enable or disable colored error messages"
+    complete "mode" run="""
+        printf '%s\n' 'auto:auto' 'off:off' 'on:on'
+        """ descriptions=#true
+    flag "---fincremental" help="Enable incremental compilation"
+    flag "---fno-incremental" help="Disable incremental compilation"
+    flag "---femit-bin[=<path>]" help="(default) Output machine code"
+    flag "---fno-emit-bin" help="Do not output machine code"
+    flag "---femit-asm[=<path>]" help="Output .s (assembly code)"
+    flag "---femit-h[=<path>]" help="Generate a C header file (.h)"
+    flag "---fno-emit-h" help="(default) Do not generate a C header file (.h)"
+    flag "--show-builtin" help="Output the source of @import(\"builtin\") then exit"
+    flag "--cache-dir <path>" help="Override the local cache directory"
+    flag "--global-cache-dir <path>" help="Override the global cache directory"
+    flag "--zig-lib-dir <path>" help="Override path to Zig installation lib directory"
+    flag "--name <name>" help="Compilation unit name (not a file path)"
+    flag "---fllvm" help="Force using LLVM as the codegen backend"
+    flag "---fno-llvm" help="Prevent using LLVM as the codegen backend"
+    flag "---fclang" help="Force using Clang as the C/C++ compilation backend"
+    flag "---fno-clang" help="Prevent using Clang as the C/C++ compilation backend"
+    flag "---target <name>" help="<arch><sub>-<os>-<abi> see the targets command"
+    flag "-O <mode>" help="Choose what to optimize for"
+    flag "---ofmt=<fmt>" help="Override target object format"
+    flag "---mcpu <cpu>" help="Specify target CPU and feature set"
+    flag "---fPIC" help="Force-enable Position Independent Code"
+    flag "---fno-PIC" help="Force-disable Position Independent Code"
+    flag "---fstrip" help="Omit debug symbols"
+    flag "---fno-strip" help="Keep debug symbols"
+    flag "-I <dir>" help="Add directory to include search path"
+    flag "-D <macro>=<value>" help="Define C macro to value (1 if value omitted)"
+    flag "-l <lib> --library <lib>" help="Link against system library"
+    flag "-L <d> --library-directory <d>" help="Add a directory to the library search path"
+    flag "---rpath <path>" help="Add directory to the runtime library search path"
+    flag "---framework <name>" help="(Darwin) link against framework"
+    flag "--test-filter <text>" help="Skip tests that do not match any filter"
+    flag "--test-cmd <arg>" help="Specify test execution command one arg at a time"
+    flag "--test-cmd-bin" help="Appends test binary path to test cmd args"
+    flag "--test-no-exec" help="Compiles test binary without running it"
+    flag "--test-runner <path>" help="Specify a custom test runner"
+}
+
+cmd "ast-check" help="Look for simple compile errors in any set of files" {
+    arg "[<file>]" help="Input file (default: stdin)"
+    flag "--color <mode>" help="Enable or disable colored error messages"
+    complete "mode" run="""
+        printf '%s\n' 'auto:auto' 'off:off' 'on:on'
+        """ descriptions=#true
+    flag "--zon" help="Treat the input file as ZON, regardless of file extension"
+    flag "-t" help="(debug option) Output ZIR in text form to stdout"
+}
+
+cmd "fmt" help="Reformat Zig source into canonical form" {
+    arg "[<files>...]" help="Files or directories to format"
+    flag "--color <mode>" help="Enable or disable colored error messages"
+    complete "mode" run="""
+        printf '%s\n' 'auto:auto' 'off:off' 'on:on'
+        """ descriptions=#true
+    flag "--stdin" help="Format code from stdin; output to stdout"
+    flag "--check" help="List non-conforming files and exit with an error if the list is non-empty"
+    flag "--ast-check" help="Run zig ast-check on every file"
+    flag "--exclude <file>" help="Exclude file or directory from formatting"
+    flag "--zon" help="Treat all input files as ZON, regardless of file extension"
+}
+
+cmd "reduce" help="Minimize a bug report" {
+    arg "<file>" help="Zig source file to reduce"
+}
+
+cmd "translate-c" help="Convert C code to Zig code" {
+    arg "[<file>]" help="C source file"
+    flag "-j <N>" help="Limit concurrent jobs"
+    flag "--color <mode>" help="Enable or disable colored error messages"
+    complete "mode" run="""
+        printf '%s\n' 'auto:auto' 'off:off' 'on:on'
+        """ descriptions=#true
+    flag "---femit-bin[=<path>]" help="(default) Output machine code"
+    flag "---fno-emit-bin" help="Do not output machine code"
+    flag "--cache-dir <path>" help="Override the local cache directory"
+    flag "--global-cache-dir <path>" help="Override the global cache directory"
+    flag "--zig-lib-dir <path>" help="Override path to Zig installation lib directory"
+    flag "---target <name>" help="<arch><sub>-<os>-<abi> see the targets command"
+    flag "-I <dir>" help="Add directory to include search path"
+    flag "-D <macro>=<value>" help="Define C macro to value (1 if value omitted)"
+    flag "---cflags <flags>" help="Set extra flags for the next positional C source files"
+}
+
+cmd "ar" help="Combine object files into static archive" {
+    arg "<operation>[<modifiers>]" help="Operation with optional modifiers (e.g. rcs)"
+    arg "<archive>" help="Archive file"
+    arg "[<files>...]" help="Files to operate on"
+    flag "--format <format>" help="Archive format to create"
+    complete "format" run="""
+        printf '%s\n' \
+          'default:default' 'gnu:gnu' 'darwin:darwin' \
+          'bsd:bsd' 'bigarchive:big archive (AIX)' 'coff:coff'
+        """ descriptions=#true
+    flag "--plugin=<string>" help="Ignored for compatibility"
+    flag "--output <dir>" help="The directory to extract archive members to"
+    flag "--thin" help="Create a thin archive"
+    flag "--rsp-quoting <style>" help="Quoting style for response files"
+    complete "style" run="""
+        printf '%s\n' 'posix:posix' 'windows:windows'
+        """ descriptions=#true
+    flag "---X{32|64|32_64|any}" help="Object mode (AIX OS only)"
+}
+
+cmd "cc" help="Use Zig as a drop-in C compiler" {
+    arg "[<files>...]" help="Source files"
+    // Delegates to Clang/LLVM; accepts all common C compiler flags
+}
+
+cmd "c++" help="Use Zig as a drop-in C++ compiler" {
+    arg "[<files>...]" help="Source files"
+    // Delegates to Clang/LLVM; accepts all common C++ compiler flags
+}
+
+cmd "dlltool" help="Use Zig as a drop-in dlltool.exe" {
+    arg "[<options>] <file>" help="Input file"
+    flag "-D <value>" help="Specify the input DLL Name"
+    flag "-d <value>" help="Input .def File"
+    flag "-f <value>" help="Assembler Flags"
+    flag "-I <value>" help="Identify DLL name from import library"
+    flag "-k" help="Kill @n Symbol from export"
+    flag "-l <value>" help="Generate an import lib"
+    flag "-m <value>" help="Set target machine"
+    complete "value" run="""
+        printf '%s\n' 'i386:i386' 'i386:x86-64:x86-64' 'arm:arm' 'arm64:arm64' 'arm64ec:arm64ec' 'r4000:r4000'
+        """ descriptions=#true
+    flag "--no-leading-underscore" help="Don't add leading underscores on symbols"
+    flag "-N <value>" help="Input native .def File on ARM64EC"
+    flag "-S <value>" help="Assembler"
+    flag "-t <value>" help="Prefix for temporary files (ignored)"
+    flag "--identify-strict" help="Error out if --identify detects more than one DLL"
+}
+
+cmd "lib" help="Use Zig as a drop-in lib.exe" {
+    arg "[<files>...]" help="Object files"
+}
+
+cmd "objcopy" help="Manipulate executables and relocatables" {
+    arg "[<options>] <infile>" help="Input file"
+    arg "[<outfile>]" help="Output file"
+}
+
+cmd "objdump" help="Print information about executables and relocatables" {
+    arg "<file>" help="File to dump"
+}
+
+cmd "ranlib" help="Use Zig as a drop-in ranlib" {
+    arg "<archive...>" help="Archive files"
+    flag "-D" help="Use zero for timestamps and uids/gids (default)"
+    flag "-U" help="Use actual timestamps and uids/gids"
+}
+
+cmd "rc" help="Use Zig as a drop-in rc.exe" {
+    arg "[<files>...]" help="Resource files"
+}
+
+cmd "env" help="Print lib path, std path, cache directory, and version" {
+}
+
+cmd "help" help="Print this help and exit" {
+    arg "[<command>]" help="Show help for a specific command"
+}
+
+cmd "std" help="View standard library documentation in a browser" {
+    arg "[<symbol>]" help="Specific symbol to look up"
+    flag "--color <mode>" help="Enable or disable colored error messages"
+    flag "--cache-dir <path>" help="Override the local cache directory"
+    flag "--global-cache-dir <path>" help="Override the global cache directory"
+    flag "--zig-lib-dir <path>" help="Override path to Zig installation lib directory"
+}
+
+cmd "libc" help="Display native libc paths file or validate one" {
+    arg "[<file>]" help="libc path file to validate (omit to display native paths)"
+}
+
+cmd "targets" help="List available compilation targets" {
+}
+
+cmd "version" help="Print version number and exit" {
+}
+
+cmd "zen" help="Print Zen of Zig and exit" {
+}
