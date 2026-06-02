@@ -22,6 +22,30 @@ cmd "switch" help="Switch to a worktree; create if needed" {
     flag "--remotes" help="Include remote branches"
     flag "--no-hooks" help="Skip hooks"
     flag "--format <FORMAT>" help="Output format"
+
+    complete "BRANCH" run="""
+        (git branch --format='%(refname:short)' 2>/dev/null || true) | while IFS= read -r branch; do
+            [ -n \"$branch\" ] && printf '%s\n' \"$branch\"
+        done
+        printf '%s\n' \\
+            '^:Default branch' \\
+            '@:Current branch' \\
+            '-:Previous branch'
+        """ descriptions=#true
+    complete "BASE" run="""
+        (git branch --format='%(refname:short)' 2>/dev/null || true) | while IFS= read -r branch; do
+            [ -n \"$branch\" ] && printf '%s\n' \"$branch\"
+        done
+        printf '%s\n' \\
+            '^:Default branch' \\
+            '@:Current branch' \\
+            '-:Previous branch'
+        """ descriptions=#true
+    complete "FORMAT" run="""
+        printf '%s\n' \\
+            'text:Human-readable text output' \\
+            'json:JSON output'
+        """ descriptions=#true
 }
 
 cmd "list" help="List worktrees and their status"
