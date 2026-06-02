@@ -1,8 +1,0 @@
-[bundle.media]
-requires = [
-    "registry/m/jellyfin.toml",
-    "registry/m/jellyfin-web.toml",
-    "registry/m/jellyfin-desktop.toml",
-    "registry/f/feishin.toml",
-    "registry/a/ani-cli.toml",
-]

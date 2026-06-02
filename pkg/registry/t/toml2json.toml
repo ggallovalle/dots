@@ -1,6 +1,0 @@
-[pkg.toml2json]
-description = "cli that converts toml to json"
-provides = "toml2json"
-[pkg.toml2json.via]
-cargo = "toml2json"
-cargobinstall = "toml2json"

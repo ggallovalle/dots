@@ -1,4 +1,0 @@
-provides = ["jellyfin-web"]
-
-[via]
-pacman = "jellyfin-web"

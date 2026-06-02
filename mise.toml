@@ -1,19 +1,6 @@
-[tasks.format]
-description = "format"
-run = [
-    "luafmt . --write"
-]
-
-[tasks."zsh:test-homepath"]
-description = "Run the homepath ShellSpec suite"
-run = "shellspec --shell zsh spec/homepath_spec.sh"
-dir = "home/dot_config/zsh"
-
 [tools]
+uv = "0.11.14"
 bun = "1.3.13"
 chezmoi = "2.70.2"
-codex = "0.134.0"
 neovim = "0.12.2"
-node = "25.9.0"
 usage = "3.2.1"
-uv = "0.11.14"

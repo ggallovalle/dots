@@ -1,5 +1,0 @@
-description = "media system server"
-provides = ["jellyfin"]
-
-[via]
-pacman = "jellyfin-server"

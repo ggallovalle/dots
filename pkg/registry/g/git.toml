@@ -1,5 +1,0 @@
-[pkg.git]
-description = "distributed version control"
-provides = "git"
-[pkg.git.via]
-pacman = "git"

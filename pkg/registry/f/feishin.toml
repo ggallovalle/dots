@@ -1,6 +1,0 @@
-description = "self hosted music player"
-deps = ["jellyfin"]
-provides = "feishin"
-
-[via]
-pacman = "feishin"

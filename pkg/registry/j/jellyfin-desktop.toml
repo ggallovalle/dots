@@ -1,6 +1,0 @@
-description = "desktop client for jellyfin"
-provides = ["jellyfin-desktop"]
-deps = ["jellyfin"]
-
-[via]
-pacman = "jellyfin-desktop-git"

@@ -1,6 +1,0 @@
-[pkg.copyq]
-description = "clipboard manager with search and edit history"
-provides = "copyq"
-[pkg.copyq.via]
-pacman = "copyq"
-winget = "hljs.CopyQ"
