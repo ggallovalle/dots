@@ -21,6 +21,9 @@ if (( ${+commands[eza]} )); then
   alias llaa='eza -lhA --no-user --time-style=iso --group-directories-first --git --git-repos'
   alias ld='eza -d --git'
   alias lt='eza --git-ignore --group-directories-first -T'
-  alias lta='eza --git-ignore -ATL 3 '
+  alias lt2='eza --git-ignore --group-directories-first -TL 2'
+  alias lt3='eza --git-ignore --group-directories-first -TL 3'
+  alias lt4='eza --git-ignore --group-directories-first -TL 4'
+  alias lta='eza --git-ignore -ATL 3'
   alias ltaa='eza -ATL 3'
 fi
