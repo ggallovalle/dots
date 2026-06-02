@@ -1,4 +1,8 @@
 set shell := ["zsh", "-cu"]
 
-zsh-test-homepath:
-    shellspec --shell zsh spec/homepath_spec.sh
+default:
+    @just --list
+
+test:
+    shellspec
+

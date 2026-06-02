@@ -1,0 +1,17 @@
+# Get editor completions based on the config schema
+"$schema" = 'https://starship.rs/config-schema.json'
+
+# Inserts a blank line between shell prompts
+add_newline = true
+
+format = """$custom$character"""
+
+[custom.smart_path]
+command = "starship-smart-path"
+when = true
+style = "blue"
+format = "[$output]($style)\n"
+
+[character]
+success_symbol = "[❯](green)"
+error_symbol = "[❯](red)"
