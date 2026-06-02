@@ -1,0 +1,27 @@
+#!/bin/bash
+set -euo pipefail
+
+SESSION="${ZELLIJ_SESSION_NAME:-}"
+if [ -z "$SESSION" ]; then
+  SESSION=$(zellij list-sessions -s 2>/dev/null | head -1)
+fi
+
+# focus the pane user was in before Run launched this script
+zellij --session "$SESSION" action focus-previous-pane || true
+
+TMPFILE=$(mktemp /tmp/zj-sb-XXXXXX.ansi)
+# dump the now-focused pane (the original terminal)
+zellij --session "$SESSION" action dump-screen --ansi --full > "$TMPFILE" || true
+
+# restore focus to Run pane
+zellij --session "$SESSION" action focus-next-pane || true
+
+if [ ! -s "$TMPFILE" ]; then
+    echo "Failed to dump zellij scrollback" >&2
+    rm -f "$TMPFILE"
+    exit 1
+fi
+
+nvim -R +"term ++open cat $TMPFILE" +"autocmd TermClose <buffer> ++once :$ | setlocal nomodifiable | silent! call delete('$TMPFILE')"
+
+zellij --session "$SESSION" action close-pane 2>/dev/null || true
