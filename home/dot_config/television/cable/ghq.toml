@@ -1,0 +1,30 @@
+[metadata]
+name = "ghq"
+description = "Browse and manage ghq-managed git repositories"
+requirements = ["ghq", "wezterm"]
+
+[source]
+command = "ghq list"
+
+[preview]
+command = "eza --color=always -1 --icons $(ghq root)/'{}' 2>/dev/null || ls -1 $(ghq root)/'{}'"
+
+[keybindings]
+enter = "actions:cd"
+ctrl-e = "actions:edit"
+ctrl-z = "actions:zellij"
+
+[actions.cd]
+description = "cd to repository"
+command = "cd $(ghq root)/'{}' && exec $SHELL"
+mode = "execute"
+
+[actions.edit]
+description = "Edit repository in neovim"
+command = "nvim $(ghq root)/'{}'"
+mode = "execute"
+
+[actions.zellij]
+description = "Open repository in wezterm with zellij"
+command = "wezterm start -- zellij -s '{}'"
+mode = "fork"
