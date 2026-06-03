@@ -21,8 +21,14 @@ keybinds clear-defaults=true {
         // bind "Alt p" { TogglePaneInGroup; }
         // bind "Alt Shift p" { ToggleGroupMarking; }
         bind "Alt Shift p" { SwitchToMode "tab"; }
-        bind "Alt e" { Run "zj-sb"; SwitchToMode "locked"; }
-
+        bind "Alt e" { 
+          Run "zj-sb" "something" {
+            name "scrollback"
+            stacked true
+            close_on_exit true
+          }
+          SwitchToMode "locked"
+        }
         bind "Alt h" { MoveFocus "left"; }
         bind "Alt j" { MoveFocus "down"; }
         bind "Alt k" { MoveFocus "up"; }

@@ -10,19 +10,14 @@ generated_completions_count=0
 typeset -A _completion_cmds
 
 _completion_cmds=(
-  # can't be move to zi snippet, has to be generated
-  # https://github.com/zellij-org/zellij/blob/a8372a09cd7ac14af0016b38fd9561f975ec17f3/Cargo.toml#L143
   zellij   "zellij setup --generate-completion zsh"
-  # can't be move to zi snippet, has to be generated
   uv       "uv generate-shell-completion zsh"
-  # can't be move to zi snippet, has to be generated
   hl       "hl --shell-completions zsh _hl"
-  # can't be move to zi snippet, has to be generated
   codex    "codex completion zsh"
-  # can't be move to zi snippet, has to be generated
-  glab "glab completion -s zsh"
-  # chezmoi now handled by usage spec (gen-compusage)
-  bw "bw completion --shell zsh"
+  glab     "glab completion -s zsh"
+  bw       "bw completion --shell zsh"
+  tv       "tv completions zsh"
+  chezmoi  "chezmoi completion zsh"
 )
 
 for _complete_this _gen_cmd in ${(kv)_completion_cmds}; do

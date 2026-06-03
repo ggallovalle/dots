@@ -1,32 +1,26 @@
-#!/bin/bash
+#!/bin/zsh
 set -euo pipefail
 
-SESSION="${ZELLIJ_SESSION_NAME:-}"
-if [ -z "$SESSION" ]; then
-  SESSION=$(zellij list-sessions -s 2>/dev/null | head -1)
+if (( $ZELLIJ != 0 && $ZELLIJ_PANE_ID <= 0 ));then
+# if (( 1 ));then
+  print -u2 "error: not inside a zellij session"
+  return 1
 fi
 
-# focus the pane user was in before Run launched this script
-zellij --session "$SESSION" action focus-previous-pane || true
+TMPFILE=$(mktemp -t zellij-scrollback-XXXX.ansi)
 
-TMPFILE=$(mktemp /tmp/zj-sb-XXXXXX.ansi)
-# dump the now-focused pane (the original terminal)
-zellij --session "$SESSION" action dump-screen --ansi --full > "$TMPFILE" || true
-
-# restore focus to Run pane
-zellij --session "$SESSION" action focus-next-pane || true
-
-if [ ! -s "$TMPFILE" ]; then
-    echo "Failed to dump zellij scrollback" >&2
-    rm -f "$TMPFILE"
-    exit 1
+if (( $# ));then
+  zellij action focus-previous-pane
+  zellij action dump-screen --full --path "$TMPFILE"
+  # zellij action dump-screen --ansi --full > "$TMPFILE"
+  zellij action focus-next-pane
+  # nvim -R $TMPFILE
+  nvim +"set ft=ansi | $" -R $TMPFILE
+else
+  zellij action dump-screen --pane-id=$ZELLIJ_PANE_ID --full --path "$TMPFILE" && true
+  zellij action new-pane --name "scrollback" --close-on-exit --stacked -- nvim +"set ft=ansi | $" -R $TMPFILE
 fi
 
-# nvim -R +"term ++open cat $TMPFILE" +"autocmd TermClose <buffer> ++once :$ | setlocal nomodifiable | silent! call delete('$TMPFILE')"
-# nvim -R "$TMPFILE" +"autocmd BufWipeout <buffer> ++once silent! call delete(expand('%:p'))"
-nvim -R \
-  +"terminal cat -- ${TMPFILE}" \
-  +"autocmd TermClose <buffer> ++once stopinsert | $ | setlocal nomodifiable" \
-  +"autocmd VimLeavePre * ++once silent! call delete('${TMPFILE}')"
+rm $TMPFILE
 
-zellij --session "$SESSION" action close-pane 2>/dev/null || true
+
