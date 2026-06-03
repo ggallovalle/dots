@@ -22,6 +22,11 @@ if [ ! -s "$TMPFILE" ]; then
     exit 1
 fi
 
-nvim -R +"term ++open cat $TMPFILE" +"autocmd TermClose <buffer> ++once :$ | setlocal nomodifiable | silent! call delete('$TMPFILE')"
+# nvim -R +"term ++open cat $TMPFILE" +"autocmd TermClose <buffer> ++once :$ | setlocal nomodifiable | silent! call delete('$TMPFILE')"
+# nvim -R "$TMPFILE" +"autocmd BufWipeout <buffer> ++once silent! call delete(expand('%:p'))"
+nvim -R \
+  +"terminal cat -- ${TMPFILE}" \
+  +"autocmd TermClose <buffer> ++once stopinsert | $ | setlocal nomodifiable" \
+  +"autocmd VimLeavePre * ++once silent! call delete('${TMPFILE}')"
 
 zellij --session "$SESSION" action close-pane 2>/dev/null || true

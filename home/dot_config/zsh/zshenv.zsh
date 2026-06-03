@@ -10,6 +10,7 @@ export XDG_CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}"
 # default programs
 export EDITOR=nvim
 export BROWSER=zen-browser
+export MANPAGER='nvim +Man!'
 export STARSHIP_CONFIG="${XDG_CONFIG_HOME}/zsh/starship.toml"
 export DOTFILES="${HOME}/dots"
 export GHQ_ROOT="${HOME}/ghq"

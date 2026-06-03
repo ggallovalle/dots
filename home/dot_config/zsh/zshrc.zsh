@@ -5,6 +5,7 @@
 zmodload zsh/param/private
 zmodload zsh/zutil
 
+eval "$(mise activate zsh)"
 
 fpath+=( ${0:h}/functions ${0:h}/completions )
 autoload -Uz ${0:h}/functions/*(.:t)
