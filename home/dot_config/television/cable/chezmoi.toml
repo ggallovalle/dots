@@ -1,0 +1,24 @@
+[metadata]
+name = "chezmoi"
+description = "Browse chezmoi source state files and folders"
+requirements = ["fd", "chezmoi"]
+
+[source]
+command = "src=$(chezmoi source-path); { fd -t d . \"$src\" && fd -t f . \"$src\"; } 2>/dev/null | sed \"s|$src/||\""
+
+[preview]
+command = "bat -n --color=always $(chezmoi source-path)/'{}' 2>/dev/null || eza --color=always -T -L 2 --group-directories-first $(chezmoi source-path)/'{}'"
+
+[keybindings]
+enter = "actions:cd"
+ctrl-e = "actions:edit"
+
+[actions.cd]
+description = "cd to source directory"
+command = "cd $(chezmoi source-path)/'{}' 2>/dev/null || cd $(chezmoi source-path)/$(dirname '{}'); exec $SHELL"
+mode = "execute"
+
+[actions.edit]
+description = "Open in nvim with ChezmoiEnable"
+command = "nvim -c 'ChezmoiEnable' $(chezmoi source-path)/'{}'"
+mode = "execute"
