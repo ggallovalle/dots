@@ -14,6 +14,7 @@ _generated_cmds=(
   mise      "mise activate zsh"
   zoxide    "zoxide init zsh --cmd j"
   starship  "starship init zsh"
+  wt        "wt config shell init zsh"
 )
 
 for _gen_name _gen_cmd in ${(kv)_generated_cmds}; do

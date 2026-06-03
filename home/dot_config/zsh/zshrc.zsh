@@ -19,6 +19,7 @@ source ${0:h}/alias.zsh
 if (( ${+commands[zoxide]} )); then
   source ~/.zi/evaled/zoxide.zsh
 fi
+source ~/.zi/evaled/wt.zsh
 if [[ -o interactive && ${TERM:-} != dumb ]]; then
   if (( ${+commands[starship]} )); then
     source ~/.zi/evaled/starship.zsh
