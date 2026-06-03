@@ -14,6 +14,7 @@ autoload -Uz ${0:h}/functions/*(.:t)
 if [[ -o interactive ]]; then
   source ${0:h}/zinit.zsh
   source ${0:h}/alias.zsh
+  source ${0:h}/keymap.zsh
 
   source ~/.zi/evaled/zoxide.zsh
   source ~/.zi/evaled/wt.zsh

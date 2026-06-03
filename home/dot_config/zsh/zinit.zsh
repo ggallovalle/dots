@@ -38,21 +38,6 @@ zi ice --lucid --wait --as=completion --blockf --has=opencode
 zi snippet https://github.com/PEMessage/opencode-zsh-completion/blob/main/_opencode
 
 
-# https://github.com/jeffreytse/zsh-vi-mode
-# better and friendlier vim mode
-# 2025-04-21
-function zvm_config() {
-  ZVM_VI_EDITOR='nvim'
-  ZVM_SYSTEM_CLIPBOARD_ENABLED=true
-  ZVM_CLIPBOARD_COPY_CMD='wl-copy'
-  ZVM_CLIPBOARD_PASTE_CMD='wl-paste -n'
-}
-
-function zvm_after_init() {
-  source ~/.zi/evaled/tv.zsh
-}
-zi ice --light-mode --ver="f82c4c8"
-zi load jeffreytse/zsh-vi-mode
 
 # https://github.com/z-shell/F-Sy-H
 # syntax highlighting for zsh terminal with support for themes
