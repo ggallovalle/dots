@@ -4,11 +4,12 @@
 # Inserts a blank line between shell prompts
 add_newline = true
 
-format = """$custom$character"""
+format = """${custom.homepath}$character"""
 right_format = """$git_branch"""
 
-[custom.smart_path]
-command = "starship-smart-path"
+[custom.homepath]
+description = "home-shortened path"
+command = "kbsh homepath"
 when = true
 style = "blue"
 format = "[$output]($style)\n"

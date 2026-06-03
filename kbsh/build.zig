@@ -3,8 +3,11 @@ const std = @import("std");
 const Deps = struct {
     clap: *std.Build.Module,
 
-    fn init(b: *std.Build) Deps {
-        const clap = b.dependency("clap", .{});
+    fn init(b: *std.Build, target: std.Build.ResolvedTarget, optimize: std.builtin.OptimizeMode) Deps {
+        const clap = b.dependency("clap", .{
+            .target = target,
+            .optimize = optimize
+        });
         return .{ .clap = clap.module("clap") };
     }
 };
@@ -30,7 +33,7 @@ pub fn build(b: *std.Build) void {
     // target and optimize options) will be listed when running `zig build --help`
     // in this directory.
 
-    const deps = Deps.init(b);
+    const deps = Deps.init(b, target, optimize);
 
     const assets_module = b.createModule(.{
         .root_source_file = b.path("assets.zig"),
