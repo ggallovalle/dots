@@ -1,0 +1,428 @@
+name "chezmoi"
+bin "chezmoi"
+about "Manage your dotfiles across multiple diverse machines, securely"
+version "2.70.3"
+
+flag "-h --help" help="Show help information" global=#true
+flag "--version" help="Show version info and exit" global=#true
+flag "--age-recipient <string>" help="Override age recipient" global=#true
+flag "--age-recipient-file <path>" help="Override age recipient file" global=#true
+flag "--cache <path>" help="Set cache directory" global=#true
+flag "--color <bool|auto>" help="Colorize output" global=#true
+flag "-c --config <path>" help="Set config file" global=#true
+flag "--config-format <none|json|toml|yaml>" help="Set config file format" global=#true
+flag "--debug" help="Include debug information in output" global=#true
+flag "-D --destination <path>" help="Set destination directory" global=#true
+flag "-n --dry-run" help="Do not make any modifications to the destination directory" global=#true
+flag "--force" help="Make all changes without prompting" global=#true
+flag "--interactive" help="Prompt for all changes" global=#true
+flag "-k --keep-going" help="Keep going as far as possible after an error" global=#true
+flag "--less-interactive" help="Prompt for changed or pre-existing targets" global=#true
+flag "--mode <file|symlink>" help="Mode" global=#true
+flag "--no-pager" help="Do not use the pager" global=#true
+flag "--no-tty" help="Do not attempt to get a TTY for prompts" global=#true
+flag "-o --output <path>" help="Write output to path instead of stdout" global=#true
+flag "--override-data <string>" help="Override data" global=#true
+flag "--override-data-file <path>" help="Override data with file" global=#true
+flag "--persistent-state <path>" help="Set persistent state file" global=#true
+flag "--progress <bool|auto>" help="Display progress bars" global=#true
+flag "-R --refresh-externals <always|auto|never>" help="Refresh external cache" global=#true
+flag "-S --source <path>" help="Set source directory" global=#true
+flag "--source-path" help="Specify targets by source path" global=#true
+flag "--use-builtin-age <bool|auto>" help="Use builtin age" global=#true
+flag "--use-builtin-diff" help="Use builtin diff" global=#true
+flag "--use-builtin-git <bool|auto>" help="Use builtin git" global=#true
+flag "-v --verbose" help="Make output more verbose" global=#true
+flag "-W --working-tree <path>" help="Set working tree directory" global=#true
+
+// Shared completions
+complete "target" run="""
+    chezmoi managed --path-style=absolute 2>/dev/null
+    """
+
+// Documentation commands
+cmd "doctor" help="Check your system for potential problems" {
+    flag "--no-network" help="Do not use network connection"
+}
+cmd "help" help="Print help about a command" {
+    arg "[<command>]" help="Command to show help for"
+}
+cmd "license" help="Print chezmoi's license"
+
+// Daily commands
+cmd "add" help="Add an existing file, directory, or symlink to the source state" {
+    arg "<targets...>" help="Targets to add"
+    alias "manage" hide=#true
+    flag "-a --autotemplate" help="Generate the template when adding files as templates"
+    flag "--create" help="Add files that should exist, irrespective of their contents"
+    flag "--encrypt" help="Encrypt files"
+    flag "--exact" help="Add directories exactly"
+    flag "-x --exclude <types>" help="Exclude entry types"
+    flag "-f --follow" help="Add symlink targets instead of symlinks"
+    flag "-i --include <types>" help="Include entry types"
+    flag "--new" help="Create new file if target does not exist"
+    flag "-p --prompt" help="Prompt before adding each entry"
+    flag "-q --quiet" help="Suppress warnings"
+    flag "-r --recursive" help="Recurse into subdirectories"
+    flag "--secrets <error|ignore|warning>" help="Scan for secrets when adding unencrypted files"
+    flag "-T --template" help="Add files as templates"
+    flag "--template-symlinks" help="Add symlinks with target in source or home dirs as templates"
+}
+
+cmd "apply" help="Update the destination directory to match the target state" {
+    arg "[<target>...]" help="Targets to apply, or all if omitted"
+    flag "-x --exclude <types>" help="Exclude entry types"
+    flag "-i --include <types>" help="Include entry types"
+    flag "--init" help="Recreate config file from template"
+    flag "-P --parent-dirs" help="Apply all parent directories"
+    flag "-r --recursive" help="Recurse into subdirectories"
+    complete "target" run="""
+        chezmoi managed --path-style=absolute 2>/dev/null
+        """
+}
+
+cmd "chattr" help="Change the attributes of a target in the source state" {
+    arg "<attributes>" help="Attribute modifiers (e.g. template, noempty, private,template)"
+    arg "<target...>" help="Targets to modify"
+    flag "-r --recursive" help="Recurse into subdirectories"
+}
+
+cmd "diff" help="Print the diff between the target state and the destination state" {
+    arg "[<target>...]" help="Targets to diff, or all if omitted"
+    flag "-x --exclude <types>" help="Exclude entry types"
+    flag "-i --include <types>" help="Include entry types"
+    flag "--init" help="Recreate config file from template"
+    flag "--pager <string>" help="Set pager"
+    flag "-P --parent-dirs" help="Print the diff of all parent directories"
+    flag "-r --recursive" help="Recurse into subdirectories"
+    flag "--reverse" help="Reverse the direction of the diff"
+    flag "--script-contents" help="Show script contents"
+}
+
+cmd "edit" help="Edit the source state of a target" {
+    arg "<targets...>" help="Targets to edit"
+    flag "-a --apply" help="Apply after editing"
+    flag "-x --exclude <types>" help="Exclude entry types"
+    flag "--hardlink" help="Invoke editor with a hardlink to the source file"
+    flag "-i --include <types>" help="Include entry types"
+    flag "--init" help="Recreate config file from template"
+    flag "--watch" help="Apply on save"
+}
+
+cmd "forget" help="Remove a target from the source state" {
+    arg "<target...>" help="Targets to forget"
+    alias "unmanage" hide=#true
+}
+
+cmd "init" help="Setup the source directory and update the destination directory" {
+    arg "[<repo>]" help="Git repository URL or shorthand"
+    flag "-a --apply" help="Update destination directory"
+    flag "--branch <string>" help="Set initial branch to checkout"
+    flag "-C --config-path <path>" help="Path to write generated config file"
+    flag "--data" help="Include existing template data"
+    flag "-d --depth <int>" help="Create a shallow clone"
+    flag "-x --exclude <types>" help="Exclude entry types"
+    flag "--git-lfs" help="Run git pull lfs after cloning"
+    flag "-g --guess-repo-url" help="Guess the repo URL"
+    flag "-i --include <types>" help="Include entry types"
+    flag "--one-shot" help="Run in one-shot mode"
+    flag "--prompt" help="Force prompt*Once template functions to prompt"
+    flag "--promptBool <stringToString>" help="Populate promptBool"
+    flag "--promptChoice <stringToString>" help="Populate promptChoice"
+    flag "--promptDefaults" help="Make prompt functions return default values"
+    flag "--promptInt <stringToInt>" help="Populate promptInt"
+    flag "--promptMultichoice <stringToString>" help="Populate promptMultichoice"
+    flag "--promptString <stringToString>" help="Populate promptString"
+    flag "-p --purge" help="Purge config and source directories after running"
+    flag "-P --purge-binary" help="Purge chezmoi binary after running"
+    flag "--recurse-submodules" help="Checkout submodules recursively"
+    flag "--ssh" help="Use ssh instead of https when guessing repo URL"
+}
+
+cmd "merge" help="Perform a three-way merge between the destination state, the source state, and the target state" {
+    arg "<target...>" help="Targets to merge"
+}
+
+cmd "merge-all" help="Perform a three-way merge for each modified file" {
+    flag "--init" help="Recreate config file from template"
+    flag "-r --recursive" help="Recurse into subdirectories"
+}
+
+cmd "re-add" help="Re-add modified files" {
+    arg "[<target>...]" help="Targets to re-add, or all if omitted"
+    flag "-x --exclude <types>" help="Exclude entry types"
+    flag "-i --include <types>" help="Include entry types"
+    flag "--re-encrypt" help="Re-encrypt encrypted files"
+    flag "-r --recursive" help="Recurse into subdirectories"
+}
+
+cmd "status" help="Show the status of targets" {
+    arg "[<target>...]" help="Targets to check"
+    flag "-x --exclude <types>" help="Exclude entry types"
+    flag "-i --include <types>" help="Include entry types"
+    flag "--init" help="Recreate config file from template"
+    flag "-P --parent-dirs" help="Show status of all parent directories"
+    flag "-p --path-style <absolute|relative>" help="Path style"
+    flag "-r --recursive" help="Recurse into subdirectories"
+}
+
+cmd "update" help="Pull and apply any changes" {
+    flag "-a --apply" help="Apply after pulling"
+    flag "-x --exclude <types>" help="Exclude entry types"
+    flag "-i --include <types>" help="Include entry types"
+    flag "--init" help="Recreate config file from template"
+    flag "-P --parent-dirs" help="Update all parent directories"
+    flag "--recurse-submodules" help="Recursively update submodules"
+    flag "-r --recursive" help="Recurse into subdirectories"
+}
+
+// Template commands
+cmd "cat" help="Print the target contents of a file, script, or symlink" {
+    arg "<target...>" help="Targets to print"
+}
+
+cmd "data" help="Print the template data" {
+    flag "-f --format <none|json|yaml>" help="Output format"
+}
+
+cmd "execute-template" help="Execute the given template(s)" {
+    arg "[<template>...]" help="Templates to execute"
+    flag "-f --file" help="Treat arguments as filenames"
+    flag "-i --init" help="Simulate chezmoi init"
+    flag "--left-delimiter <string>" help="Set left template delimiter"
+    flag "--promptBool <stringToString>" help="Simulate promptBool"
+    flag "--promptChoice <stringToString>" help="Simulate promptChoice"
+    flag "--promptInt <stringToInt>" help="Simulate promptInt"
+    flag "--promptMultichoice <stringToString>" help="Simulate promptMultichoice"
+    flag "-p --promptString <stringToString>" help="Simulate promptString"
+    flag "--right-delimiter <string>" help="Set right template delimiter"
+    flag "--stdinisatty" help="Simulate stdinIsATTY"
+    flag "--with-stdin" help="Set .chezmoi.stdin to the contents of the standard input"
+}
+
+// Advanced commands
+cmd "cd" help="Launch a shell in the source directory" {
+    arg "[<path>]" help="Source directory path"
+}
+
+cmd "edit-config" help="Edit the configuration file"
+cmd "edit-config-template" help="Edit the configuration file template"
+
+cmd "generate" help="Generate a file for use with chezmoi" {
+    cmd "git-commit-message" help="Generate a git commit message"
+    cmd "install.sh" help="Generate an install script"
+    cmd "install-init-shell.sh" help="Generate an install script that also executes a shell" {
+        flag "-i --interactive" help="Set interactive"
+        flag "-p --package-manager <string>" help="Package manager"
+        flag "-s --shell" help="Set shell"
+    }
+}
+
+cmd "git" help="Run git in the source directory" {
+    arg "[<arg>...]" help="Git arguments"
+}
+
+cmd "ignored" help="Print ignored targets" {
+    flag "-0 --nul-path-separator" help="Use the NUL character as a path separator"
+    flag "-t --tree" help="Print paths as a tree"
+}
+
+cmd "managed" help="List the managed entries in the destination directory" {
+    arg "[<path>...]" help="Paths to list managed entries under"
+    alias "list" hide=#true
+    flag "-x --exclude <types>" help="Exclude entry types"
+    flag "-f --format <none|json|yaml>" help="Output format"
+    flag "-i --include <types>" help="Include entry types"
+    flag "-0 --nul-path-separator" help="Use the NUL character as a path separator"
+    flag "-p --path-style <absolute|all|relative|source-absolute|source-relative>" help="Path style"
+    flag "-t --tree" help="Print paths as a tree"
+}
+
+cmd "unmanaged" help="List the unmanaged files in the destination directory" {
+    arg "[<path>...]" help="Paths to check"
+    flag "-x --exclude <types>" help="Exclude entry types"
+    flag "-i --include <types>" help="Include entry types"
+    flag "-0 --nul-path-separator" help="Use the NUL character as a path separator"
+    flag "-p --path-style <absolute|relative>" help="Path style"
+    flag "-t --tree" help="Print paths as a tree"
+}
+
+cmd "verify" help="Exit with success if the destination state matches the target state" {
+    arg "[<target>...]" help="Targets to verify"
+    flag "-x --exclude <types>" help="Exclude entry types"
+    flag "-i --include <types>" help="Include entry types"
+    flag "--init" help="Recreate config file from template"
+    flag "-P --parent-dirs" help="Verify all parent directories"
+    flag "-r --recursive" help="Recurse into subdirectories"
+}
+
+// Encryption commands
+cmd "age" help="Interact with age" {
+    cmd "decrypt" help="Decrypt file or standard input" {
+        arg "[<file>...]" help="Files to decrypt"
+        flag "-p --passphrase" help="Decrypt with a passphrase"
+    }
+    cmd "encrypt" help="Encrypt file or standard input" {
+        arg "[<file>...]" help="Files to encrypt"
+        flag "-p --passphrase" help="Encrypt with a passphrase"
+    }
+}
+
+cmd "age-keygen" help="Generate an age identity or convert an age identity to an age recipient" {
+    flag "-y --convert" help="Convert identities to recipients"
+    flag "--pq" help="Generate a post-quantum key pair"
+}
+
+cmd "decrypt" help="Decrypt file or standard input" {
+    arg "[<file>...]" help="Files to decrypt"
+}
+
+cmd "edit-encrypted" help="Edit an encrypted file"
+
+cmd "encrypt" help="Encrypt file or standard input" {
+    arg "[<file>...]" help="Files to encrypt"
+}
+
+// Remote commands
+cmd "docker" help="Use your dotfiles in a Docker container" {
+    alias "podman" hide=#true
+    cmd "exec" help="Install your dotfiles in an existing Docker container and execute a shell" {
+        arg "<container-id>" help="Container ID"
+        arg "[<args>...]" help="Additional arguments"
+        flag "-i --interactive" help="Run interactively"
+        flag "-p --package-manager <string>" help="Package manager"
+        flag "-s --shell" help="Execute shell afterwards"
+    }
+    cmd "run" help="Create a new Docker container with your dotfiles and execute a shell" {
+        arg "<image-id>" help="Docker image ID"
+        arg "[<args>...]" help="Additional arguments"
+        flag "-p --package-manager <string>" help="Package manager"
+    }
+}
+
+cmd "ssh" help="SSH to a host and initialize dotfiles" {
+    arg "<host>" help="SSH host"
+    arg "[<init-args>...]" help="Arguments to chezmoi init"
+    flag "-p --package-manager <string>" help="Package manager"
+    flag "-s --shell" help="Execute shell afterwards"
+}
+
+// Migration commands
+cmd "archive" help="Generate a tar archive of the target state" {
+    arg "[<target>...]" help="Targets to archive"
+    flag "-x --exclude <types>" help="Exclude entry types"
+    flag "-f --format <none|tar|tar.gz|tgz|zip>" help="Set archive format"
+    flag "-z --gzip" help="Compress output with gzip"
+    flag "-i --include <types>" help="Include entry types"
+    flag "--init" help="Recreate config file from template"
+    flag "-P --parent-dirs" help="Archive parent directories"
+    flag "-r --recursive" help="Recurse into subdirectories"
+}
+
+cmd "destroy" help="Permanently delete an entry from the source state, the destination directory, and the state" {
+    arg "<target...>" help="Targets to destroy"
+    flag "-r --recursive" help="Recurse into subdirectories"
+}
+
+cmd "import" help="Import an archive into the source state" {
+    arg "<archive>" help="Archive file to import"
+    flag "-d --destination <path>" help="Set destination prefix"
+    flag "--exact" help="Set exact_ attribute on imported directories"
+    flag "-x --exclude <types>" help="Exclude entry types"
+    flag "-i --include <types>" help="Include entry types"
+    flag "-r --remove-destination" help="Remove destination before import"
+    flag "--strip-components <int>" help="Strip leading path components"
+}
+
+cmd "purge" help="Purge chezmoi's configuration and data" {
+    flag "-P --binary" help="Purge chezmoi binary"
+}
+
+cmd "upgrade" help="Upgrade chezmoi to the latest released version" {
+    flag "--executable <string>" help="Set executable to replace"
+    flag "--method <string>" help="Set upgrade method"
+}
+
+// Internal commands
+cmd "cat-config" help="Print the configuration file"
+
+cmd "completion" help="Generate shell completion code" {
+    arg "<shell>" help="Shell to generate completions for (bash, fish, powershell, zsh)"
+    complete "shell" run="""
+        printf '%s\n' \
+          'bash:bash' \
+          'fish:fish' \
+          'powershell:powershell' \
+          'zsh:zsh'
+        """ descriptions=#true
+}
+
+cmd "dump" help="Generate a dump of the target state" {
+    arg "[<target>...]" help="Targets to dump"
+    flag "-x --exclude <types>" help="Exclude entry types"
+    flag "-f --format <none|json|yaml>" help="Output format"
+    flag "-i --include <types>" help="Include entry types"
+    flag "--init" help="Recreate config file from template"
+    flag "-P --parent-dirs" help="Dump all parent directories"
+    flag "-r --recursive" help="Recurse into subdirectories"
+}
+
+cmd "dump-config" help="Dump the configuration values" {
+    flag "-f --format <none|json|yaml>" help="Output format"
+}
+
+cmd "secret" help="Interact with a secret manager" {
+    cmd "keyring" help="Interact with keyring" {
+        cmd "delete" help="Delete a value from keyring" {
+            flag "--service <string>" help="Service name"
+            flag "--user <string>" help="User name"
+        }
+        cmd "get" help="Get a value from keyring" {
+            flag "--service <string>" help="Service name"
+            flag "--user <string>" help="User name"
+        }
+        cmd "set" help="Set a value in keyring" {
+            flag "--service <string>" help="Service name"
+            flag "--user <string>" help="User name"
+            flag "--value <string>" help="Value to set"
+        }
+    }
+}
+
+cmd "source-path" help="Print the source path of a target" {
+    arg "[<target>...]" help="Targets to get source path for"
+}
+
+cmd "state" help="Manipulate the persistent state" {
+    cmd "data" help="Print the raw data in the persistent state" {
+        flag "-f --format <none|json|yaml>" help="Output format"
+    }
+    cmd "delete" help="Delete a value from the persistent state" {
+        flag "--bucket <string>" help="Bucket"
+        flag "--key <string>" help="Key"
+    }
+    cmd "delete-bucket" help="Delete a bucket from the persistent state" {
+        flag "--bucket <string>" help="Bucket"
+    }
+    cmd "dump" help="Generate a dump of the persistent state" {
+        flag "-f --format <none|json|yaml>" help="Output format"
+    }
+    cmd "get" help="Get a value from the persistent state" {
+        flag "--bucket <string>" help="Bucket"
+        flag "--key <string>" help="Key"
+    }
+    cmd "get-bucket" help="Get a bucket from the persistent state" {
+        flag "--bucket <string>" help="Bucket"
+        flag "-f --format <none|json|yaml>" help="Output format"
+    }
+    cmd "reset" help="Reset the persistent state"
+    cmd "set" help="Set a value from the persistent state" {
+        flag "--bucket <string>" help="Bucket"
+        flag "--key <string>" help="Key"
+        flag "--value <string>" help="Value"
+    }
+}
+
+cmd "target-path" help="Print the target path of a source path" {
+    arg "[<source-path>...]" help="Source paths to get target path for"
+}
