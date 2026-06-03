@@ -1,7 +1,9 @@
 const Cli = struct {
     allocator: std.mem.Allocator,
     io: std.Io,
-    args: *std.process.Args.Iterator,
+    args: std.process.Args.Iterator,
+    stdout_buf: [1024]u8,
+    file_writer: Io.File.Writer,
     stdout: *Io.Writer,
 
     const SubCommands = enum { homepath };
@@ -18,22 +20,19 @@ const Cli = struct {
         var diag = clap.Diagnostic{};
         const res = clap.parseEx(clap.Help, &main_params, main_parsers, &self.args, .{ .diagnostic = &diag, .allocator = self.allocator, .terminating_positional = 0 }) catch |err| {
             try diag.reportToFile(self.io, .stderr(), err);
+            return err;
         };
         return res;
     }
 
-    pub fn init(process: std.process.Init) !Cli {
-        const gpa = process.gpa;
-        const io = process.io;
-        var args = try process.minimal.args.iterateAllocator(gpa);
-        _ = args.next();
-
-        var stdout_buffer: [1024]u8 = undefined;
-        var stdout_file_writer: Io.File.Writer = .init(.stdout(), io, &stdout_buffer);
-        const stdout_writer = &stdout_file_writer.interface;
-
-        const cli = Cli{ .allocator = gpa, .io = io, .args = &args, .stdout = stdout_writer };
-        return cli;
+    pub fn init(self: *Cli, process: std.process.Init) !void {
+        self.allocator = process.gpa;
+        self.io = process.io;
+        self.args = try process.minimal.args.iterateAllocator(process.gpa);
+        _ = self.args.next();
+        self.stdout_buf = undefined;
+        self.file_writer = Io.File.Writer.init(.stdout(), self.io, &self.stdout_buf);
+        self.stdout = &self.file_writer.interface;
     }
 
     pub fn deinit(self: *Cli) void {
@@ -41,16 +40,16 @@ const Cli = struct {
     }
 
     pub fn run(process: std.process.Init, comptime Commands: type) !void {
-        var cli = try init(process);
+        var cli: Cli = undefined;
+        try cli.init(process);
         defer cli.deinit();
         const argsMain = try cli.parseMain();
         if (argsMain.args.help != 0) {
-            std.debug.print("--help\n", .{});
+            return clap.helpToFile(process.io, .stderr(), clap.Help, &main_params, .{});
         }
         const command = argsMain.positionals[0] orelse return error.MissingCommand;
         switch (command) {
-            .help => std.debug.print("--help\n", .{}),
-            .homepath => try Commands.homepath(cli, argsMain),
+            .homepath => try Commands.homepath(&cli, argsMain),
         }
     }
 };
@@ -58,7 +57,7 @@ const Cli = struct {
 const KbshCli = struct {
     pub fn homepath(cli: *Cli, argsMain: Cli.MainArgs) !void {
         _ = argsMain;
-        try cli.stdout.write("homepath", .{});
+        try cli.stdout.print("homepath\n", .{});
         try cli.stdout.flush();
     }
 };
