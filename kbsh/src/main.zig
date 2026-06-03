@@ -2,6 +2,7 @@ const Cli = struct {
     allocator: std.mem.Allocator,
     io: std.Io,
     args: std.process.Args.Iterator,
+    environ_map: *std.process.Environ.Map,
     stdout_buf: [1024]u8,
     file_writer: Io.File.Writer,
     stdout: *Io.Writer,
@@ -48,6 +49,7 @@ const Cli = struct {
         self.io = process.io;
         self.args = try process.minimal.args.iterateAllocator(process.gpa);
         _ = self.args.next();
+        self.environ_map = process.environ_map;
         self.stdout_buf = undefined;
         self.file_writer = Io.File.Writer.init(.stdout(), self.io, &self.stdout_buf);
         self.stdout = &self.file_writer.interface;
@@ -97,11 +99,129 @@ const Cli = struct {
 const KbshCli = struct {
     pub fn homepath(cli: *Cli, argsMain: Cli.MainArgs, argsHomePath: Cli.HomePathArgs) !void {
         _ = argsMain;
-        _ = argsHomePath;
-        try cli.stdout.print("homepath\n", .{});
+        const allocator = cli.allocator;
+
+        const file_args = argsHomePath.positionals[0];
+
+        var input_list: std.ArrayList([]const u8) = .empty;
+        defer {
+            for (input_list.items) |item| allocator.free(item);
+            input_list.deinit(allocator);
+        }
+
+        if (file_args.len == 0) {
+            const cwd_z = try std.process.currentPathAlloc(cli.io, allocator);
+            const cwd = try allocator.dupe(u8, cwd_z);
+            allocator.free(cwd_z);
+            try input_list.append(allocator, cwd);
+        } else if (file_args.len == 1 and std.mem.eql(u8, file_args[0], "-")) {
+            var stdin_buf: [4096]u8 = undefined;
+            var stdin_reader = Io.File.stdin().readerStreaming(cli.io, &stdin_buf);
+            var r = &stdin_reader.interface;
+            while (try r.takeDelimiter('\n')) |line| {
+                const t = std.mem.trimEnd(u8, line, "\r");
+                if (t.len > 0) try input_list.append(allocator, try allocator.dupe(u8, t));
+            }
+        } else {
+            for (file_args) |arg| try input_list.append(allocator, try allocator.dupe(u8, arg));
+        }
+
+        for (input_list.items) |p| {
+            const smart = try resolveSmartPath(cli.io, cli.environ_map, allocator, p);
+            defer allocator.free(smart);
+            try cli.stdout.print("{s}\n", .{smart});
+        }
         try cli.stdout.flush();
     }
 };
+
+fn getEnv(env: *std.process.Environ.Map, key: []const u8) ?[]const u8 {
+    return env.get(key);
+}
+
+fn resolveSmartPath(io: std.Io, env: *std.process.Environ.Map, allocator: std.mem.Allocator, path: []const u8) ![]const u8 {
+    const cwd = try std.process.currentPathAlloc(io, allocator);
+    defer allocator.free(cwd);
+
+    const abs_path = if (std.fs.path.isAbsolute(path))
+        try allocator.dupe(u8, path)
+    else
+        try std.fs.path.join(allocator, &.{ cwd, path });
+    defer allocator.free(abs_path);
+
+    const home = getEnv(env, "HOME") orelse return try allocator.dupe(u8, abs_path);
+
+    const EnvFallback = struct { value: []const u8, owned: bool };
+    var fallbacks: [7]EnvFallback = undefined;
+    defer for (&fallbacks) |*fb| if (fb.owned) allocator.free(fb.value);
+
+    fallbacks[0] = if (getEnv(env, "XDG_CONFIG_HOME")) |v|
+        EnvFallback{ .value = v, .owned = false }
+    else
+        EnvFallback{ .value = try std.fs.path.join(allocator, &.{ home, ".config" }), .owned = true };
+
+    fallbacks[1] = if (getEnv(env, "XDG_CACHE_HOME")) |v|
+        EnvFallback{ .value = v, .owned = false }
+    else
+        EnvFallback{ .value = try std.fs.path.join(allocator, &.{ home, ".cache" }), .owned = true };
+
+    fallbacks[2] = if (getEnv(env, "XDG_DATA_HOME")) |v|
+        EnvFallback{ .value = v, .owned = false }
+    else
+        EnvFallback{ .value = try std.fs.path.join(allocator, &.{ home, ".local", "share" }), .owned = true };
+
+    fallbacks[3] = if (getEnv(env, "XDG_STATE_HOME")) |v|
+        EnvFallback{ .value = v, .owned = false }
+    else
+        EnvFallback{ .value = try std.fs.path.join(allocator, &.{ home, ".local", "state" }), .owned = true };
+
+    fallbacks[4] = if (getEnv(env, "XDG_BIN_HOME")) |v|
+        EnvFallback{ .value = v, .owned = false }
+    else
+        EnvFallback{ .value = try std.fs.path.join(allocator, &.{ home, ".local", "bin" }), .owned = true };
+
+    fallbacks[5] = if (getEnv(env, "GHQ_ROOT")) |v|
+        EnvFallback{ .value = v, .owned = false }
+    else
+        EnvFallback{ .value = try std.fs.path.join(allocator, &.{ home, "ghq" }), .owned = true };
+
+    fallbacks[6] = if (getEnv(env, "DOTFILES")) |v|
+        EnvFallback{ .value = v, .owned = false }
+    else
+        EnvFallback{ .value = try std.fs.path.join(allocator, &.{ home, "dots" }), .owned = true };
+
+    const Named = struct { name: []const u8, value: []const u8 };
+    const entries = [_]Named{
+        .{ .name = "$XDG_CONFIG_HOME", .value = fallbacks[0].value },
+        .{ .name = "$XDG_CACHE_HOME", .value = fallbacks[1].value },
+        .{ .name = "$XDG_DATA_HOME", .value = fallbacks[2].value },
+        .{ .name = "$XDG_STATE_HOME", .value = fallbacks[3].value },
+        .{ .name = "$XDG_BIN_HOME", .value = fallbacks[4].value },
+        .{ .name = "$GHQ_ROOT", .value = fallbacks[5].value },
+        .{ .name = "$DOTFILES", .value = fallbacks[6].value },
+        .{ .name = "$HOME", .value = home },
+    };
+
+    var best_name: []const u8 = "";
+    var best_len: usize = 0;
+
+    for (entries) |e| {
+        if (std.mem.startsWith(u8, abs_path, e.value) and
+            (abs_path.len == e.value.len or abs_path[e.value.len] == '/') and
+            e.value.len > best_len)
+        {
+            best_name = e.name;
+            best_len = e.value.len;
+        }
+    }
+
+    if (best_len > 0) {
+        if (abs_path.len == best_len) return try allocator.dupe(u8, best_name);
+        return try std.fmt.allocPrint(allocator, "{s}/{s}", .{ best_name, abs_path[best_len + 1 ..] });
+    }
+
+    return try allocator.dupe(u8, abs_path);
+}
 
 pub fn main(init: std.process.Init) !void {
     try Cli.run(init, KbshCli);

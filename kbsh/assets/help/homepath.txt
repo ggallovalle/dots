@@ -1,9 +1,13 @@
 Usage: kbsh homepath [options] [<file>...]
 
-Resolve the home directory path for each given file.
+Resolve and print the home-shortened path for each file.
+
+  When no arguments are given, resolves the current directory.
+  When `-` is given, reads file paths from stdin.
+  When one or more arguments are given, resolves those paths.
 
 Arguments:
-  <file>...  One or more file paths to resolve
+  <file>...  File paths to resolve, or - for stdin, or empty for cwd
 
 Options:
   -h, --help  Display this help text and exit
