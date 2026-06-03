@@ -67,18 +67,31 @@ zi load z-shell/F-Sy-H
 ## section - better history navigation and search
 ## try to get a fish-like history search experience
 
-# conflicts with zsh_autosuggest_strategy=(match_prev_cmd)
-# setopt hist_expire_dups_first # delete duplicates first when HISTFILE size exceeds HISTSIZE
-# setopt hist_ignore_all_dups   # remove older duplicate entries from the history
-setopt extended_history       # record timestamp of command in HISTFILE
-setopt hist_ignore_dups       # ignore duplicated commands history list
-setopt hist_ignore_space      # ignore commands that start with space
-setopt hist_reduce_blanks     # remove superfluous blanks from history items
-setopt hist_save_no_dups      # do not write a duplicate event to the history file
-setopt inc_append_history     # allow multiple terminal sessions to append to one history
-setopt inc_append_history     # write to the history file immediately, not when the shell exits.
-setopt share_history          # share command history data
-export HISTFILE="${XDG_STATE_HOME}/zsh/history"
+HISTFILE="${XDG_STATE_HOME}/zsh/history"
+HISTSIZE=100000
+SAVEHIST=100000
+
+# sizes
+HISTSIZE=100000          # in-memory history
+SAVEHIST=100000         # saved to HISTFILE
+# append, don't overwrite
+setopt APPEND_HISTORY
+# share history between open shells
+setopt SHARE_HISTORY
+# write each command as soon as accepted
+setopt INC_APPEND_HISTORY 
+# better timestamps + duration in history file
+setopt EXTENDED_HISTORY
+# dedupe
+setopt HIST_IGNORE_ALL_DUPS
+setopt HIST_SAVE_NO_DUPS
+setopt HIST_FIND_NO_DUPS
+# don't save commands starting with space
+setopt HIST_IGNORE_SPACE
+# don't save repeated command twice in row
+setopt HIST_IGNORE_DUPS
+# remove extra blanks before saving
+setopt HIST_REDUCE_BLANKS
 
 # https://github.com/zsh-users/zsh-autosuggestions
 typeset -ga ZSH_AUTOSUGGEST_STRATEGY=(match_prev_cmd)
@@ -96,10 +109,10 @@ zi load zsh-users/zsh-history-substring-search
 # zi load z-shell/H-S-MW
 
 ## end section - better history navigation and search
-
-zi load z-shell/zui
+#
+# zi load z-shell/zui
 # `<C-b>` or `zbrowse` to open it
-zi load z-shell/zbrowse
+# zi load z-shell/zbrowse
 
 # # ignore expansion of these regular/global aliases
 # export ZPWR_EXPAND_BLACKLIST=()

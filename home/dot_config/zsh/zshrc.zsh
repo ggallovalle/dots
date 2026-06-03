@@ -11,18 +11,12 @@ fpath+=( ${0:h}/functions ${0:h}/completions )
 autoload -Uz ${0:h}/functions/*(.:t)
 
 
-source ${0:h}/zinit.zsh
-source ${0:h}/alias.zsh
+if [[ -o interactive ]]; then
+  source ${0:h}/zinit.zsh
+  source ${0:h}/alias.zsh
 
-# j - jump [arg]
-# ji - jump interactive
-if (( ${+commands[zoxide]} )); then
   source ~/.zi/evaled/zoxide.zsh
-fi
-source ~/.zi/evaled/wt.zsh
-if [[ -o interactive && ${TERM:-} != dumb ]]; then
-  if (( ${+commands[starship]} )); then
-    source ~/.zi/evaled/starship.zsh
-  fi
+  source ~/.zi/evaled/wt.zsh
+  source ~/.zi/evaled/starship.zsh
 fi
 
