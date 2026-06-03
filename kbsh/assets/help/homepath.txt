@@ -1,0 +1,9 @@
+Usage: kbsh homepath [options] [<file>...]
+
+Resolve the home directory path for each given file.
+
+Arguments:
+  <file>...  One or more file paths to resolve
+
+Options:
+  -h, --help  Display this help text and exit

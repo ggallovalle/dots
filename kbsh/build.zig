@@ -32,6 +32,10 @@ pub fn build(b: *std.Build) void {
 
     const deps = Deps.init(b);
 
+    const assets_module = b.createModule(.{
+        .root_source_file = b.path("assets.zig"),
+    });
+
     // This creates a module, which represents a collection of source files alongside
     // some compilation options, such as optimization mode and linked system libraries.
     // Zig modules are the preferred way of making Zig code available to consumers.
@@ -91,6 +95,7 @@ pub fn build(b: *std.Build) void {
                 // importing modules from different packages).
                 .{ .name = "kbsh", .module = mod },
                 .{ .name = "clap", .module = deps.clap },
+                .{ .name = "assets", .module = assets_module },
             },
         }),
     });

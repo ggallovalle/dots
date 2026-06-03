@@ -16,9 +16,26 @@ const Cli = struct {
     );
     const MainArgs = clap.ResultEx(clap.Help, &main_params, main_parsers);
 
+    const homepath_params = clap.parseParamsComptime(
+        \\-h, --help    Display this help text and exit
+        \\<file>...
+        \\
+    );
+    const homepath_parsers = .{ .file = clap.parsers.string };
+    const HomePathArgs = clap.ResultEx(clap.Help, &homepath_params, homepath_parsers);
+
     fn parseMain(self: *Cli) !MainArgs {
         var diag = clap.Diagnostic{};
         const res = clap.parseEx(clap.Help, &main_params, main_parsers, &self.args, .{ .diagnostic = &diag, .allocator = self.allocator, .terminating_positional = 0 }) catch |err| {
+            try diag.reportToFile(self.io, .stderr(), err);
+            return err;
+        };
+        return res;
+    }
+
+    fn parseHomePath(self: *Cli) !HomePathArgs {
+        var diag = clap.Diagnostic{};
+        const res = clap.parseEx(clap.Help, &homepath_params, homepath_parsers, &self.args, .{ .diagnostic = &diag, .allocator = self.allocator }) catch |err| {
             try diag.reportToFile(self.io, .stderr(), err);
             return err;
         };
@@ -45,18 +62,32 @@ const Cli = struct {
         defer cli.deinit();
         const argsMain = try cli.parseMain();
         if (argsMain.args.help != 0) {
-            return clap.helpToFile(process.io, .stderr(), clap.Help, &main_params, .{});
+            var help_buf: [1024]u8 = undefined;
+            var stderr_w = std.Io.File.stderr().writer(process.io, &help_buf);
+            try stderr_w.interface.writeAll(assets.help);
+            try stderr_w.interface.flush();
+            return;
         }
         const command = argsMain.positionals[0] orelse return error.MissingCommand;
+        var argsHomePath = try cli.parseHomePath();
+        defer argsHomePath.deinit();
+        if (argsHomePath.args.help != 0) {
+            var help_buf: [1024]u8 = undefined;
+            var stderr_w = std.Io.File.stderr().writer(process.io, &help_buf);
+            try stderr_w.interface.writeAll(assets.homepath_help);
+            try stderr_w.interface.flush();
+            return;
+        }
         switch (command) {
-            .homepath => try Commands.homepath(&cli, argsMain),
+            .homepath => try Commands.homepath(&cli, argsMain, argsHomePath),
         }
     }
 };
 
 const KbshCli = struct {
-    pub fn homepath(cli: *Cli, argsMain: Cli.MainArgs) !void {
+    pub fn homepath(cli: *Cli, argsMain: Cli.MainArgs, argsHomePath: Cli.HomePathArgs) !void {
         _ = argsMain;
+        _ = argsHomePath;
         try cli.stdout.print("homepath\n", .{});
         try cli.stdout.flush();
     }
@@ -134,3 +165,4 @@ const std = @import("std");
 const clap = @import("clap");
 const Io = std.Io;
 const kbsh = @import("kbsh");
+const assets = @import("assets");

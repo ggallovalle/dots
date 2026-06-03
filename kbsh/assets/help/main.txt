@@ -1,0 +1,7 @@
+Usage: kbsh <command> [options]
+
+Commands:
+  homepath     Resolve and print the home directory path
+
+Options:
+  -h, --help   Display this help text and exit
