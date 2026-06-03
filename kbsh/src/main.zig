@@ -224,6 +224,7 @@ fn resolveSmartPath(io: std.Io, env: *std.process.Environ.Map, allocator: std.me
 }
 
 pub fn main(init: std.process.Init) !void {
+    _ = kbstd.add(1, 2);
     try Cli.run(init, KbshCli);
     // // Prints to stderr, unbuffered, ignoring potential errors.
     // std.debug.print("All your {s} are belong to us.\n", .{"codebase"});
@@ -295,4 +296,5 @@ const std = @import("std");
 const clap = @import("clap");
 const Io = std.Io;
 const kbsh = @import("kbsh");
+const kbstd = @import("kbstd");
 const assets = @import("assets");
