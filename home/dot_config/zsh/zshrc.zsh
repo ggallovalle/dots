@@ -5,7 +5,7 @@
 zmodload zsh/param/private
 zmodload zsh/zutil
 
-eval "$(mise activate zsh)"
+source ~/.zi/evaled/mise.zsh
 
 fpath+=( ${0:h}/functions ${0:h}/completions )
 autoload -Uz ${0:h}/functions/*(.:t)
@@ -16,12 +16,12 @@ source ${0:h}/alias.zsh
 
 # j - jump [arg]
 # ji - jump interactive
-if command -v zoxide >/dev/null 2>&1; then
-  eval "$(zoxide init zsh --cmd j)"
+if (( ${+commands[zoxide]} )); then
+  source ~/.zi/evaled/zoxide.zsh
 fi
 if [[ -o interactive && ${TERM:-} != dumb ]]; then
-  if command -v starship >/dev/null 2>&1; then
-    eval "$(starship init zsh)"
+  if (( ${+commands[starship]} )); then
+    source ~/.zi/evaled/starship.zsh
   fi
 fi
 

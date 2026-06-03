@@ -25,7 +25,7 @@ path+=(
 
 
 # secrets
-if [[ -o interactive ]] && command -v secret-tool >/dev/null 2>&1; then
+if [[ -o interactive ]] && (( ${+commands[secret-tool]} )); then
   local secret_value
   secret_value="$(secret-tool lookup service bitwarden name session 2>/dev/null)" && [[ -n $secret_value ]] && export BW_SESSION="$secret_value"
   # export GITHUB_TOKEN="$(secret-tool lookup service github name api_key)"

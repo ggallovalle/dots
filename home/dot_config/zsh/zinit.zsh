@@ -49,23 +49,7 @@ function zvm_config() {
 }
 
 function zvm_after_init() {
-  if command -v tv >/dev/null 2>&1; then
-    eval "$(tv init zsh)"
-    # Custom ^T: always open tv as a file picker in current directory
-    function _tv_file_picker() {
-      _disable_bracketed_paste
-      zle -I
-      local result
-      result=$(tv . --no-status-bar < /dev/tty)
-      if [[ -n $result ]]; then
-        LBUFFER+="$result "
-      fi
-      _enable_bracketed_paste
-      zle reset-prompt
-    }
-    zle -N tv-file-picker _tv_file_picker
-    bindkey -M viins '^T' tv-file-picker
-  fi
+  source ~/.zi/evaled/tv.zsh
 }
 zi ice --light-mode --ver="f82c4c8"
 zi load jeffreytse/zsh-vi-mode

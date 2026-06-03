@@ -1,0 +1,33 @@
+#!/usr/bin/env zsh
+
+
+0="${ZERO:-${${0:#$ZSH_ARGZERO}:-${(%):-%N}}}"
+0="${${(M)0:#/*}:-$PWD/$0}"
+
+generated_count=0
+
+# command → completion generator mapping
+typeset -A _completion_cmds
+
+_generated_cmds=(
+  tv        "tv init zsh"
+  mise      "mise activate zsh"
+  zoxide    "zoxide init zsh --cmd j"
+  starship  "starship init zsh"
+)
+
+for _gen_name _gen_cmd in ${(kv)_generated_cmds}; do
+  _target="${HOME}/.zi/evaled/${_gen_name}.zsh"
+
+  if (( ${+commands[${_gen_name}]} )); then
+    echo -n $'\e[2m'"$ "${_gen_cmd}$'\e[0m'
+    echo
+    eval "$_gen_cmd" > "$_target"
+    (( generated_count++ ))
+  fi
+done
+
+if [[ $generated_count -gt 0 ]]; then
+  echo "Generated ${generated_count} evaled"
+fi
+
