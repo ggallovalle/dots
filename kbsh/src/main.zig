@@ -74,7 +74,11 @@ const Cli = struct {
             try cli.stdout.flush();
             return;
         }
-        const command = argsMain.positionals[0] orelse return error.MissingCommand;
+        const command = argsMain.positionals[0] orelse {
+            try cli.stdout.writeAll(assets.help);
+            try cli.stdout.flush();
+            return;
+        };
         var argsHomePath = try cli.parseHomePath();
         defer argsHomePath.deinit();
         if (argsHomePath.args.help != 0) {
