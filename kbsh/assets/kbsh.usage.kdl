@@ -1,0 +1,11 @@
+name "kbsh"
+bin "kbsh"
+about "Shell toolkit"
+
+flag "-h --help" help="Show help information"
+flag "--usage-spec" help="Show the usage spec and exit"
+
+cmd "homepath" help="Resolve the home directory path for each given file" {
+    flag "-h --help" help="Show help information"
+    arg "<file>..." help="One or more file paths to resolve"
+}

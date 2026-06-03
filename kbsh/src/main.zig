@@ -10,7 +10,8 @@ const Cli = struct {
 
     const main_parsers = .{ .command = clap.parsers.enumeration(SubCommands) };
     const main_params = clap.parseParamsComptime(
-        \\-h, --help    Display this help text and exit
+        \\-h, --help        Display this help text and exit
+        \\--usage-spec      Show the kbsh usage spec and exit
         \\<command>
         \\
     );
@@ -66,6 +67,11 @@ const Cli = struct {
             var stderr_w = std.Io.File.stderr().writer(process.io, &help_buf);
             try stderr_w.interface.writeAll(assets.help);
             try stderr_w.interface.flush();
+            return;
+        }
+        if (argsMain.args.@"usage-spec" != 0) {
+            try cli.stdout.writeAll(assets.usage_spec);
+            try cli.stdout.flush();
             return;
         }
         const command = argsMain.positionals[0] orelse return error.MissingCommand;
