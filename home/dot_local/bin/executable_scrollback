@@ -1,0 +1,38 @@
+#!/usr/bin/env -S usage zsh
+# vim: ft=zsh
+#USAGE about "open terminal scrolback in neovim"
+#USAGE flag "--from <from>" help="Where are we executing from (zellij, herdr)"
+
+function scrollback_zellij_screen_file() {
+  emulate -L zsh
+
+  REPLY=$(mktemp -t zellij-scrollback-XXXX.ansi) || return
+
+  zellij action dump-screen --full --path "$REPLY" || return
+}
+
+if [ "$usage_from" = "zellij" ]; then
+  if (( $ZELLIJ != 0 && $ZELLIJ_PANE_ID <= 0 ));then
+    print -u2 "error: not inside a zellij session"
+    return 1
+  fi
+
+  local Tmpfile
+
+  zellij action focus-previous-pane
+  scrollback_zellij_screen_file
+  Tmpfile=$REPLY
+  zellij action focus-next-pane
+  nvim -c "set ft=ansi" -c '$' -R $Tmpfile
+  return 0
+fi
+
+if (( $ZELLIJ == 0 && $ZELLIJ_PANE_ID >= 0 ));then
+  local Tmpfile
+  scrollback_zellij_screen_file
+  Tmpfile=$REPLY
+  zellij action new-pane --name "scrollback" --close-on-exit --stacked -- \
+    nvim -c "set ft=ansi" -c '$' -R $Tmpfile
+  return 0
+fi
+
