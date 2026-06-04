@@ -5,7 +5,7 @@
 zmodload zsh/param/private
 zmodload zsh/zutil
 
-source ~/.zi/evaled/mise.zsh
+# source ~/.zi/evaled/mise.zsh
 
 fpath+=( ${0:h}/functions ${0:h}/completions )
 autoload -Uz ${0:h}/functions/*(.:t)

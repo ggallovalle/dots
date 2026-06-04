@@ -1,0 +1,6 @@
+# vim: ft=zsh
+source $HOME/.config/zsh/zprofile.zsh
+
+# Added by swiftly
+source "$HOME/.local/share/swiftly/env.sh"
+
