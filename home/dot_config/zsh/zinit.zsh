@@ -37,6 +37,9 @@ zi snippet https://github.com/jdx/mise/blob/main/completions/_mise
 zi ice --lucid --wait --as=completion --blockf --has=opencode
 zi snippet https://github.com/PEMessage/opencode-zsh-completion/blob/main/_opencode
 
+zinit ice lucid nocompile
+zinit load MenkeTechnologies/zsh-cargo-completion
+
 
 
 # https://github.com/z-shell/F-Sy-H

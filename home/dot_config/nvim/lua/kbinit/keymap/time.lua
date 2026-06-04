@@ -177,16 +177,13 @@ local function conversions_for(range)
         table.insert(items, { text = "time", value = time, preview = { text = time } })
         table.insert(items, { text = "time seconds", value = time_s, preview = { text = time_s } })
         table.insert(items, { text = "time 12h", value = time12h, preview = { text = time12h } })
-        table.insert(
-            items,
-            {
-                text = "time 12h seconds",
-                value = time12h_s,
-                preview = {
-                    text = time12h_s
-                }
+        table.insert(items, {
+            text = "time 12h seconds",
+            value = time12h_s,
+            preview = {
+                text = time12h_s
             }
-        )
+        })
     end
 
     return items, nil
