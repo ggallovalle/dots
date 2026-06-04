@@ -12,7 +12,6 @@ import sys
 from pathlib import Path
 
 import tomlkit
-
 PORTABLE = {
     "model": "gpt-5.4-mini",
     "model_reasoning_effort": "low",
@@ -50,7 +49,13 @@ PORTABLE = {
         "writable_roots": [
             os.environ.get("XDG_CACHE_HOME", str(Path.home() / ".cache"))
             ]
-    }
+    },
+    "mcp_servers": {
+        "fff": {
+            "command": "fff-mcp",
+            "default_tools_approval_mode": "approve"
+            }
+        }
 }
 
 PORTABLE_TOP_KEYS = {
@@ -62,6 +67,7 @@ PORTABLE_TOP_KEYS = {
     "tui",
     "notice",
     "features",
+    "mcp_servers"
 }
 
 raw = sys.stdin.read()

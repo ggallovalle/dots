@@ -21,6 +21,64 @@ function HBlink.tab()
 end
 
 ---@type LazyPluginSpec
+local FileMention = {
+    url = "https://github.com/not-manu/filemention.nvim",
+    event = "InsertEnter",
+    opts = {
+        finder = "fff",
+  filetypes = { "markdown", "text", "gitcommit", "typst" },  -- or "*" if you live dangerously
+    }
+}
+
+---@type LazyPluginSpec
+local FFF = {
+    "dmtrKovalenko/fff.nvim",
+    build = function()
+        -- downloads a prebuilt binary or falls back to cargo build
+        require("fff.download").download_or_build_binary()
+    end,
+    -- for nixos:
+  -- build = "nix run .#release",
+    opts = {
+        debug = {
+            enabled = true,
+            show_scores = true
+        }
+    },
+    lazy = false, -- the plugin lazy-initialises itself
+    keys = {
+        {
+            "<leader>sf",
+            function()
+                require("fff").find_files()
+            end,
+            desc = "[F]iles"
+        },
+        {
+            "<leader>sg",
+            function()
+                require("fff").live_grep()
+            end,
+            desc = "[G]rep"
+        },
+        {
+            "<leader>sz",
+            function()
+                require("fff").live_grep({ grep = { modes = { "fuzzy", "plain" } } })
+            end,
+            desc = "[F]uzzy grep"
+        },
+        {
+            "<leader>sw",
+            function()
+                require("fff").live_grep({ query = vim.fn.expand("<cword>") })
+            end,
+            desc = "[W]ord"
+        }
+    }
+}
+
+---@type LazyPluginSpec
 local BlinkCmp = {
     url = "https://github.com/saghen/blink.cmp.git",
     dependencies = {
@@ -32,6 +90,16 @@ local BlinkCmp = {
     ---@diagnostic disable-next-line: missing-fields
   ---@type blink.cmp.ConfigStrict
     opts = {
+        ---@diagnostic disable-next-line: missing-fields
+        sources = {
+            default = { "filemention", "lsp", "path", "snippets", "buffer" },
+            providers = {
+                filemention = {
+                    name = "filemention",
+                    module = "filemention.sources.blink"
+                }
+            }
+        },
         keymap = {
             preset = "default",
             ["<C-y>"] = { HBlink.select_and_accept, "fallback" },
@@ -150,4 +218,4 @@ local Treesitter = {
     end
 }
 
-return { BlinkCmp, Mason, NvimLspconfig, MasonLspconfig, Treesitter }
+return { BlinkCmp, Mason, NvimLspconfig, MasonLspconfig, Treesitter, FileMention, FFF }

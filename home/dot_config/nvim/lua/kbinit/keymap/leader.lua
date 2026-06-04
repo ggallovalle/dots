@@ -26,7 +26,8 @@ local function open_diagnostic_qf(title, diagnostics)
             severity = diagnostic.severity,
             text = text
         }
-    end, diagnostics)
+    end,
+        diagnostics)
 
     vim.fn.setqflist({}, " ", {
         title = title,
@@ -43,17 +44,21 @@ vim.api.nvim_create_autocmd("FileType", {
             silent = true,
             nowait = true
         })
-        vim.keymap.set("n", "<CR>", function()
-            local win = vim.api.nvim_get_current_win()
-            vim.cmd.cc()
-            vim.schedule(function()
-                pcall(vim.api.nvim_win_close, win, true)
-            end)
-        end, {
-            buffer = args.buf,
-            silent = true,
-            nowait = true
-        })
+        vim.keymap.set(
+            "n", "<CR>",
+            function()
+                local win = vim.api.nvim_get_current_win()
+                vim.cmd.cc()
+                vim.schedule(function()
+                    pcall(vim.api.nvim_win_close, win, true)
+                end)
+            end,
+            {
+                buffer = args.buf,
+                silent = true,
+                nowait = true
+            }
+        )
     end
 })
 
@@ -202,9 +207,9 @@ function M.register()
     wk.add({ "<leader>s", group = "[S]earch" })
     vim.keymap.set("n", "<leader>s:", snacks.picker.command_history, { desc = "[C]ommand History" })
     vim.keymap.set("n", "<leader>sk", snacks.picker.keymaps, { desc = "[K]eymaps" })
-    vim.keymap.set("n", "<leader>sg", snacks.picker.grep, { desc = "[G]rep" })
+    -- vim.keymap.set("n", "<leader>sg", snacks.picker.grep, { desc = "[G]rep" })
     vim.keymap.set("n", "<leader>sb", search_buffer, { desc = "[B]uffers" })
-    vim.keymap.set("n", "<leader>sf", search_file, { desc = "[F]iles (Git)" })
+    -- vim.keymap.set("n", "<leader>sf", search_file, { desc = "[F]iles (Git)" })
 
     wk.add({ "<leader>d", group = "[D]ocument" })
     vim.api.nvim_create_autocmd("FileType", {
@@ -219,13 +224,9 @@ function M.register()
             )
             vim.keymap.set(
                 "n", "<leader>dP", "<cmd>TypstPreviewStop<cr>",
-                vim.tbl_extend(
-                    "force",
-                    opts,
-                    {
-                        desc = "Stop [P]review"
-                    }
-                )
+                vim.tbl_extend("force", opts, {
+                    desc = "Stop [P]review"
+                })
             )
         end
     })
