@@ -26,13 +26,13 @@ local FileMention = {
     event = "InsertEnter",
     opts = {
         finder = "fff",
-  filetypes = { "markdown", "text", "gitcommit", "typst" },  -- or "*" if you live dangerously
+        filetypes = { "markdown", "text", "gitcommit", "typst" } -- or "*" if you live dangerously
     }
 }
 
 ---@type LazyPluginSpec
 local FFF = {
-    "dmtrKovalenko/fff.nvim",
+    url = "https://github.com/dmtrKovalenko/fff",
     build = function()
         -- downloads a prebuilt binary or falls back to cargo build
         require("fff.download").download_or_build_binary()
@@ -43,6 +43,10 @@ local FFF = {
         debug = {
             enabled = true,
             show_scores = true
+        },
+        keymaps = {
+            move_up = { "<Up>", "<C-p>", "<C-k>" },
+            move_down = { "<Down>", "<C-n>", "<C-j>" }
         }
     },
     lazy = false, -- the plugin lazy-initialises itself
@@ -173,6 +177,7 @@ local Treesitter = {
                 --
                 "rust",
                 "zig",
+                "swift",
                 --
                 "lua",
                 --

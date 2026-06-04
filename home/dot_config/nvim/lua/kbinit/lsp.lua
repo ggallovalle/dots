@@ -136,6 +136,7 @@ function H.lsp_config()
         filetypes = { "typst" },
         root_markers = { ".git" }
     })
+    vim.lsp.enable("sourcekit")
 end
 
 function H.lsp_keymaps()

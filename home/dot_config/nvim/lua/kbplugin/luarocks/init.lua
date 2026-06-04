@@ -93,21 +93,21 @@ function Runtime.wire_paths(luarocks, lua_version, cb)
     local path_cmd = { luarocks, "--lua-version", lua_version, "path", "--lr-path" }
     local cpath_cmd = { luarocks, "--lua-version", lua_version, "path", "--lr-cpath" }
 
-    process.execute_text(process.make(path_cmd[1], vim.list_slice(path_cmd, 2)), function(
-        err, path_result
-    )
-        if err ~= nil or path_result == nil or path_result.code ~= 0 then
-            cb(
-                false,
-                "failed to read luarocks path: "
-                    .. vim.trim((path_result and path_result.stderr) or tostring(err or ""))
-            )
-            return
-        end
+    process.execute_text(
+        process.make(path_cmd[1], vim.list_slice(path_cmd, 2)),
+        function(err, path_result)
+            if err ~= nil or path_result == nil or path_result.code ~= 0 then
+                cb(
+                    false,
+                    "failed to read luarocks path: "
+                        .. vim.trim((path_result and path_result.stderr) or tostring(err or ""))
+                )
+                return
+            end
 
-        process.execute_text(
-            process.make(cpath_cmd[1], vim.list_slice(cpath_cmd, 2)),
-            function(err2, cpath_result)
+            process.execute_text(process.make(cpath_cmd[1], vim.list_slice(cpath_cmd, 2)), function(
+                err2, cpath_result
+            )
                 if err2 ~= nil or cpath_result == nil or cpath_result.code ~= 0 then
                     cb(
                         false,
@@ -145,9 +145,9 @@ function Runtime.wire_paths(luarocks, lua_version, cb)
                 State.data.wired_path_count = wired_path_count
                 State.data.wired_cpath_count = wired_cpath_count
                 cb(true, nil)
-            end
-        )
-    end)
+            end)
+        end
+    )
 end
 
 local Installer = {}
