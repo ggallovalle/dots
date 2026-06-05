@@ -1,4 +1,5 @@
 local wezterm = require 'wezterm'
+
 local config = {}
 
 config.font = wezterm.font_with_fallback {
@@ -13,6 +14,9 @@ config.window_decorations = "RESIZE"
 config.window_background_opacity = 1.0
 config.window_close_confirmation = "NeverPrompt"
 config.adjust_window_size_when_changing_font_size = false
+config.window_padding = {
+  bottom = "1cell",
+}
 
 config.default_cursor_style = "SteadyUnderline"
 config.cursor_thickness = 2
@@ -76,27 +80,37 @@ config.colors.tab_bar = {
   },
 }
 
+local master = "CTRL|SHIFT"
+
+-- https://wezterm.org/config/default-keys.html
 config.keys = {
-  { key = 'Tab', mods = 'ALT', action = wezterm.action.ActivateTabRelative(1) },
+  { key = 'Tab', mods = 'ALT',       action = wezterm.action.ActivateTabRelative(1) },
   { key = 'Tab', mods = 'SHIFT|ALT', action = wezterm.action.ActivateTabRelative(-1) },
-  { key = '1', mods = 'ALT', action = wezterm.action.ActivateTab(0) },
-  { key = '2', mods = 'ALT', action = wezterm.action.ActivateTab(1) },
-  { key = '3', mods = 'ALT', action = wezterm.action.ActivateTab(2) },
-  { key = '4', mods = 'ALT', action = wezterm.action.ActivateTab(3) },
-  { key = '5', mods = 'ALT', action = wezterm.action.ActivateTab(4) },
-  { key = '6', mods = 'ALT', action = wezterm.action.ActivateTab(5) },
-  { key = '7', mods = 'ALT', action = wezterm.action.ActivateTab(6) },
-  { key = '8', mods = 'ALT', action = wezterm.action.ActivateTab(7) },
-  { key = '9', mods = 'ALT', action = wezterm.action.ActivateTab(8) },
-  { key = 't', mods = 'ALT', action = wezterm.action.SpawnTab 'CurrentPaneDomain' },
-  { key = 'w', mods = 'ALT', action = wezterm.action.CloseCurrentTab{ confirm = false } },
+  { key = '1',   mods = 'ALT',       action = wezterm.action.ActivateTab(0) },
+  { key = '2',   mods = 'ALT',       action = wezterm.action.ActivateTab(1) },
+  { key = '3',   mods = 'ALT',       action = wezterm.action.ActivateTab(2) },
+  { key = '4',   mods = 'ALT',       action = wezterm.action.ActivateTab(3) },
+  { key = '5',   mods = 'ALT',       action = wezterm.action.ActivateTab(4) },
+  { key = '6',   mods = 'ALT',       action = wezterm.action.ActivateTab(5) },
+  { key = '7',   mods = 'ALT',       action = wezterm.action.ActivateTab(6) },
+  { key = '8',   mods = 'ALT',       action = wezterm.action.ActivateTab(7) },
+  { key = '9',   mods = 'ALT',       action = wezterm.action.ActivateTab(8) },
+  { key = 't',   mods = 'ALT',       action = wezterm.action.SpawnTab 'CurrentPaneDomain' },
+  { key = 'w',   mods = master,      action = wezterm.action.CloseCurrentTab { confirm = false } },
+  {
+    key = 'd',
+    mods = master,
+    action = wezterm.action.SpawnCommandInNewWindow {
+      args = { 'codex' },
+    },
+  },
 }
 
-config.enable_tab_bar = true
+-- config.enable_tab_bar = true
 config.use_fancy_tab_bar = false
-config.tab_bar_at_bottom = true
-config.hide_tab_bar_if_only_one_tab = false
-config.show_tab_index_in_tab_bar = true
+config.hide_tab_bar_if_only_one_tab = true
+-- config.tab_bar_at_bottom = true
+-- config.show_tab_index_in_tab_bar = true
 
 config.max_fps = 120
 config.front_end = "WebGpu"
