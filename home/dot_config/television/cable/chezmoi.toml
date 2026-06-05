@@ -12,6 +12,7 @@ command = "bat -n --color=always $(chezmoi source-path)/'{}' 2>/dev/null || eza 
 [keybindings]
 enter = "actions:cd"
 ctrl-e = "actions:edit"
+ctrl-a = "actions:apply"
 
 [actions.cd]
 description = "cd to source directory"
@@ -21,4 +22,9 @@ mode = "execute"
 [actions.edit]
 description = "Open in nvim with ChezmoiEnable"
 command = "nvim -c 'ChezmoiEnable' $(chezmoi source-path)/'{}'"
+mode = "execute"
+
+[actions.apply]
+description = "Apply selected file"
+command = "chezmoi apply --source-path $(chezmoi source-path)/'{}'"
 mode = "execute"
