@@ -1,7 +1,10 @@
 ---@type LazyPluginSpec
 local CodeDiff = {
   url = "https://github.com/esmuellert/codediff.nvim",
-  cmd = "CodeDiff"
+  cmd = "CodeDiff",
+  keys = {
+    { "<leader>gd", "<cmd>CodeDiff<cr>", desc = "[N]eogit" }
+  }
 }
 
 ---@type LazyPluginSpec

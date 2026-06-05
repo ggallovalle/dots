@@ -47,7 +47,7 @@ vim.api.nvim_create_autocmd("FileType", {
       "n", "<CR>",
       function ()
         local win = vim.api.nvim_get_current_win()
-        vim.cmd.cc()
+        vim.cmd.cc({ count = vim.fn.line('.') })
         vim.schedule(function ()
           pcall(vim.api.nvim_win_close, win, true)
         end)
@@ -60,24 +60,6 @@ vim.api.nvim_create_autocmd("FileType", {
     )
   end
 })
-
-local function search_file()
-  local cwd = vim.fn.getcwd()
-  local git_root = snacks.git.get_root()
-
-  if git_root then
-    snacks.picker.git_files({
-      untracked = true,
-      cwd = cwd,
-      filter = { cwd = cwd }
-    })
-  else
-    snacks.picker.files({
-      cwd = cwd,
-      filter = { cwd = cwd }
-    })
-  end
-end
 
 local function search_buffer()
   snacks.picker.buffers({

@@ -648,7 +648,7 @@ default_layout "compact"
 // (Requires restart)
 // Default: true (if the host terminal supports it)
 //
-// support_kitty_keyboard_protocol false
+support_kitty_keyboard_protocol true
 // Whether to make sure a local web server is running when a new Zellij session starts.
 // This web server will allow creating new sessions and attaching to existing ones that have
 // opted in to being shared in the browser.
@@ -710,34 +710,34 @@ show_release_notes false
  // Whether to enable mouse hover effects and pane grouping functionality
 // default is true
 // advanced_mouse_actions false
- 
+
 // Whether to enable mouse hover visual effects (frame highlight and help text)
 // default is true
 // mouse_hover_effects false
- 
+
 // Whether to show visual bell indicators (pane/tab frame flash and [!] suffix)
 // default is true
 // visual_bell true
- 
+
 // Whether to focus panes on mouse hover
 // default is false
 // focus_follows_mouse false
- 
+
 // Whether clicking a pane to focus it also sends the click into the pane
 // default is false
 // mouse_click_through false
- 
+
 // The ip address the web server should listen on when it starts
 // Default: "127.0.0.1"
 // (Requires restart)
 // web_server_ip "127.0.0.1"
- 
+
 // The port the web server should listen on when it starts
 // Default: 8082
 // (Requires restart)
 // web_server_port 8082
- 
-// A command to run (will be wrapped with sh -c and provided the RESURRECT_COMMAND env variable) 
+
+// A command to run (will be wrapped with sh -c and provided the RESURRECT_COMMAND env variable)
 // after Zellij attempts to discover a command inside a pane when resurrecting sessions, the STDOUT
 // of this command will be used instead of the discovered RESURRECT_COMMAND
 // can be useful for removing wrappers around commands

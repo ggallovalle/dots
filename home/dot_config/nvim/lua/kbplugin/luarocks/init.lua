@@ -21,7 +21,7 @@ local M = {}
 local State = {
   data = {
     configured = false,
-    lua_version = "",
+    lua_version = "5.1",
     dependencies = {},
     install_ok = false,
     install_running = false,
@@ -38,14 +38,6 @@ local Log = logger.new({
 })
 
 local Config = {}
-
-function Config.runtime_lua_version()
-  if jit ~= nil then
-    return "5.1"
-  end
-  local v = (_VERSION or ""):match("(%d+%.%d+)")
-  return v or "5.1"
-end
 
 ---@param dependencies unknown
 ---@return string[]|nil, string|nil
@@ -182,6 +174,7 @@ end
 ---@param argv string[]
 ---@param cb   fun(ok: boolean, err: string?)
 function Installer.run(argv, cb)
+  ---@diagnostic disable-next-line: param-type-mismatch
   local cmd = process.make(argv[1], vim.list_slice(argv, 2))
   process.execute_text(cmd, function (err, result)
     if err ~= nil or result == nil then
@@ -200,6 +193,7 @@ end
 
 ---@param opts? kbplugin.luarocks.UserConfig
 function M.setup(opts)
+  ---@diagnostic disable-next-line: assign-type-mismatch
   opts = opts or {}
   local dependencies, err = Config.validate_dependencies(opts.dependencies or {})
   if err ~= nil then
@@ -225,14 +219,15 @@ function M.setup(opts)
 
   State.data.configured = true
   State.data.dependencies = dependencies
-  State.data.lua_version = Config.runtime_lua_version()
 
+  ---@diagnostic disable-next-line: unnecessary-if
   if State.data.install_running then
     Log:warn("setup called while install already running")
     return
   end
   State.data.install_running = true
 
+  ---@diagnostic disable-next-line: param-type-mismatch
   local rockspec_path = Installer.write_temp_rockspec(dependencies)
   local install_cmd = {
     luarocks, "--lua-version", State.data.lua_version, "--local", "install",
