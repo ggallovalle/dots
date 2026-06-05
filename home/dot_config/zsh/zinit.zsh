@@ -67,7 +67,7 @@ setopt APPEND_HISTORY
 # share history between open shells
 setopt SHARE_HISTORY
 # write each command as soon as accepted
-setopt INC_APPEND_HISTORY 
+setopt INC_APPEND_HISTORY
 # better timestamps + duration in history file
 setopt EXTENDED_HISTORY
 # dedupe
@@ -102,6 +102,7 @@ zi load zsh-users/zsh-history-substring-search
 # `<C-b>` or `zbrowse` to open it
 # zi load z-shell/zbrowse
 
+zi load olets/zsh-abbr
 # # ignore expansion of these regular/global aliases
 # export ZPWR_EXPAND_BLACKLIST=()
 # # aliases expand in first position

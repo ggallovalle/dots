@@ -1,3 +1,4 @@
+ABBR_SET_EXPANSION_CURSOR=1
 alias src='clear; exec zsh'
 alias ..='cd ..'
 alias ...='cd ../..'
@@ -26,4 +27,8 @@ if (( ${+commands[eza]} )); then
   alias lt4='eza --git-ignore --group-directories-first -TL 4'
   alias lta='eza --git-ignore -ATL 3'
   alias ltaa='eza -ATL 3'
+fi
+
+if (( ${+commands[chezmoi]} )); then
+  # abbr --user cac='chezmoi apply ~/.config/%'
 fi
