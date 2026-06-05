@@ -1,12 +1,15 @@
-[syntax]
+#  https://github.com/EmmyLuaLs/emmylua-analyzer-rust/blob/main/docs/emmylua_formatter/options_EN.mdsyntax
+#
 level = "Lua51"
 
 [indent]
 kind = "Space"
-width = 4
+width = 2
 
 [layout]
 max_line_width = 80
+call_args_expand = "Never"
+prefer_chain_break_on_statement_tail = true
 
 [output]
 quote_style = "Double"
