@@ -31,6 +31,50 @@ local FileMention = {
 }
 
 ---@type LazyPluginSpec
+local Conform = {
+    url = "https://github.com/stevearc/conform.nvim",
+    opts = function()
+        return {
+            formatters_by_ft = {
+                kdl = { "kdlfmt" },
+                lua = { "luafmt" }
+            },
+            formatters = {
+                ---@type conform.FileFormatterConfig
+                luafmt = {
+                    meta = {
+                        url = "https://github.com/EmmyLuaLs/emmylua-analyzer-rust/blob/main/docs/emmylua_formatter/tutorial_EN.md",
+                        description = "EmmyLuaLs formatter"
+                    },
+                    command = "luafmt",
+                    args = { "--stdin" },
+                    cwd = require("conform.util").root_file({ "luafmt.toml", ".luafmt.toml" })
+                },
+                ---@type conform.FileFormatterConfig
+                kdlfmt = {
+                    meta = {
+                        url = "https://github.com/hougesen/kdlfmt",
+                        description = "a formatter for kdl documents."
+                    },
+                    command = "kdlfmt",
+                    args = { "format", "--stdin" },
+                    cwd = require("conform.util").root_file({ "kdlfmt.kdl", ".kdlfmtignore" })
+                }
+            }
+        }
+    end,
+    keys = {
+        {
+            "<leader>df",
+            function()
+                require("conform").format({})
+            end,
+            desc = "[D]ocument [F]ormat"
+        }
+    }
+}
+
+---@type LazyPluginSpec
 local FFF = {
     url = "https://github.com/dmtrKovalenko/fff",
     build = function()
@@ -223,4 +267,4 @@ local Treesitter = {
     end
 }
 
-return { BlinkCmp, Mason, NvimLspconfig, MasonLspconfig, Treesitter, FileMention, FFF }
+return { BlinkCmp, Mason, NvimLspconfig, MasonLspconfig, Treesitter, FileMention, FFF, Conform }
