@@ -56,7 +56,9 @@ end
 ---@param bufnr   integer
 ---@param payload table
 local function set_buffer_state(bufnr, payload)
-    state.buffers[bufnr] = vim.tbl_deep_extend("force", state.buffers[bufnr] or {}, payload)
+    state.buffers[bufnr] = vim.tbl_deep_extend(
+        "force", state.buffers[bufnr] or {}, payload
+    )
 end
 
 ---@param bufnr integer
@@ -72,7 +74,13 @@ function H.detect_buffer(bufnr, cb)
     local cmd_target = process.make("chezmoi", { "source-path", opened_path })
     process.execute_text(cmd_target, function(err, result)
         if err ~= nil or result == nil then
-            set_buffer_state(bufnr, { kind = "unmanaged", opened_path = opened_path })
+            set_buffer_state(
+                bufnr,
+                {
+                    kind = "unmanaged",
+                    opened_path = opened_path
+                }
+            )
             cb(state.buffers[bufnr])
             return
         end
@@ -88,7 +96,9 @@ function H.detect_buffer(bufnr, cb)
             return
         end
 
-        local cmd_source = process.make("chezmoi", { "target-path", "--source-path", opened_path })
+        local cmd_source = process.make(
+            "chezmoi", { "target-path", "--source-path", opened_path }
+        )
         process.execute_text(cmd_source, function(_err2, result2)
             if result2 ~= nil and result2.code == 0 then
                 set_buffer_state(bufnr, {
@@ -98,7 +108,13 @@ function H.detect_buffer(bufnr, cb)
                     target_path = trim(result2.stdout)
                 })
             else
-                set_buffer_state(bufnr, { kind = "unmanaged", opened_path = opened_path })
+                set_buffer_state(
+                    bufnr,
+                    {
+                        kind = "unmanaged",
+                        opened_path = opened_path
+                    }
+                )
             end
             cb(state.buffers[bufnr])
         end)
@@ -127,7 +143,16 @@ local function start_command(bufnr, cmd, base_event, done)
 
     local start_ms = vim.uv.hrtime()
     local ev = log:event("chezmoi.save", base_event)
-    ev:set({ command = { bin = cmd.bin, args = cmd.args, cwd = cmd.opts and cmd.opts.cwd or nil } })
+    ev:set({
+            command = {
+                bin = cmd.bin,
+                args = cmd.args,
+                cwd = cmd.opts
+                    and cmd
+                        .opts
+                        .cwd or nil
+            }
+        })
 
     state.jobs[bufnr] = process.execute_text(cmd, function(err, result)
         state.jobs[bufnr] = nil
@@ -144,9 +169,17 @@ local function start_command(bufnr, cmd, base_event, done)
         end
 
         if result.code == 0 then
-            ev:set({ run = { status = "ok", code = result.code, duration_ms = duration_ms } })
+            ev:set({
+                    run = {
+                        status = "ok",
+                        code = result.code,
+                        duration_ms = duration_ms
+                    }
+                })
             if state.config.log_level == "debug" then
-                ev:set({ io = { stdout = result.stdout, stderr = result.stderr } })
+                ev:set({
+                        io = { stdout = result.stdout, stderr = result.stderr }
+                    })
             end
             ev:emit("chezmoi command ok")
             if done then
@@ -157,11 +190,21 @@ local function start_command(bufnr, cmd, base_event, done)
 
         ev:set_level("error")
         ev:set({
-            run = { status = "error", code = result.code, duration_ms = duration_ms },
+            run = {
+                status = "error",
+                code = result.code,
+                duration_ms = duration_ms
+            },
             io = { stderr = result.stderr }
         })
         ev:emit("chezmoi command error")
-        notify("command failed (exit " .. tostring(result.code) .. ")", vim.log.levels.ERROR)
+        notify(
+            "command failed (exit " .. tostring(result.code) .. ")",
+            vim
+                .log
+                .levels
+                .ERROR
+        )
         if done then
             done(false)
         end
@@ -193,7 +236,9 @@ function H.run_for_buffer(bufnr)
     }
 
     if bs.kind == "source" then
-        local cmd = process.make("chezmoi", { "apply", "--source-path", bs.source_path })
+        local cmd = process.make(
+            "chezmoi", { "apply", "--source-path", bs.source_path }
+        )
         start_command(bufnr, cmd, base_event)
         return
     end
@@ -203,7 +248,9 @@ function H.run_for_buffer(bufnr)
         if not ok or not state.config.auto_apply_after_add then
             return
         end
-        local apply_cmd = process.make("chezmoi", { "apply", "--source-path", bs.source_path })
+        local apply_cmd = process.make(
+            "chezmoi", { "apply", "--source-path", bs.source_path }
+        )
         start_command(bufnr, apply_cmd, base_event)
     end)
 end
@@ -241,7 +288,12 @@ function M.enable(force_all)
     state.enabled = true
 
     if state.augroup == nil then
-        state.augroup = vim.api.nvim_create_augroup("kb_chezmoi", { clear = true })
+        state.augroup = vim.api.nvim_create_augroup(
+            "kb_chezmoi",
+            {
+                clear = true
+            }
+        )
     end
 
     vim.api.nvim_create_autocmd({ "BufReadPost", "BufEnter" }, {

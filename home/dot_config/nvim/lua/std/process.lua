@@ -32,10 +32,24 @@ function M.execute_text(cmd, cb)
     local opts = vim.tbl_extend("force", cmd.opts or {}, { text = true })
     return vim.system(argv, opts, function(out)
         if out.code == 0 then
-            cb(nil, { code = out.code, stdout = out.stdout or "", stderr = out.stderr or "" })
+            cb(
+                nil,
+                {
+                    code = out.code,
+                    stdout = out.stdout or "",
+                    stderr = out.stderr or ""
+                }
+            )
             return
         end
-        cb(nil, { code = out.code, stdout = out.stdout or "", stderr = out.stderr or "" })
+        cb(
+            nil,
+            {
+                code = out.code,
+                stdout = out.stdout or "",
+                stderr = out.stderr or ""
+            }
+        )
     end)
 end
 
@@ -50,7 +64,13 @@ function M.execute_lines(cmd, cb)
         end
         cb(nil, {
             code = result.code,
-            stdout = vim.split(result.stdout, "\n", { plain = true, trimempty = true }),
+            stdout = vim.split(
+                result.stdout, "\n",
+                {
+                    plain = true,
+                    trimempty = true
+                }
+            ),
             stderr = result.stderr
         })
     end)

@@ -92,7 +92,9 @@ function M.new(cfg)
             return
         end
         local ts = os.date("!%Y-%m-%dT%H:%M:%SZ")
-        local line = string.format("%s %s %s%s", ts, level:upper(), msg, encode_ctx(ctx))
+        local line = string.format(
+            "%s %s %s%s", ts, level:upper(), msg, encode_ctx(ctx)
+        )
         append_line(path, line, max_bytes)
     end
 

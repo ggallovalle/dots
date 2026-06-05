@@ -23,7 +23,9 @@ function M.check()
     vim.health.info("enabled: " .. tostring(status.enabled))
     vim.health.info("tracked_buffers: " .. tostring(status.tracked_buffers))
     vim.health.info("in_flight_jobs: " .. tostring(status.in_flight_jobs))
-    vim.health.info("auto_apply_after_add: " .. tostring(status.config.auto_apply_after_add))
+    vim.health.info("auto_apply_after_add: " .. tostring(status
+                    .config
+                    .auto_apply_after_add))
     vim.health.info("log_level: " .. tostring(status.config.log_level))
 
     local explore = logger.explorer(plugin.logger())

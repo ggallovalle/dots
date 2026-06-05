@@ -32,8 +32,14 @@ function H.lsp_config()
 
     vim.lsp.config("vtsls", {
         cmd = { "vtsls", "--stdio" },
-        filetypes = { "typescript", "javascript", "javascriptreact", "typescriptreact", "vue" },
-        root_markers = { "tsconfig.json", "jsconfig.json", "package.json", "bunfig.toml", ".git" },
+        filetypes = {
+            "typescript", "javascript", "javascriptreact", "typescriptreact",
+            "vue"
+        },
+        root_markers = {
+            "tsconfig.json", "jsconfig.json", "package.json", "bunfig.toml",
+            ".git"
+        },
         init_options = {
             hostInfo = "neovim"
         },
@@ -121,7 +127,9 @@ function H.lsp_config()
 
     vim.lsp.config("taplo", {
         filetypes = { "toml" },
-        root_markers = { "taplo.toml", ".taplo.toml", "pyproject.toml", "Cargo.toml", ".git" },
+        root_markers = {
+            "taplo.toml", ".taplo.toml", "pyproject.toml", "Cargo.toml", ".git"
+        },
         settings = {
             evenBetterToml = {
                 schema = {
@@ -153,8 +161,14 @@ function H.lsp_keymaps()
                 return
             end
 
-            if completion == "native" and client:supports_method("textDocument/completion") then
-                vim.lsp.completion.enable(true, client.id, bufnr, { autotrigger = true })
+            if completion == "native"
+                and client:supports_method("textDocument/completion") then
+                vim.lsp.completion.enable(
+                    true, client.id, bufnr,
+                    {
+                        autotrigger = true
+                    }
+                )
             end
 
             if client:supports_method("textDocument/inlayHint") then
@@ -162,10 +176,17 @@ function H.lsp_keymaps()
             end
 
             if client:supports_method("textDocument/documentColor") then
-                vim.lsp.document_color.enable(true, { bufnr = bufnr }, { style = "virtual" })
+                vim.lsp.document_color.enable(
+                    true, { bufnr = bufnr },
+                    {
+                        style = "virtual"
+                    }
+                )
             end
 
-            require("kbinit.keymap").on_lsp_attach(bufnr, client, client.server_capabilities)
+            require
+                ("kbinit.keymap")
+                .on_lsp_attach(bufnr, client, client.server_capabilities)
         end
     })
 end

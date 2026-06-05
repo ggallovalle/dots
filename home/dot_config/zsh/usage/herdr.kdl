@@ -1,207 +1,159 @@
-name "herdr"
-bin "herdr"
+name herdr
+bin herdr
 about "terminal workspace manager for AI coding agents"
 version "0.5.10"
-
 flag "-h --help" help="Show help information"
 flag "-V --version" help="Show version information"
-flag "--no-session" help="Run monolithically without server/client mode"
+flag --no-session help="Run monolithically without server/client mode"
 flag "--session <name>" help="Use or create a named persistent session"
 flag "--remote <ssh-target>" help="Attach through SSH to a remote Herdr server"
-flag "--default-config" help="Print default configuration and exit"
-complete "workspace_id" run="""
-    herdr workspace list | jq -r '.result.workspaces[]? | .workspace_id + ":" + (.label // "workspace")'
-    """ descriptions=#true
-complete "agent" run="""
-    {
-      herdr agent list | jq -r '.result.agents[]? | .terminal_id + ":" + ((.agent // .terminal_id) + " is " + (.agent_status // "unknown"))'
-      herdr agent list | jq -r '.result.agents[]? | select((.agent // "") != "") | .agent + ":" + (.terminal_id + " is " + (.agent_status // "unknown"))'
-    herdr pane list | jq -r '.result.panes[]? | .pane_id + ":" + ((.label // .pane_id) + " is " + (.agent_status // "unknown"))'
-    } | sort -u
-    """ descriptions=#true
-complete "source" run="""
-    printf '%s\n' \
-      'visible:visible' \
-      'recent:recent' \
-      'recent-unwrapped:recent-unwrapped'
-    """ descriptions=#true
-complete "agent_status" run="""
-    printf '%s\n' \
-      'idle:idle' \
-      'working:working' \
-      'blocked:blocked' \
-      'unknown:unknown'
-    """ descriptions=#true
-complete "wait_status" run="""
-    printf '%s\n' \
-      'idle:idle' \
-      'working:working' \
-      'blocked:blocked' \
-      'done:done' \
-      'unknown:unknown'
-    """ descriptions=#true
-complete "direction" run="""
-    printf '%s\n' \
-      'right:right' \
-      'down:down'
-    """ descriptions=#true
-complete "format" run="""
-    printf '%s\n' \
-      'text:text' \
-      'ansi:ansi'
-    """ descriptions=#true
-complete "tab_id" run="""
-    herdr tab list | jq -r '.result.tabs[]? | .tab_id + ":" + ((.label // .tab_id) + " is " + (.agent_status // "unknown"))'
-    """ descriptions=#true
-complete "pane_id" run="""
-    herdr pane list | jq -r '.result.panes[]? | .pane_id + ":" + ((.label // .pane_id) + " is " + (.agent_status // "unknown"))'
-    """ descriptions=#true
-complete "session" run="""
-    herdr session list --json | jq -r '.sessions[]? | .name + ":" + (.name + " is " + (if .running then "running" else "stopped" end) + (if .default then " (default)" else "" end))'
-    """ descriptions=#true
-
-cmd "status" help="Show local client and running server status" {
-    cmd "server" help="Show running server status"
-    cmd "client" help="Show local client binary status"
+flag --default-config help="Print default configuration and exit"
+complete workspace_id run="herdr workspace list | jq -r '.result.workspaces[]? | .workspace_id + \":\" + (.label // \"workspace\")'" descriptions=#true
+complete agent run="{\n  herdr agent list | jq -r '.result.agents[]? | .terminal_id + \":\" + ((.agent // .terminal_id) + \" is \" + (.agent_status // \"unknown\"))'\n  herdr agent list | jq -r '.result.agents[]? | select((.agent // \"\") != \"\") | .agent + \":\" + (.terminal_id + \" is \" + (.agent_status // \"unknown\"))'\nherdr pane list | jq -r '.result.panes[]? | .pane_id + \":\" + ((.label // .pane_id) + \" is \" + (.agent_status // \"unknown\"))'\n} | sort -u" descriptions=#true
+complete source run="printf '%s\n' 'visible:visible' 'recent:recent' 'recent-unwrapped:recent-unwrapped'" descriptions=#true
+complete agent_status run="printf '%s\n' 'idle:idle' 'working:working' 'blocked:blocked' 'unknown:unknown'" descriptions=#true
+complete wait_status run="printf '%s\n' 'idle:idle' 'working:working' 'blocked:blocked' 'done:done' 'unknown:unknown'" descriptions=#true
+complete direction run="printf '%s\n' 'right:right' 'down:down'" descriptions=#true
+complete format run="printf '%s\n' 'text:text' 'ansi:ansi'" descriptions=#true
+complete tab_id run="herdr tab list | jq -r '.result.tabs[]? | .tab_id + \":\" + ((.label // .tab_id) + \" is \" + (.agent_status // \"unknown\"))'" descriptions=#true
+complete pane_id run="herdr pane list | jq -r '.result.panes[]? | .pane_id + \":\" + ((.label // .pane_id) + \" is \" + (.agent_status // \"unknown\"))'" descriptions=#true
+complete session run="herdr session list --json | jq -r '.sessions[]? | .name + \":\" + (.name + \" is \" + (if .running then \"running\" else \"stopped\" end) + (if .default then \" (default)\" else \"\" end))'" descriptions=#true
+cmd status help="Show local client and running server status" {
+    cmd server help="Show running server status"
+    cmd client help="Show local client binary status"
 }
-
-cmd "update" help="Download and install the latest version"
-
-cmd "server" help="Run as headless server" {
-    cmd "stop" help="Stop the running server via the API socket"
-    cmd "reload-config" help="Reload config.toml in the running server"
+cmd update help="Download and install the latest version"
+cmd server help="Run as headless server" {
+    cmd stop help="Stop the running server via the API socket"
+    cmd reload-config help="Reload config.toml in the running server"
 }
-
-cmd "workspace" help="Workspace helpers over the socket API" {
-    cmd "list" help="List workspaces"
-    cmd "get" help="Get workspace details" {
-        arg "<workspace_id>" help="Workspace id"
+cmd workspace help="Workspace helpers over the socket API" {
+    cmd list help="List workspaces"
+    cmd get help="Get workspace details" {
+        arg <workspace_id> help="Workspace id"
     }
-    cmd "focus" help="Focus a workspace" {
-        arg "<workspace_id>" help="Workspace id"
+    cmd focus help="Focus a workspace" {
+        arg <workspace_id> help="Workspace id"
     }
-    cmd "close" help="Close a workspace" {
-        arg "<workspace_id>" help="Workspace id"
+    cmd close help="Close a workspace" {
+        arg <workspace_id> help="Workspace id"
     }
-    cmd "create" help="Create a workspace" {
+    cmd create help="Create a workspace" {
         flag "--cwd <path>" help="Set the working directory"
         flag "--label <label>" help="Set the workspace label"
-        flag "--focus" help="Focus the workspace after creation"
-        flag "--no-focus" help="Do not focus the workspace after creation"
+        flag --focus help="Focus the workspace after creation"
+        flag --no-focus help="Do not focus the workspace after creation"
     }
-    cmd "rename" help="Rename a workspace" {
-        arg "<workspace_id>" help="Workspace id"
-        arg "<label>" help="New workspace label"
+    cmd rename help="Rename a workspace" {
+        arg <workspace_id> help="Workspace id"
+        arg <label> help="New workspace label"
     }
 }
-
-cmd "tab" help="Tab helpers over the socket API" {
-    cmd "list" help="List tabs" {
+cmd tab help="Tab helpers over the socket API" {
+    cmd list help="List tabs" {
         flag "--workspace <workspace_id>" help="Limit to a workspace"
     }
-    cmd "get" help="Get tab details" {
-        arg "<tab_id>" help="Tab id"
+    cmd get help="Get tab details" {
+        arg <tab_id> help="Tab id"
     }
-    cmd "focus" help="Focus a tab" {
-        arg "<tab_id>" help="Tab id"
+    cmd focus help="Focus a tab" {
+        arg <tab_id> help="Tab id"
     }
-    cmd "close" help="Close a tab" {
-        arg "<tab_id>" help="Tab id"
+    cmd close help="Close a tab" {
+        arg <tab_id> help="Tab id"
     }
-    cmd "create" help="Create a tab" {
+    cmd create help="Create a tab" {
         flag "--workspace <workspace_id>" help="Create the tab in a workspace"
         flag "--cwd <path>" help="Set the working directory"
         flag "--label <label>" help="Set the tab label"
-        flag "--focus" help="Focus the tab after creation"
-        flag "--no-focus" help="Do not focus the tab after creation"
+        flag --focus help="Focus the tab after creation"
+        flag --no-focus help="Do not focus the tab after creation"
     }
-    cmd "rename" help="Rename a tab" {
-        arg "<tab_id>" help="Tab id"
-        arg "<label>" help="New tab label"
+    cmd rename help="Rename a tab" {
+        arg <tab_id> help="Tab id"
+        arg <label> help="New tab label"
     }
 }
-
-cmd "agent" help="Agent/terminal helpers over the socket API" {
-    cmd "list" help="List agents"
-    cmd "get" help="Get agent details" {
-        arg "<agent>" help="Agent target (terminal id, unique agent name, or legacy pane id)"
+cmd agent help="Agent/terminal helpers over the socket API" {
+    cmd list help="List agents"
+    cmd get help="Get agent details" {
+        arg <agent> help="Agent target (terminal id, unique agent name, or legacy pane id)"
     }
-    cmd "read" help="Read agent output" {
-        arg "<agent>" help="Agent target (terminal id, unique agent name, or legacy pane id)"
+    cmd read help="Read agent output" {
+        arg <agent> help="Agent target (terminal id, unique agent name, or legacy pane id)"
         flag "--source <source>" help="Which output stream to read"
         flag "--lines <n>" help="Number of lines to read"
         flag "--format <format>" help="Output format"
-        flag "--ansi" help="Force ANSI output"
+        flag --ansi help="Force ANSI output"
     }
-    cmd "send" help="Send input to an agent" {
-        arg "<agent>" help="Agent target (terminal id, unique agent name, or legacy pane id)"
-        arg "<text>" help="Text to send"
+    cmd send help="Send input to an agent" {
+        arg <agent> help="Agent target (terminal id, unique agent name, or legacy pane id)"
+        arg <text> help="Text to send"
     }
-    cmd "rename" help="Rename an agent" {
-        arg "<agent>" help="Agent target (terminal id, unique agent name, or legacy pane id)"
-        arg "<name>" help="New agent name"
-        flag "--clear" help="Clear the agent name"
+    cmd rename help="Rename an agent" {
+        arg <agent> help="Agent target (terminal id, unique agent name, or legacy pane id)"
+        arg <name> help="New agent name"
+        flag --clear help="Clear the agent name"
     }
-    cmd "focus" help="Focus an agent" {
-        arg "<agent>" help="Agent target (terminal id, unique agent name, or legacy pane id)"
+    cmd focus help="Focus an agent" {
+        arg <agent> help="Agent target (terminal id, unique agent name, or legacy pane id)"
     }
-    cmd "start" help="Start an agent" {
-        arg "<name>" help="Agent name"
+    cmd start help="Start an agent" {
+        arg <name> help="Agent name"
         flag "--cwd <path>" help="Set the working directory"
         flag "--workspace <workspace_id>" help="Create the agent in a workspace"
         flag "--tab <tab_id>" help="Create the agent in a tab"
         flag "--split <direction>" help="Split direction"
-        flag "--focus" help="Focus the new agent pane"
-        flag "--no-focus" help="Do not focus the new agent pane"
-        arg "<argv...>" help="Command to run after --"
+        flag --focus help="Focus the new agent pane"
+        flag --no-focus help="Do not focus the new agent pane"
+        arg <argv...> help="Command to run after --"
     }
-    cmd "attach" help="Attach to an existing agent" {
-        arg "<agent>" help="Agent target (terminal id, unique agent name, or legacy pane id)"
-        flag "--takeover" help="Take over the agent terminal"
+    cmd attach help="Attach to an existing agent" {
+        arg <agent> help="Agent target (terminal id, unique agent name, or legacy pane id)"
+        flag --takeover help="Take over the agent terminal"
     }
-    cmd "wait" help="Wait for an agent status" {
-        arg "<agent>" help="Agent target (terminal id, unique agent name, or legacy pane id)"
+    cmd wait help="Wait for an agent status" {
+        arg <agent> help="Agent target (terminal id, unique agent name, or legacy pane id)"
         flag "--status <agent_status>" help="Desired agent status"
         flag "--timeout <ms>" help="Timeout in milliseconds"
     }
 }
-
-cmd "pane" help="Pane control helpers over the socket API" {
-    cmd "list" help="List panes" {
+cmd pane help="Pane control helpers over the socket API" {
+    cmd list help="List panes" {
         flag "--workspace <workspace_id>" help="Limit to a workspace"
     }
-    cmd "get" help="Get pane details" {
-        arg "<pane_id>" help="Pane id"
+    cmd get help="Get pane details" {
+        arg <pane_id> help="Pane id"
     }
-    cmd "read" help="Read pane output" {
-        arg "<pane_id>" help="Pane id"
+    cmd read help="Read pane output" {
+        arg <pane_id> help="Pane id"
         flag "--source <source>" help="Which output stream to read"
         flag "--lines <n>" help="Number of lines to read"
         flag "--format <format>" help="Output format"
-        flag "--ansi" help="Force ANSI output"
+        flag --ansi help="Force ANSI output"
     }
-    cmd "split" help="Split a pane" {
-        arg "<pane_id>" help="Pane id"
+    cmd split help="Split a pane" {
+        arg <pane_id> help="Pane id"
         flag "--direction <direction>" help="Split direction"
         flag "--cwd <path>" help="Set the working directory"
-        flag "--focus" help="Focus the new pane"
-        flag "--no-focus" help="Do not focus the new pane"
+        flag --focus help="Focus the new pane"
+        flag --no-focus help="Do not focus the new pane"
     }
-    cmd "rename" help="Rename a pane" {
-        arg "<pane_id>" help="Pane id"
-        arg "<label>" help="New pane label"
-        flag "--clear" help="Clear the pane name"
+    cmd rename help="Rename a pane" {
+        arg <pane_id> help="Pane id"
+        arg <label> help="New pane label"
+        flag --clear help="Clear the pane name"
     }
-    cmd "send-text" help="Send text to a pane" {
-        arg "<pane_id>" help="Pane id"
-        arg "<text>" help="Text to send"
+    cmd send-text help="Send text to a pane" {
+        arg <pane_id> help="Pane id"
+        arg <text> help="Text to send"
     }
-    cmd "send-keys" help="Send keys to a pane" {
-        arg "<pane_id>" help="Pane id"
-        arg "<key...>" help="One or more keys to send"
+    cmd send-keys help="Send keys to a pane" {
+        arg <pane_id> help="Pane id"
+        arg <key...> help="One or more keys to send"
     }
-    cmd "report-agent" help="Report an agent state from a pane" {
-        arg "<pane_id>" help="Pane id"
+    cmd report-agent help="Report an agent state from a pane" {
+        arg <pane_id> help="Pane id"
         flag "--source <id>" help="Source id"
         flag "--agent <label>" help="Agent label"
         flag "--state <agent_status>" help="Agent state"
@@ -209,72 +161,62 @@ cmd "pane" help="Pane control helpers over the socket API" {
         flag "--custom-status <text>" help="Custom status text"
         flag "--seq <n>" help="Sequence number"
     }
-    cmd "clear-agent-authority" help="Clear agent authority from a pane" {
-        arg "<pane_id>" help="Pane id"
+    cmd clear-agent-authority help="Clear agent authority from a pane" {
+        arg <pane_id> help="Pane id"
     }
-    cmd "release-agent" help="Release agent authority from a pane" {
-        arg "<pane_id>" help="Pane id"
+    cmd release-agent help="Release agent authority from a pane" {
+        arg <pane_id> help="Pane id"
     }
-    cmd "close" help="Close a pane" {
-        arg "<pane_id>" help="Pane id"
+    cmd close help="Close a pane" {
+        arg <pane_id> help="Pane id"
     }
-    cmd "run" help="Run a command in a pane" {
-        arg "<pane_id>" help="Pane id"
-        arg "<command>" help="Command to run"
+    cmd run help="Run a command in a pane" {
+        arg <pane_id> help="Pane id"
+        arg <command> help="Command to run"
     }
 }
-
-cmd "wait" help="Blocking wait helpers over the socket API" {
-    cmd "output" help="Wait for matching pane output" {
-        arg "<pane_id>" help="Pane id"
+cmd wait help="Blocking wait helpers over the socket API" {
+    cmd output help="Wait for matching pane output" {
+        arg <pane_id> help="Pane id"
         flag "--match <text>" help="Text to match"
         flag "--source <source>" help="Which output stream to read"
         flag "--lines <n>" help="Number of lines to read"
         flag "--timeout <ms>" help="Timeout in milliseconds"
-        flag "--regex" help="Interpret match as a regular expression"
-        flag "--raw" help="Match raw output"
+        flag --regex help="Interpret match as a regular expression"
+        flag --raw help="Match raw output"
     }
-    cmd "agent-status" help="Wait for an agent status" {
-        arg "<pane_id>" help="Pane id"
+    cmd agent-status help="Wait for an agent status" {
+        arg <pane_id> help="Pane id"
         flag "--status <wait_status>" help="Desired agent status"
         flag "--timeout <ms>" help="Timeout in milliseconds"
     }
 }
-
-cmd "session" help="Manage named persistent sessions" {
-    cmd "list" help="List sessions" {
-        flag "--json" help="Emit JSON output"
+cmd session help="Manage named persistent sessions" {
+    cmd list help="List sessions" {
+        flag --json help="Emit JSON output"
     }
-    cmd "attach" help="Attach to a named persistent session" {
-        arg "<session>" help="Session name"
+    cmd attach help="Attach to a named persistent session" {
+        arg <session> help="Session name"
     }
-    cmd "stop" help="Stop a named persistent session" {
-        arg "<session>" help="Session name"
-        flag "--json" help="Emit JSON output"
+    cmd stop help="Stop a named persistent session" {
+        arg <session> help="Session name"
+        flag --json help="Emit JSON output"
     }
-    cmd "delete" help="Delete a named persistent session" {
-        arg "<session>" help="Session name"
-        flag "--json" help="Emit JSON output"
-    }
-}
-
-cmd "integration" help="Manage built-in agent integrations" {
-    complete "integration" run="""
-        printf '%s\n' \
-          'pi' \
-          'claude' \
-          'codex' \
-          'opencode'
-        """
-    cmd "install" help="Install a built-in integration" {
-        arg "<integration>" help="Integration name: pi, claude, codex, or opencode"
-    }
-    cmd "uninstall" help="Uninstall a built-in integration" {
-        arg "<integration>" help="Integration name: pi, claude, codex, or opencode"
-    }
-    cmd "status" help="Show integration status" {
-        flag "--outdated-only" help="Show only outdated integrations"
+    cmd delete help="Delete a named persistent session" {
+        arg <session> help="Session name"
+        flag --json help="Emit JSON output"
     }
 }
-
-cmd "client" help="Connect to a running server as a thin client"
+cmd integration help="Manage built-in agent integrations" {
+    complete integration run="printf '%s\n' 'pi' 'claude' 'codex' 'opencode'"
+    cmd install help="Install a built-in integration" {
+        arg <integration> help="Integration name: pi, claude, codex, or opencode"
+    }
+    cmd uninstall help="Uninstall a built-in integration" {
+        arg <integration> help="Integration name: pi, claude, codex, or opencode"
+    }
+    cmd status help="Show integration status" {
+        flag --outdated-only help="Show only outdated integrations"
+    }
+}
+cmd client help="Connect to a running server as a thin client"

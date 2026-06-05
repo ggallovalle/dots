@@ -30,7 +30,9 @@ local function check_dependency(luarocks, lua_version, dep)
         return true, ("%s (resolved as %s)"):format(dep, name)
     end
 
-    local err = vim.trim((result.stderr or "") ~= "" and result.stderr or (result.stdout or ""))
+    local err = vim.trim(
+        (result.stderr or "") ~= "" and result.stderr or (result.stdout or "")
+    )
     if err == "" then
         err = "unknown error"
     end
@@ -57,7 +59,8 @@ function M.check()
     local status = plugin.health()
     vim.health.info("configured: " .. tostring(status.configured))
     vim.health.info("lua_version: " .. tostring(status.lua_version))
-    vim.health.info("dependencies: " .. table.concat(status.dependencies or {}, ", "))
+    vim.health.info("dependencies: "
+        .. table.concat(status.dependencies or {}, ", "))
     vim.health.info("install_running: " .. tostring(status.install_running))
     vim.health.info("install_ok: " .. tostring(status.install_ok))
     if status.install_error ~= nil then
@@ -69,9 +72,12 @@ function M.check()
     vim.health.info("rockspec_path: " .. tostring(status.rockspec_path))
 
     local luarocks = vim.fn.exepath("luarocks")
-    if luarocks ~= "" and status.configured and type(status.dependencies) == "table" then
+    if luarocks ~= "" and status.configured
+        and type(status.dependencies) == "table" then
         for _, dep in ipairs(status.dependencies) do
-            local ok, detail = check_dependency(luarocks, status.lua_version or "5.1", dep)
+            local ok, detail = check_dependency(
+                luarocks, status.lua_version or "5.1", dep
+            )
             if ok then
                 vim.health.ok("dependency installed: " .. detail)
             else

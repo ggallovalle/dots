@@ -122,7 +122,8 @@ function M.register()
             math.randomseed(vim.uv.hrtime())
             local template = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx"
             uuid = template:gsub("[xy]", function(c)
-                local v = (c == "x") and math.random(0, 15) or math.random(8, 11)
+                local v = (c == "x") and math.random(0, 15)
+                    or math.random(8, 11)
                 return string.format("%x", v)
             end)
         end
@@ -152,7 +153,9 @@ function M.register()
     )
 
     vim.keymap.set("n", "<leader>ith", function()
-        local ts = os.date("%Y-%m-%dT%H:%M:%S%z"):gsub("([+-]%d%d)(%d%d)$", "%1:%2")
+        local ts = os
+            .date("%Y-%m-%dT%H:%M:%S%z")
+            :gsub("([+-]%d%d)(%d%d)$", "%1:%2")
         vim.api.nvim_put({ ts }, "c", false, true)
     end, { desc = "[H]ere RFC 3339" }
     )
@@ -163,11 +166,21 @@ function M.register()
     )
 
     wk.add({ "<leader>f", group = "[F]ile" })
-    vim.keymap.set("n", "<leader>fe", snacks.explorer.open, { desc = "[E]xplorer" })
+    vim.keymap.set(
+        "n", "<leader>fe", snacks.explorer.open,
+        {
+            desc = "[E]xplorer"
+        }
+    )
     vim.keymap.set("n", "<leader>fo", "<cmd>Yazi<cr>", { desc = "[O]pen Yazi" })
 
     wk.add({ "<leader>g", group = "[G]it" })
-    vim.keymap.set("n", "<leader>gl", snacks.lazygit.open, { desc = "[L]azygit" })
+    vim.keymap.set(
+        "n", "<leader>gl", snacks.lazygit.open,
+        {
+            desc = "[L]azygit"
+        }
+    )
 
     wk.add({ "<leader>a", group = "[A]I" })
     vim.g.opencode_opts = {}
@@ -205,8 +218,18 @@ function M.register()
     )
 
     wk.add({ "<leader>s", group = "[S]earch" })
-    vim.keymap.set("n", "<leader>s:", snacks.picker.command_history, { desc = "[C]ommand History" })
-    vim.keymap.set("n", "<leader>sk", snacks.picker.keymaps, { desc = "[K]eymaps" })
+    vim.keymap.set(
+        "n", "<leader>s:", snacks.picker.command_history,
+        {
+            desc = "[C]ommand History"
+        }
+    )
+    vim.keymap.set(
+        "n", "<leader>sk", snacks.picker.keymaps,
+        {
+            desc = "[K]eymaps"
+        }
+    )
     -- vim.keymap.set("n", "<leader>sg", snacks.picker.grep, { desc = "[G]rep" })
     vim.keymap.set("n", "<leader>sb", search_buffer, { desc = "[B]uffers" })
     -- vim.keymap.set("n", "<leader>sf", search_file, { desc = "[F]iles (Git)" })
@@ -262,7 +285,12 @@ function M.on_lsp_attach(bufnr, _client, capabilities)
             desc = "[D]efinition"
         })
 
-        vim.keymap.set("n", "grs", snacks.picker.lsp_symbols, { desc = "[S]ymbols" })
+        vim.keymap.set(
+            "n", "grs", snacks.picker.lsp_symbols,
+            {
+                desc = "[S]ymbols"
+            }
+        )
     end
 
     vim.keymap.set("n", "gs", snacks.picker.lsp_symbols, { desc = "[S]ymbols" })
@@ -270,10 +298,12 @@ function M.on_lsp_attach(bufnr, _client, capabilities)
     vim.keymap.set(
         "n", "<leader>dd",
         function()
-            open_diagnostic_qf(
-                string.format("Diagnostics for %s", vim.api.nvim_buf_get_name(bufnr)),
-                vim.diagnostic.get(0)
-            )
+            open_diagnostic_qf(string.format(
+                    "Diagnostics for %s",
+                    vim
+                        .api
+                        .nvim_buf_get_name(bufnr)
+                ), vim.diagnostic.get(0))
         end,
         {
             buffer = bufnr,

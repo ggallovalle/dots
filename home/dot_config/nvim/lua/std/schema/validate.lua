@@ -32,7 +32,9 @@ local function mk_error(code, path, expected, value)
         path = path,
         expected = expected,
         actual = actual,
-        message = string.format("%s: expected %s, got %s", path, expected, actual)
+        message = string.format(
+            "%s: expected %s, got %s", path, expected, actual
+        )
     }
 end
 
@@ -121,12 +123,15 @@ local function validate_node(node, value, path)
                         expected = field.kind,
                         actual = "missing",
                         message = string.format(
-                            "%s: required field is missing", join_path(path, key)
+                            "%s: required field is missing",
+                            join_path(path, key)
                         )
                     }
             end
             if has then
-                local ok, err = validate_node(field, value[key], join_path(path, key))
+                local ok, err = validate_node(
+                    field, value[key], join_path(path, key)
+                )
                 if not ok then
                     return false, err
                 end
@@ -140,7 +145,9 @@ local function validate_node(node, value, path)
             path = path,
             expected = "known schema kind",
             actual = tostring(node.kind),
-            message = string.format("%s: unknown schema kind %s", path, tostring(node.kind))
+            message = string.format(
+                "%s: unknown schema kind %s", path, tostring(node.kind)
+            )
         }
 end
 

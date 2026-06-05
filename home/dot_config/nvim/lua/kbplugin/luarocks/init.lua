@@ -90,30 +90,38 @@ end
 ---@param lua_version string
 ---@param cb          fun(ok: boolean, err: string?)
 function Runtime.wire_paths(luarocks, lua_version, cb)
-    local path_cmd = { luarocks, "--lua-version", lua_version, "path", "--lr-path" }
-    local cpath_cmd = { luarocks, "--lua-version", lua_version, "path", "--lr-cpath" }
+    local path_cmd = {
+        luarocks, "--lua-version", lua_version, "path", "--lr-path"
+    }
+    local cpath_cmd = {
+        luarocks, "--lua-version", lua_version, "path", "--lr-cpath"
+    }
 
-    process.execute_text(
-        process.make(path_cmd[1], vim.list_slice(path_cmd, 2)),
-        function(err, path_result)
-            if err ~= nil or path_result == nil or path_result.code ~= 0 then
-                cb(
-                    false,
-                    "failed to read luarocks path: "
-                        .. vim.trim((path_result and path_result.stderr) or tostring(err or ""))
-                )
-                return
-            end
-
-            process.execute_text(process.make(cpath_cmd[1], vim.list_slice(cpath_cmd, 2)), function(
-                err2, cpath_result
+    process.execute_text(process.make(path_cmd[1], vim.list_slice(path_cmd, 2)), function(
+        err, path_result
+    )
+        if err ~= nil or path_result == nil or path_result.code ~= 0 then
+            cb(
+                false,
+                "failed to read luarocks path: "
+                    .. vim.trim(
+                        (path_result and path_result.stderr)
+                            or tostring(err or "")
+                    )
             )
+            return
+        end
+
+        process.execute_text(
+            process.make(cpath_cmd[1], vim.list_slice(cpath_cmd, 2)),
+            function(err2, cpath_result)
                 if err2 ~= nil or cpath_result == nil or cpath_result.code ~= 0 then
                     cb(
                         false,
                         "failed to read luarocks cpath: "
                             .. vim.trim(
-                                (cpath_result and cpath_result.stderr) or tostring(err2 or "")
+                                (cpath_result and cpath_result.stderr)
+                                    or tostring(err2 or "")
                             )
                     )
                     return
@@ -122,20 +130,30 @@ function Runtime.wire_paths(luarocks, lua_version, cb)
                 local wired_path_count = 0
                 local wired_cpath_count = 0
 
-                for _, p in ipairs(
-                    vim.split(vim.trim(path_result.stdout or ""), ";", { trimempty = true })
-                ) do
-                    local changed, value = Runtime.prepend_unique(package.path, p)
+                for _, p in ipairs(vim.split(
+                        vim.trim(path_result.stdout or ""), ";",
+                        {
+                            trimempty = true
+                        }
+                    )) do
+                    local changed, value = Runtime.prepend_unique(
+                        package.path, p
+                    )
                     if changed and value ~= nil then
                         package.path = value
                         wired_path_count = wired_path_count + 1
                     end
                 end
 
-                for _, p in ipairs(
-                    vim.split(vim.trim(cpath_result.stdout or ""), ";", { trimempty = true })
-                ) do
-                    local changed, value = Runtime.prepend_unique(package.cpath, p)
+                for _, p in ipairs(vim.split(
+                        vim.trim(cpath_result.stdout or ""), ";",
+                        {
+                            trimempty = true
+                        }
+                    )) do
+                    local changed, value = Runtime.prepend_unique(
+                        package.cpath, p
+                    )
                     if changed and value ~= nil then
                         package.cpath = value
                         wired_cpath_count = wired_cpath_count + 1
@@ -145,9 +163,9 @@ function Runtime.wire_paths(luarocks, lua_version, cb)
                 State.data.wired_path_count = wired_path_count
                 State.data.wired_cpath_count = wired_cpath_count
                 cb(true, nil)
-            end)
-        end
-    )
+            end
+        )
+    end)
 end
 
 local Installer = {}
@@ -156,9 +174,11 @@ local Installer = {}
 ---@return string
 function Installer.write_temp_rockspec(deps)
     vim.fn.mkdir(State.data.state_dir, "p")
-    local rockspec_path = State.data.state_dir .. "/kbplugin-deps-1.0-1.rockspec"
+    local rockspec_path = State.data.state_dir
+        .. "/kbplugin-deps-1.0-1.rockspec"
     local lines = {
-        'package = "kbplugin-deps"', 'rockspec_format = "3.0"', 'version = "1.0-1"', "source = {",
+        'package = "kbplugin-deps"', 'rockspec_format = "3.0"',
+        'version = "1.0-1"', "source = {",
         '   url = "file:///tmp/kbplugin-deps.tar.gz",', "}", "dependencies = {",
         '   "lua >= 5.1, < 5.6",'
     }
@@ -189,7 +209,8 @@ function Installer.run(argv, cb)
         end
         if result.code ~= 0 then
             local msg = vim.trim(
-                (result.stderr or "") ~= "" and result.stderr or (result.stdout or "")
+                (result.stderr or "") ~= "" and result.stderr
+                    or (result.stdout or "")
             )
             cb(false, msg)
             return
@@ -201,7 +222,9 @@ end
 ---@param opts? kbplugin.luarocks.UserConfig
 function M.setup(opts)
     opts = opts or {}
-    local dependencies, err = Config.validate_dependencies(opts.dependencies or {})
+    local dependencies, err = Config.validate_dependencies(
+        opts.dependencies or {}
+    )
     if err ~= nil then
         State.data.install_ok = false
         State.data.install_error = err
@@ -213,7 +236,13 @@ function M.setup(opts)
     if luarocks == "" then
         State.data.install_ok = false
         State.data.install_error = "luarocks executable not found"
-        vim.notify("kbplugin.luarocks: luarocks executable not found", vim.log.levels.ERROR)
+        vim.notify(
+            "kbplugin.luarocks: luarocks executable not found",
+            vim
+                .log
+                .levels
+                .ERROR
+        )
         return
     end
 
@@ -229,8 +258,8 @@ function M.setup(opts)
 
     local rockspec_path = Installer.write_temp_rockspec(dependencies)
     local install_cmd = {
-        luarocks, "--lua-version", State.data.lua_version, "--local", "install", "--only-deps",
-        rockspec_path
+        luarocks, "--lua-version", State.data.lua_version, "--local", "install",
+        "--only-deps", rockspec_path
     }
 
     Log:info("install dependencies", {
@@ -244,7 +273,13 @@ function M.setup(opts)
         State.data.install_ok = false
         State.data.install_error = msg
         Log:error("install failed", { error = msg })
-        vim.notify("kbplugin.luarocks install failed: " .. msg, vim.log.levels.ERROR)
+        vim.notify(
+            "kbplugin.luarocks install failed: " .. msg,
+            vim
+                .log
+                .levels
+                .ERROR
+        )
     end
 
     local function finish_success()
@@ -262,13 +297,17 @@ function M.setup(opts)
             finish_error(install_err or "unknown install error")
             return
         end
-        Runtime.wire_paths(luarocks, State.data.lua_version, function(wired_ok, wire_err)
-            if not wired_ok then
-                finish_error(wire_err or "path wiring failed")
-                return
+        Runtime.wire_paths(
+            luarocks,
+            State.data.lua_version,
+            function(wired_ok, wire_err)
+                if not wired_ok then
+                    finish_error(wire_err or "path wiring failed")
+                    return
+                end
+                finish_success()
             end
-            finish_success()
-        end)
+        )
     end)
 end
 

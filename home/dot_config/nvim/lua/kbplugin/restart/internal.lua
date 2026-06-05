@@ -68,7 +68,9 @@ local function read_state_file()
     local raw = table.concat(lines, "\n")
     local ok, decoded = pcall(vim.json.decode, raw)
     if not ok then
-        log:error("failed to decode restart state", { path = state.files.state })
+        log:error(
+            "failed to decode restart state", { path = state.files.state }
+        )
         return nil
     end
     return decoded
@@ -117,7 +119,13 @@ local function validate_provider_data(provider_name, provider, data, phase)
     if err ~= nil and err.message ~= nil then
         message = err.message
     end
-    notify(string.format("%s schema failed: %s", provider_name, message), vim.log.levels.WARN)
+    notify(
+        string.format("%s schema failed: %s", provider_name, message),
+        vim
+            .log
+            .levels
+            .WARN
+    )
     log:warn("provider schema validation failed", {
         module = provider_name,
         phase = phase,
@@ -159,7 +167,14 @@ function M.restart()
 
     if vim.uv.fs_stat(state.files.session) == nil then
         notify("restart session file was not created", vim.log.levels.ERROR)
-        log:error("session file missing after mksession", { path = state.files.session })
+        log:error(
+            "session file missing after mksession",
+            {
+                path = state
+                    .files
+                    .session
+            }
+        )
         return
     end
 
@@ -209,7 +224,12 @@ function M.register_commands()
 end
 
 function M.register_restore_autocmd()
-    local group = vim.api.nvim_create_augroup("kb_restart_restore", { clear = true })
+    local group = vim.api.nvim_create_augroup(
+        "kb_restart_restore",
+        {
+            clear = true
+        }
+    )
     vim.api.nvim_create_autocmd("VimEnter", {
         group = group,
         once = true,

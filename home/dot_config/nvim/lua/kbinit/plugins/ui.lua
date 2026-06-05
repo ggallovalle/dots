@@ -61,7 +61,10 @@ local Catppuccin = {
 }
 
 ---@type LazyPluginSpec
-local WhichKey = { url = "https://github.com/folke/which-key.nvim.git", config = true }
+local WhichKey = {
+    url = "https://github.com/folke/which-key.nvim.git",
+    config = true
+}
 
 ---@type LazyPluginSpec
 local Snacks = {
@@ -105,4 +108,7 @@ local TypstPreview = {
     }
 }
 
-return { Screenkey, Devicons, Catppuccin, WhichKey, Snacks, RenderMarkdown, TypstPreview }
+return {
+    Screenkey, Devicons, Catppuccin, WhichKey, Snacks, RenderMarkdown,
+    TypstPreview
+}

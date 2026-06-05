@@ -3,9 +3,9 @@ local schema = require("std.schema")
 local M = {}
 
 M.schema = schema.table({
-    enabled = schema
-        .boolean()
-        :pipe(schema.description("Whether chezmoi autosync plugin is enabled"))
+    enabled = schema.boolean():pipe(schema.description(
+        "Whether chezmoi autosync plugin is enabled"
+    ))
 })
 
 function M.snapshot()

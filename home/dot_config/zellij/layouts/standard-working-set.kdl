@@ -16,7 +16,6 @@ layout {
             args "-lc" "mkdir -p ~/TODO/$(date +%F) && cd ~/TODO/$(date +%F) && exec zsh"
         }
     }
-
     swap_tiled_layout name="beefy" {
         tab exact_panes=4 {
             pane split_direction="horizontal" {

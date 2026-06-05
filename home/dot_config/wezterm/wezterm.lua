@@ -77,8 +77,18 @@ local master = "CTRL|SHIFT"
 
 -- https://wezterm.org/config/default-keys.html
 config.keys = {
-    { key = "Tab", mods = "ALT", action = wezterm.action.ActivateTabRelative(1) },
-    { key = "Tab", mods = "SHIFT|ALT", action = wezterm.action.ActivateTabRelative(-1) },
+    {
+        key = "Tab",
+        mods = "ALT",
+        action = wezterm.action.ActivateTabRelative(1)
+    },
+    {
+        key = "Tab",
+        mods = "SHIFT|ALT",
+        action = wezterm
+            .action
+            .ActivateTabRelative(-1)
+    },
     { key = "1", mods = "ALT", action = wezterm.action.ActivateTab(0) },
     { key = "2", mods = "ALT", action = wezterm.action.ActivateTab(1) },
     { key = "3", mods = "ALT", action = wezterm.action.ActivateTab(2) },
@@ -88,8 +98,20 @@ config.keys = {
     { key = "7", mods = "ALT", action = wezterm.action.ActivateTab(6) },
     { key = "8", mods = "ALT", action = wezterm.action.ActivateTab(7) },
     { key = "9", mods = "ALT", action = wezterm.action.ActivateTab(8) },
-    { key = "t", mods = "ALT", action = wezterm.action.SpawnTab 'CurrentPaneDomain' },
-    { key = "w", mods = master, action = wezterm.action.CloseCurrentTab { confirm = false } },
+    {
+        key = "t",
+        mods = "ALT",
+        action = wezterm
+            .action
+            .SpawnTab 'CurrentPaneDomain'
+    },
+    {
+        key = "w",
+        mods = master,
+        action = wezterm.action.CloseCurrentTab {
+            confirm = false
+        }
+    },
     {
         key = "d",
         mods = master,

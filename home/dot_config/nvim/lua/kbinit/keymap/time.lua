@@ -24,7 +24,8 @@ local function visual_selection()
 
     local lines = vim
         .api
-        .nvim_buf_get_text(0, start_lnum - 1, start_col, end_lnum - 1, end_col + 1, {})
+        .nvim_buf_get_text(0, start_lnum - 1, start_col, end_lnum - 1, end_col
+            + 1, {})
     return {
         start_lnum = start_lnum,
         start_col = start_col,
@@ -37,7 +38,8 @@ end
 local function set_range_text(range, replacement)
     local lines = vim.split(replacement, "\n", { plain = true })
     vim.api.nvim_buf_set_text(
-        0, range.start_lnum - 1, range.start_col, range.end_lnum - 1, range.end_col + 1, lines
+        0, range.start_lnum - 1, range.start_col, range.end_lnum - 1,
+        range.end_col + 1, lines
     )
 end
 
@@ -53,13 +55,23 @@ local function parse_input(s)
     do
         local hh, mm, ss = s:match("^(%d%d):(%d%d):(%d%d)$")
         if hh and mm and ss then
-            return { kind = "time", hour = tonumber(hh), min = tonumber(mm), sec = tonumber(ss) }
+            return {
+                kind = "time",
+                hour = tonumber(hh),
+                min = tonumber(mm),
+                sec = tonumber(ss)
+            }
         end
     end
     do
         local hh, mm = s:match("^(%d%d):(%d%d)$")
         if hh and mm then
-            return { kind = "time", hour = tonumber(hh), min = tonumber(mm), sec = 0 }
+            return {
+                kind = "time",
+                hour = tonumber(hh),
+                min = tonumber(mm),
+                sec = 0
+            }
         end
     end
 
@@ -167,16 +179,56 @@ local function conversions_for(range)
             preview = { text = utc }
         })
     else
-        local day = string.format("%04d-%02d-%02d", parsed.year, parsed.month, parsed.day)
+        local day = string.format(
+            "%04d-%02d-%02d", parsed.year, parsed.month, parsed.day
+        )
         local time = string.format("%02d:%02d", parsed.hour, parsed.min)
-        local time_s = string.format("%02d:%02d:%02d", parsed.hour, parsed.min, parsed.sec)
+        local time_s = string.format(
+            "%02d:%02d:%02d", parsed.hour, parsed.min, parsed.sec
+        )
         local time12h = time12(parsed.hour, parsed.min, parsed.sec, false)
         local time12h_s = time12(parsed.hour, parsed.min, parsed.sec, true)
 
-        table.insert(items, { text = "day", value = day, preview = { text = day } })
-        table.insert(items, { text = "time", value = time, preview = { text = time } })
-        table.insert(items, { text = "time seconds", value = time_s, preview = { text = time_s } })
-        table.insert(items, { text = "time 12h", value = time12h, preview = { text = time12h } })
+        table.insert(
+            items,
+            {
+                text = "day",
+                value = day,
+                preview = {
+                    text = day
+                }
+            }
+        )
+        table.insert(
+            items,
+            {
+                text = "time",
+                value = time,
+                preview = {
+                    text = time
+                }
+            }
+        )
+        table.insert(
+            items,
+            {
+                text = "time seconds",
+                value = time_s,
+                preview = {
+                    text = time_s
+                }
+            }
+        )
+        table.insert(
+            items,
+            {
+                text = "time 12h",
+                value = time12h,
+                preview = {
+                    text = time12h
+                }
+            }
+        )
         table.insert(items, {
             text = "time 12h seconds",
             value = time12h_s,

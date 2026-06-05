@@ -48,7 +48,9 @@ local Conform = {
                     },
                     command = "luafmt",
                     args = { "--stdin" },
-                    cwd = require("conform.util").root_file({ "luafmt.toml", ".luafmt.toml" })
+                    cwd = require
+                        ("conform.util")
+                        .root_file({ "luafmt.toml", ".luafmt.toml" })
                 },
                 ---@type conform.FileFormatterConfig
                 kdlfmt = {
@@ -57,8 +59,10 @@ local Conform = {
                         description = "a formatter for kdl documents."
                     },
                     command = "kdlfmt",
-                    args = { "format", "--stdin" },
-                    cwd = require("conform.util").root_file({ "kdlfmt.kdl", ".kdlfmtignore" })
+                    args = { "format", "--kdl-version", "v1", "--stdin" },
+                    cwd = require
+                        ("conform.util")
+                        .root_file({ "kdlfmt.kdl", ".kdlfmtignore" })
                 }
             }
         }
@@ -112,7 +116,11 @@ local FFF = {
         {
             "<leader>sz",
             function()
-                require("fff").live_grep({ grep = { modes = { "fuzzy", "plain" } } })
+                require("fff").live_grep({
+                        grep = {
+                            modes = { "fuzzy", "plain" }
+                        }
+                    })
             end,
             desc = "[F]uzzy grep"
         },
@@ -164,7 +172,10 @@ local BlinkCmp = {
 }
 
 ---@type LazyPluginSpec
-local Mason = { url = "https://github.com/williamboman/mason.nvim.git", config = true }
+local Mason = {
+    url = "https://github.com/williamboman/mason.nvim.git",
+    config = true
+}
 
 ---@type LazyPluginSpec
 local NvimLspconfig = { url = "https://github.com/neovim/nvim-lspconfig.git" }
@@ -267,4 +278,7 @@ local Treesitter = {
     end
 }
 
-return { BlinkCmp, Mason, NvimLspconfig, MasonLspconfig, Treesitter, FileMention, FFF, Conform }
+return {
+    BlinkCmp, Mason, NvimLspconfig, MasonLspconfig, Treesitter, FileMention, FFF,
+    Conform
+}

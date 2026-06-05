@@ -28,7 +28,9 @@ local function version_is(program, expected, actual)
     if ok then
         vim.health.ok(string.format("%s is version %s", program, v_actual))
     else
-        vim.health.error(string.format("%s %s+ required, current: %s", v_expected, v_actual))
+        vim.health.error(string.format(
+            "%s %s+ required, current: %s", v_expected, v_actual
+        ))
     end
 end
 
@@ -36,7 +38,8 @@ function M.check()
     vim.health.start("kbinit")
 
     for _, cmd in ipairs {
-        "tree-sitter", "rg", "mise", "rustc", "cargo", "bun", "fzf", "lazygit", "yazi"
+        "tree-sitter", "rg", "mise", "rustc", "cargo", "bun", "fzf", "lazygit",
+        "yazi"
     } do
         executable(cmd)
     end

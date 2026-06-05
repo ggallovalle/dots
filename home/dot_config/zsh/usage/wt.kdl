@@ -1,141 +1,114 @@
-name "wt"
-bin "wt"
+name wt
+bin wt
 about "Git worktree management for parallel AI agent workflows"
 version "0.49.0"
-
 flag "-h --help" help="Print help (see a summary with '-h')" global=#true
 flag "-V --version" help="Print version" global=#true
 flag "-C <path>" help="Working directory for this command" global=#true
 flag "--config <path>" help="User config file path" global=#true
 flag "-v --verbose..." help="Verbose output (-v: info logs + hook/alias template variable & output; -vv: debug logs + diagnostic report + trace.log/output.log under .git/wt/logs/)" global=#true
 flag "-y --yes" help="Skip approval prompts" global=#true
-
-cmd "switch" help="Switch to a worktree; create if needed" {
+cmd switch help="Switch to a worktree; create if needed" {
     arg "[BRANCH]" help="Branch name or shortcut"
     arg "[EXECUTE_ARGS]..." help="Additional arguments for --execute command (after --)"
     flag "-c --create" help="Create a new branch"
     flag "-b --base <BASE>" help="Base branch"
     flag "-x --execute <EXECUTE>" help="Command to run after switch"
-    flag "--clobber" help="Remove stale paths at target"
-    flag "--no-cd" help="Skip directory change after switching"
-    flag "--branches" help="Include branches without worktrees"
-    flag "--remotes" help="Include remote branches"
-    flag "--no-hooks" help="Skip hooks"
+    flag --clobber help="Remove stale paths at target"
+    flag --no-cd help="Skip directory change after switching"
+    flag --branches help="Include branches without worktrees"
+    flag --remotes help="Include remote branches"
+    flag --no-hooks help="Skip hooks"
     flag "--format <FORMAT>" help="Output format"
-
-    complete "BRANCH" run="""
-        (git branch --format='%(refname:short)' 2>/dev/null || true) | while IFS= read -r branch; do
-            [ -n \"$branch\" ] && printf '%s\n' \"$branch\"
-        done
-        printf '%s\n' \\
-            '^:Default branch' \\
-            '@:Current branch' \\
-            '-:Previous branch'
-        """ descriptions=#true
-    complete "BASE" run="""
-        (git branch --format='%(refname:short)' 2>/dev/null || true) | while IFS= read -r branch; do
-            [ -n \"$branch\" ] && printf '%s\n' \"$branch\"
-        done
-        printf '%s\n' \\
-            '^:Default branch' \\
-            '@:Current branch' \\
-            '-:Previous branch'
-        """ descriptions=#true
-    complete "FORMAT" run="""
-        printf '%s\n' \\
-            'text:Human-readable text output' \\
-            'json:JSON output'
-        """ descriptions=#true
+    complete BRANCH run="(git branch --format='%(refname:short)' 2>/dev/null || true) | while IFS= read -r branch; do\n    [ -n \"$branch\" ] && printf '%s\n' \"$branch\"\ndone\nprintf '%s\n' \\\n    '^:Default branch' \\\n    '@:Current branch' \\\n    '-:Previous branch'" descriptions=#true
+    complete BASE run="(git branch --format='%(refname:short)' 2>/dev/null || true) | while IFS= read -r branch; do\n    [ -n \"$branch\" ] && printf '%s\n' \"$branch\"\ndone\nprintf '%s\n' \\\n    '^:Default branch' \\\n    '@:Current branch' \\\n    '-:Previous branch'" descriptions=#true
+    complete FORMAT run="printf '%s\n' \\\n    'text:Human-readable text output' \\\n    'json:JSON output'" descriptions=#true
 }
-
-cmd "list" help="List worktrees and their status"
-cmd "remove" help="Remove worktree; delete branch if merged" {
+cmd list help="List worktrees and their status"
+cmd remove help="Remove worktree; delete branch if merged" {
     arg "[BRANCHES]..." help="Branch name"
-    flag "--no-delete-branch" help="Keep branch after removal"
+    flag --no-delete-branch help="Keep branch after removal"
     flag "-D --force-delete" help="Delete unmerged branches"
-    flag "--foreground" help="Run removal in foreground (block until complete)"
+    flag --foreground help="Run removal in foreground (block until complete)"
     flag "-f --force" help="Force worktree removal"
-    flag "--no-hooks" help="Skip hooks"
+    flag --no-hooks help="Skip hooks"
     flag "--format <FORMAT>" help="Output format"
 }
-cmd "merge" help="Merge current branch into the target branch" {
+cmd merge help="Merge current branch into the target branch" {
     arg "[TARGET]" help="Target branch"
-    flag "--no-squash" help="Skip commit squashing"
-    flag "--no-commit" help="Skip commit and squash"
-    flag "--no-rebase" help="Skip rebase (fail if not already rebased)"
-    flag "--no-remove" help="Keep worktree after merge"
-    flag "--no-ff" help="Create a merge commit (no fast-forward)"
+    flag --no-squash help="Skip commit squashing"
+    flag --no-commit help="Skip commit and squash"
+    flag --no-rebase help="Skip rebase (fail if not already rebased)"
+    flag --no-remove help="Keep worktree after merge"
+    flag --no-ff help="Create a merge commit (no fast-forward)"
     flag "--stage <STAGE>" help="What to stage before committing"
-    flag "--no-hooks" help="Skip hooks"
+    flag --no-hooks help="Skip hooks"
     flag "--format <FORMAT>" help="Output format"
 }
-
-cmd "step" help="Run individual operations" {
-    cmd "commit" help="Stage and commit with LLM-generated message"
-    cmd "squash" help="Squash commits since branching"
-    cmd "rebase" help="Rebase onto target"
-    cmd "push" help="Fast-forward target to current branch"
-    cmd "diff" help="Show all changes since branching"
-    cmd "copy-ignored" help="Copy gitignored files to another worktree"
-    cmd "eval" help="[experimental] Evaluate a template expression"
-    cmd "for-each" help="[experimental] Run command in each worktree"
-    cmd "promote" help="[experimental] Swap a branch into the main worktree"
-    cmd "prune" help="[experimental] Remove worktrees merged into the default branch"
-    cmd "relocate" help="[experimental] Move worktrees to expected paths"
+cmd step help="Run individual operations" {
+    cmd commit help="Stage and commit with LLM-generated message"
+    cmd squash help="Squash commits since branching"
+    cmd rebase help="Rebase onto target"
+    cmd push help="Fast-forward target to current branch"
+    cmd diff help="Show all changes since branching"
+    cmd copy-ignored help="Copy gitignored files to another worktree"
+    cmd eval help="[experimental] Evaluate a template expression"
+    cmd for-each help="[experimental] Run command in each worktree"
+    cmd promote help="[experimental] Swap a branch into the main worktree"
+    cmd prune help="[experimental] Remove worktrees merged into the default branch"
+    cmd relocate help="[experimental] Move worktrees to expected paths"
 }
-
-cmd "hook" help="Run configured hooks" {
-    cmd "show" help="Show configured hooks"
-    cmd "pre-switch" help="Run pre-switch hooks"
-    cmd "post-switch" help="Run post-switch hooks"
-    cmd "pre-start" help="Run pre-start hooks"
-    cmd "post-start" help="Run post-start hooks"
-    cmd "pre-commit" help="Run pre-commit hooks"
-    cmd "post-commit" help="Run post-commit hooks"
-    cmd "pre-merge" help="Run pre-merge hooks"
-    cmd "post-merge" help="Run post-merge hooks"
-    cmd "pre-remove" help="Run pre-remove hooks"
-    cmd "post-remove" help="Run post-remove hooks"
+cmd hook help="Run configured hooks" {
+    cmd show help="Show configured hooks"
+    cmd pre-switch help="Run pre-switch hooks"
+    cmd post-switch help="Run post-switch hooks"
+    cmd pre-start help="Run pre-start hooks"
+    cmd post-start help="Run post-start hooks"
+    cmd pre-commit help="Run pre-commit hooks"
+    cmd post-commit help="Run post-commit hooks"
+    cmd pre-merge help="Run pre-merge hooks"
+    cmd post-merge help="Run post-merge hooks"
+    cmd pre-remove help="Run pre-remove hooks"
+    cmd post-remove help="Run post-remove hooks"
 }
-
-cmd "config" help="Manage user & project configs" {
-    cmd "shell" help="Shell integration setup" {
-        cmd "init" help="Generate shell integration code"
-        cmd "install" help="Write shell integration to config files"
-        cmd "uninstall" help="Remove shell integration from config files"
-        cmd "show-theme" help="Show output theme samples"
+cmd config help="Manage user & project configs" {
+    cmd shell help="Shell integration setup" {
+        cmd init help="Generate shell integration code"
+        cmd install help="Write shell integration to config files"
+        cmd uninstall help="Remove shell integration from config files"
+        cmd show-theme help="Show output theme samples"
     }
-    cmd "create" help="Create configuration file" {
-        flag "--project" help="Create project config (.config/wt.toml) instead of user config"
+    cmd create help="Create configuration file" {
+        flag --project help="Create project config (.config/wt.toml) instead of user config"
     }
-    cmd "show" help="Show configuration files & locations" {
-        flag "--full" help="Run diagnostic checks (CI tools, commit generation, version)"
+    cmd show help="Show configuration files & locations" {
+        flag --full help="Run diagnostic checks (CI tools, commit generation, version)"
         flag "--format <FORMAT>" help="Output format"
     }
-    cmd "update" help="Update deprecated config settings" {
-        flag "--print" help="Print the migrated config to stdout instead of writing it"
+    cmd update help="Update deprecated config settings" {
+        flag --print help="Print the migrated config to stdout instead of writing it"
     }
-    cmd "approvals" help="Manage command approvals" {
-        cmd "add" help="Store approvals in approvals.toml"
-        cmd "clear" help="Clear approved commands from approvals.toml"
+    cmd approvals help="Manage command approvals" {
+        cmd add help="Store approvals in approvals.toml"
+        cmd clear help="Clear approved commands from approvals.toml"
     }
-    cmd "alias" help="Inspect and preview aliases" {
-        cmd "show" help="Show an alias's template as configured"
-        cmd "dry-run" help="Preview an alias invocation with template expansion"
+    cmd alias help="Inspect and preview aliases" {
+        cmd show help="Show an alias's template as configured"
+        cmd dry-run help="Preview an alias invocation with template expansion"
     }
-    cmd "plugins" help="Plugin management" {
-        cmd "claude" help="Claude Code plugin"
-        cmd "opencode" help="OpenCode plugin"
+    cmd plugins help="Plugin management" {
+        cmd claude help="Claude Code plugin"
+        cmd opencode help="OpenCode plugin"
     }
-    cmd "state" help="Manage internal data and cache" {
-        cmd "get" help="Get all stored state"
-        cmd "clear" help="Clear all stored state"
-        cmd "default-branch" help="Default branch detection and override"
-        cmd "previous-branch" help="Previous branch (for wt switch -)"
-        cmd "logs" help="Operation and debug logs"
-        cmd "hints" help="One-time hints shown in this repo"
-        cmd "ci-status" help="CI status cache"
-        cmd "marker" help="Branch markers"
-        cmd "vars" help="[experimental] Custom variables per branch"
+    cmd state help="Manage internal data and cache" {
+        cmd get help="Get all stored state"
+        cmd clear help="Clear all stored state"
+        cmd default-branch help="Default branch detection and override"
+        cmd previous-branch help="Previous branch (for wt switch -)"
+        cmd logs help="Operation and debug logs"
+        cmd hints help="One-time hints shown in this repo"
+        cmd ci-status help="CI status cache"
+        cmd marker help="Branch markers"
+        cmd vars help="[experimental] Custom variables per branch"
     }
 }
