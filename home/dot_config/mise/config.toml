@@ -1,9 +1,9 @@
 [tools]
-bitwarden = "latest"
 bun = "latest"
 chezmoi = "latest"
 codex = "latest"
 delta = "latest"
+
 eza = "latest"
 fd = "latest"
 fzf = "latest"
@@ -43,4 +43,6 @@ claude = "latest"
 caddy = "latest"
 just = "latest"
 shellspec = "latest"
+bat = "latest"
+"cargo:kdlfmt" = "latest"
 
