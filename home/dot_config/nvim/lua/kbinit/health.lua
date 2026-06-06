@@ -36,8 +36,7 @@ function M.check()
   vim.health.start("kbinit")
 
   for _, cmd in ipairs {
-    "tree-sitter", "rg", "mise", "rustc", "cargo", "bun", "fzf", "lazygit",
-    "yazi"
+    "tree-sitter", "rg", "mise", "rustc", "cargo", "bun", "fzf", "lazygit"
   } do
     executable(cmd)
   end

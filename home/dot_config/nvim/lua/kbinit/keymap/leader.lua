@@ -147,7 +147,7 @@ function M.register()
   vim.keymap.set("n", "<leader>fe", snacks.explorer.open, {
     desc = "[E]xplorer"
   })
-  vim.keymap.set("n", "<leader>fo", "<cmd>Yazi<cr>", { desc = "[O]pen Yazi" })
+  vim.keymap.set("n", "<leader>fo", "<cmd>Oil<cr>", { desc = "[O]il" })
 
   wk.add({ "<leader>g", group = "[G]it" })
   vim.keymap.set("n", "<leader>gl", snacks.lazygit.open, {
