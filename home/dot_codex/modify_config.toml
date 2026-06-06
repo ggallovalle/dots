@@ -29,6 +29,10 @@ PORTABLE = {
             "composer": {
                 "submit": "\\",
             },
+            "pager": {
+                "half_page_up": "ctrl-u",
+                "half_page_down": "ctrl-d",
+            },
         },
     },
 

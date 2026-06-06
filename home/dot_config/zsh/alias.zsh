@@ -1,5 +1,6 @@
 ABBR_SET_EXPANSION_CURSOR=1
 alias src='clear; exec zsh'
+alias resrc='source ~/.zshrc'
 alias ..='cd ..'
 alias ...='cd ../..'
 alias rmr='rm -r'
@@ -9,7 +10,7 @@ alias xhome='cd ~'
 alias xconfig='cd $XDG_CONFIG_HOME'
 alias xdata='cd $XDG_DATA_HOME'
 alias xcode='cd $HOME/ghq/github.com/ggallovalle'
-alias xdots='cd $HOME/dotfiles'
+alias xdots='cd $DOTFILES'
 alias xgh='cd $HOME/ghq/github.com'
 
 if (( ${+commands[eza]} )); then
@@ -30,5 +31,6 @@ if (( ${+commands[eza]} )); then
 fi
 
 if (( ${+commands[chezmoi]} )); then
-  # abbr --user cac='chezmoi apply ~/.config/%'
+  abbr add -q cac='chezmoi apply ~/.config/%'
+  abbr add -q cah='chezmoi apply ~/%'
 fi
