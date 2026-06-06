@@ -4,7 +4,8 @@ local M = {}
 M.specs = {
   require("kbinit.plugins.core"), require("kbinit.plugins.ui"),
   require("kbinit.plugins.editor"), require("kbinit.plugins.lsp"),
-  require("kbinit.plugins.tools"), require("kbinit.plugins.git")
+  require("kbinit.plugins.tools"), require("kbinit.plugins.git"),
+  require("kbinit.plugins.development")
 }
 
 function M.setup()
