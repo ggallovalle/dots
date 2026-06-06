@@ -1,1 +1,4 @@
 *.txt.tuxedo-lock
+
+__pycache__/
+*.pyc

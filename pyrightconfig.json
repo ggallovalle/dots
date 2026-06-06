@@ -1,0 +1,8 @@
+{
+  "executionEnvironments": [
+    {
+      "root": "home/dot_config/kitty",
+      "extraPaths": ["/usr/lib/kitty"]
+    }
+  ]
+}
