@@ -45,4 +45,5 @@ just = "latest"
 shellspec = "latest"
 bat = "latest"
 "cargo:kdlfmt" = "latest"
+"github:can1357/oh-my-pi" = "15.9.5"
 
