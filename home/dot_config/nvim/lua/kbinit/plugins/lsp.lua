@@ -41,7 +41,8 @@ local Conform = {
       formatters_by_ft = {
         kdl = { "kdlfmt" },
         lua = { "luafmt" },
-        json = { lsp_format = "fallback" }
+        json = { lsp_format = "fallback" },
+        zig = { lsp_format = "fallback" }
       },
       formatters = {
         ---@type conform.FileFormatterConfig

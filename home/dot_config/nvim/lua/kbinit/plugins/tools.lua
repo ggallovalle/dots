@@ -10,11 +10,11 @@ local Oil = {
   init = function ()
     vim.g.loaded_netrwPlugin = 1
   end,
-  opts = function()
+  opts = function ()
     return {
       default_file_explorer = true,
       view_options = {
-        is_always_hidden = function(name, bufnr)
+        is_always_hidden = function (name, bufnr)
           if show_gitignored then
             return false
           end
@@ -24,19 +24,21 @@ local Oil = {
           end
           local ret = vim.fn.system({ "git", "-C", dir, "check-ignore", name })
           return vim.v.shell_error == 0
-        end,
+        end
       },
       keymaps = {
         ["gi"] = {
-          callback = function()
+          callback = function ()
             show_gitignored = not show_gitignored
-            require("oil.actions").refresh.callback()
+            require("oil.actions")
+              .refresh
+              .callback()
           end,
-          desc = "Toggle gitignored files",
-        },
-      },
+          desc = "Toggle gitignored files"
+        }
+      }
     }
-  end,
+  end
 }
 
 return { Opencode, Oil }

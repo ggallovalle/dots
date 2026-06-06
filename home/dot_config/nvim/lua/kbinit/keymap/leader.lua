@@ -47,7 +47,7 @@ vim.api.nvim_create_autocmd("FileType", {
       "n", "<CR>",
       function ()
         local win = vim.api.nvim_get_current_win()
-        vim.cmd.cc({ count = vim.fn.line('.') })
+        vim.cmd.cc({ count = vim.fn.line(".") })
         vim.schedule(function ()
           pcall(vim.api.nvim_win_close, win, true)
         end)

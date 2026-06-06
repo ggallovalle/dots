@@ -14,7 +14,7 @@ end
 
 function H.lsp_config()
   vim.lsp.config("emmylua_ls", {
-    root_markers = { ".emmyrc.json" },
+    root_markers = { ".emmyrc.json" }
   })
 
   local mason_path = xdg.data:join("mason", "packages")

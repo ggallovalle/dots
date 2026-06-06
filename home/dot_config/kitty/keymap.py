@@ -1,12 +1,33 @@
 #!/usr/bin/env python3
+import subprocess
 from pathlib import Path
 
 # do not remove this ever
 # from kitty.config import commented_out_default_config
 
+
+class ChezmoiActions:
+    source_path: Path
+
+    def __init__(self, /, source_path: Path | None = None) -> None:
+        if source_path is None:
+            output = subprocess.run(["chezmoi", "source-path"], stdout=True, check=True).stdout
+            assert len(output) > 0
+            source_path = Path(str(output))
+        self.source_path = source_path
+
+    def edit_dot_config(self, program: str) -> str:
+        target = self.source_path / "dot_config" / program
+        # action = f"""nvim -c :ChezmoiEnable {target} """
+        action = f"""{USER_SHELL} -lc 'cd {target}; nvim -c :ChezmoiEnable' """
+        # action = f"""{USER_SHELL} -lc 'cd {target}; pwd' """
+        return action
+
+    def keymaps(self) -> list[str]:
+        return [f"""map ctrl+shift+f2 launch --type=tab --title="chezmoi kitty" {self.edit_dot_config("kitty")} """]
+
 HOME = Path.home()
 KITTY_CONFIG_DIR = HOME / ".config/kitty"
-KITTY_CONF = KITTY_CONFIG_DIR / "kitty.conf"
 KEYMAPS_PY = KITTY_CONFIG_DIR / "print_effective_keymaps.py"
 KITTY_MOD = "ctrl+shift"
 USER_SHELL = "/usr/bin/zsh"
@@ -35,14 +56,13 @@ CUSTOM_KEYMAPS: list[str] = [
     "map kitty_mod+enter new_window_with_cwd",
     "map kitty_mod+t new_tab_with_cwd",
     "map kitty_mod+n new_os_window_with_cwd",
-    "map kitty_mod+f2",
-    f"map ctrl+shift+f2 launch --type=tab {USER_SHELL}  -lc 'nvim \"{KITTY_CONF}\"'",
-    "map kitty_mod+f12",
-    f"map ctrl+shift+f12 launch --type=tab {USER_SHELL} -lc nvim \"{KITTY_CONF}\"'",
     "map kitty_mod+f10",
-    f"map ctrl+shift+f10 launch --type=tab {USER_SHELL} -lc 'python \"{KEYMAPS_PY}\" | /usr/bin/nvim -R -'",
-    "map ctrl+shift+d launch --type=os-window codex",
+    f"""map ctrl+shift+f10 launch --type=tab --title "kitty keymaps" {USER_SHELL} -lc 'python "{KEYMAPS_PY}" | nvim -R -' """,
 ]
+
+def chezmoi_keymaps() -> list[str]:
+    chezmoi = ChezmoiActions()
+    return [f"map ctrl+shift+f2 {chezmoi.edit_dot_config("kitty")}"]
 
 
 def main() -> None:
@@ -51,6 +71,10 @@ def main() -> None:
     print()
     print("# Custom keymaps")
     for line in CUSTOM_KEYMAPS:
+        print(line)
+
+    chezmoi = ChezmoiActions(source_path=HOME / "dots/home")
+    for line in chezmoi.keymaps():
         print(line)
     print()
 
