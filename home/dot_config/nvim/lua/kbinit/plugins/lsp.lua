@@ -89,15 +89,14 @@ local FFF = {
     -- build = "nix run .#release",
   opts = {
     debug = {
-      enabled = true,
-      show_scores = true
+      enabled = false,
+      show_scores = false
     },
     keymaps = {
       move_up = { "<Up>", "<C-p>", "<C-k>" },
       move_down = { "<Down>", "<C-n>", "<C-j>" }
     }
   },
-  lazy = false, -- the plugin lazy-initialises itself
   keys = {
     {
       "<leader>sf",
