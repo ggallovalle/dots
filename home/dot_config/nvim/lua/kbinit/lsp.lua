@@ -136,12 +136,16 @@ function H.lsp_config()
       ".taplo.toml",
       "pyproject.toml",
       "Cargo.toml",
+      "mise.toml",
       ".git"
     },
     settings = {
       evenBetterToml = {
         schema = {
-          enabled = true
+          enabled = true,
+          associations = {
+            ["mise.toml"] = "https://mise.en.dev/schema/mise.json"
+          }
         }
       }
     }
