@@ -1,5 +1,13 @@
+source_dir := `pwd`
+
 default:
   @just --list
+
+[script]
+apply:
+  git ls-files --modified --others --exclude-standard -- 'home/**' |
+    sed "s|^home/|{{source_dir}}/home/|" |
+    xargs -r -I{} chezmoi apply --force --source-path {}
 
 format-kdl:
   kdlfmt format --kdl-version v1 ./home/dot_config/niri
@@ -12,5 +20,3 @@ format-lua:
 
 format: format-kdl format-lua
   echo "done"
-
-
