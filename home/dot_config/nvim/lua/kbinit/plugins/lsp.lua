@@ -98,6 +98,7 @@ local FFF = {
       move_down = { "<Down>", "<C-n>", "<C-j>" }
     }
   },
+  -- v0.9.2+ fixes home-dir init crash for find_files
   keys = {
     {
       "<leader>sf",
@@ -108,13 +109,6 @@ local FFF = {
     },
     {
       "<leader>sg",
-      function ()
-        require("fff").live_grep()
-      end,
-      desc = "[G]rep"
-    },
-    {
-      "<leader>sz",
       function ()
         require("fff").live_grep({
           grep = {

@@ -196,9 +196,12 @@ function M.register()
   vim.keymap.set("n", "<leader>sk", snacks.picker.keymaps, {
     desc = "[K]eymaps"
   })
-  -- vim.keymap.set("n", "<leader>sg", snacks.picker.grep, { desc = "[G]rep" })
+  vim.keymap.set("n", "<leader>sg", snacks.picker.grep, { desc = "[G]rep" })
   vim.keymap.set("n", "<leader>sb", search_buffer, { desc = "[B]uffers" })
-  -- vim.keymap.set("n", "<leader>sf", search_file, { desc = "[F]iles (Git)" })
+  -- use fff for file search; plugin updated to include home-dir crash fix
+  vim.keymap.set("n", "<leader>sf", function ()
+    require("fff").find_files()
+  end, { desc = "[F]iles" })
 
   wk.add({ "<leader>d", group = "[D]ocument" })
   vim.api.nvim_create_autocmd("FileType", {

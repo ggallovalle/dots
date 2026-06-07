@@ -5,7 +5,7 @@
   "catppuccin": { "branch": "main", "commit": "426dbebe06b5c69fd846ceb17b42e12f890aedf1" },
   "codediff.nvim": { "branch": "main", "commit": "29b06f37251f2e010f53a0892573b2ec03d165e2" },
   "conform.nvim": { "branch": "master", "commit": "619363c30309d29ffa631e67c8183f2a72caa373" },
-  "fff": { "branch": "main", "commit": "1e055f9d7b94f33a7f393ac95e779bed72650d56" },
+  "fff": { "branch": "main", "commit": "8092cfa3faf3471d29b3e11049e921d7e759d789" },
   "filemention.nvim": { "branch": "main", "commit": "d8aa9116fa441d0529c53bb5cb2c321f30d9544d" },
   "lazy.nvim": { "branch": "main", "commit": "306a05526ada86a7b30af95c5cc81ffba93fef97" },
   "mason-lspconfig.nvim": { "branch": "main", "commit": "7b01e2974a47d489bb92f47a41e4c0088ea8f86e" },
