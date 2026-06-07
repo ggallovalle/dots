@@ -1,6 +1,4 @@
 local wk = require("which-key")
-local snacks = require("snacks")
-local opencode = require("opencode")
 
 local M = {}
 
@@ -61,30 +59,6 @@ vim.api.nvim_create_autocmd("FileType", {
   end
 })
 
-local function search_buffer()
-  snacks.picker.buffers({
-    confirm = function (picker, item)
-      picker:close()
-      if item then
-        for _, win in ipairs(vim.api.nvim_list_wins()) do
-          if vim.api.nvim_win_get_buf(win) == item.buf then
-            vim.api.nvim_set_current_win(win)
-            return
-          end
-        end
-        vim.cmd.buffer({ bang = true, count = item.buf })
-      end
-    end,
-    win = {
-      list = {
-        keys = {
-          ["dd"] = "bufdelete"
-        }
-      }
-    }
-  })
-end
-
 function M.register()
   wk.add({ "gr", group = "[G]o to LSP" })
   wk.add({ "<leader>c", group = "[C]ode" })
@@ -144,64 +118,53 @@ function M.register()
   )
 
   wk.add({ "<leader>f", group = "[F]ile" })
-  vim.keymap.set("n", "<leader>fe", snacks.explorer.open, {
-    desc = "[E]xplorer"
-  })
   vim.keymap.set("n", "<leader>fo", "<cmd>Oil<cr>", { desc = "[O]il" })
 
   wk.add({ "<leader>g", group = "[G]it" })
-  vim.keymap.set("n", "<leader>gl", snacks.lazygit.open, {
-    desc = "[L]azygit"
-  })
 
   wk.add({ "<leader>a", group = "[A]I" })
   vim.g.opencode_opts = {}
   vim.o.autoread = true
 
   vim.keymap.set({ "n", "x" }, "<leader>aa", function ()
+    local opencode = require("opencode")
     opencode.ask("@this: ", { submit = true })
   end, { desc = "[A]sk" }
   )
   vim.keymap.set({ "n", "x" }, "<leader>ax", function ()
+    local opencode = require("opencode")
     opencode.select()
   end, { desc = "E[X]ecute" }
   )
   vim.keymap.set({ "n", "t" }, "<leader>ao", function ()
+    local opencode = require("opencode")
     opencode.toggle()
   end, { desc = "[O]pen" }
   )
 
   vim.keymap.set({ "n", "x" }, "<leader>ar", function ()
+    local opencode = require("opencode")
     return opencode.operator("@this ")
   end, { desc = "[R]ange", expr = true }
   )
   vim.keymap.set("n", "<leader>al", function ()
+    local opencode = require("opencode")
     return opencode.operator("@this ") .. "_"
   end, { desc = "[L]ine", expr = true }
   )
 
   vim.keymap.set("n", "<S-C-u>", function ()
+    local opencode = require("opencode")
     opencode.command("session.half.page.up")
   end, { desc = "Scroll Opencode Up" }
   )
   vim.keymap.set("n", "<S-C-d>", function ()
+    local opencode = require("opencode")
     opencode.command("session.half.page.down")
   end, { desc = "Scroll Opencode Down" }
   )
 
   wk.add({ "<leader>s", group = "[S]earch" })
-  vim.keymap.set("n", "<leader>s:", snacks.picker.command_history, {
-    desc = "[C]ommand History"
-  })
-  vim.keymap.set("n", "<leader>sk", snacks.picker.keymaps, {
-    desc = "[K]eymaps"
-  })
-  vim.keymap.set("n", "<leader>sg", snacks.picker.grep, { desc = "[G]rep" })
-  vim.keymap.set("n", "<leader>sb", search_buffer, { desc = "[B]uffers" })
-  -- use fff for file search; plugin updated to include home-dir crash fix
-  vim.keymap.set("n", "<leader>sf", function ()
-    require("fff").find_files()
-  end, { desc = "[F]iles" })
 
   wk.add({ "<leader>d", group = "[D]ocument" })
   vim.api.nvim_create_autocmd("FileType", {
@@ -253,13 +216,7 @@ function M.on_lsp_attach(bufnr, _client, capabilities)
       buffer = bufnr,
       desc = "[D]efinition"
     })
-
-    vim.keymap.set("n", "grs", snacks.picker.lsp_symbols, {
-      desc = "[S]ymbols"
-    })
   end
-
-  vim.keymap.set("n", "gs", snacks.picker.lsp_symbols, { desc = "[S]ymbols" })
 
   vim.keymap.set(
     "n", "<leader>dd",

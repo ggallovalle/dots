@@ -69,6 +69,7 @@ local WhichKey = {
 ---@type LazyPluginSpec
 local Snacks = {
   url = "https://github.com/folke/snacks.nvim.git",
+  lazy = true,
   ---@type snacks.Config
   opts = {
     input = {},
@@ -85,6 +86,83 @@ local Snacks = {
           }
         }
       }
+    }
+  },
+  keys = {
+    {
+      "<leader>fe",
+      function ()
+        require("snacks")
+          .explorer
+          .open()
+      end,
+      desc = "[E]xplorer"
+    },
+
+    {
+      "<leader>s:",
+      function ()
+        require("snacks")
+          .picker
+          .command_history()
+      end,
+      desc = "[C]ommand History"
+    },
+    {
+      "<leader>sk",
+      function ()
+        require("snacks")
+          .picker
+          .keymaps()
+      end,
+      desc = "[K]eymaps"
+    },
+    {
+      "<leader>sb",
+      function ()
+        local snacks = require("snacks")
+
+        snacks.picker.buffers({
+          confirm = function (picker, item)
+            picker:close()
+            if item then
+              for _, win in ipairs(vim.api.nvim_list_wins()) do
+                if vim.api.nvim_win_get_buf(win) == item.buf then
+                  vim.api.nvim_set_current_win(win)
+                  return
+                end
+              end
+              vim.cmd.buffer({ bang = true, count = item.buf })
+            end
+          end,
+          win = {
+            list = {
+              keys = {
+                ["dd"] = "bufdelete"
+              }
+            }
+          }
+        })
+      end,
+      desc = "[B]uffers"
+    },
+    {
+      "grs",
+      function ()
+        require("snacks")
+          .picker
+          .lsp_symbols()
+      end,
+      desc = "[S]ymbols"
+    },
+    {
+      "<leader>gl",
+      function ()
+        require("snacks")
+          .lazygit
+          .open()
+      end,
+      desc = "[L]azygit"
     }
   }
 }
