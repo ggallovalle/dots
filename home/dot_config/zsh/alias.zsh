@@ -34,4 +34,5 @@ if (( ${+commands[chezmoi]} )); then
   abbr add -q cac='chezmoi apply ~/.config/%'
   abbr add -q cah='chezmoi apply ~/%'
   abbr add -q ca='chezmoi apply'
+  abbr add -q ca.='chezmoi apply --source-path $PWD/%'
 fi

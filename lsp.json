@@ -1,0 +1,29 @@
+{
+  "servers": {
+    "lua-language-server": {
+      "disabled": true,
+      "command": "lua-language-server",
+      "args": [],
+      "fileTypes": [
+        ".lua"
+      ],
+      "rootMarkers": [
+        ".luarc.json",
+        ".git"
+      ]
+    },
+    "emmylua_ls": {
+      "command": "emmylua_ls",
+      "args": [],
+      "fileTypes": [
+        ".lua"
+      ],
+      "rootMarkers": [
+        ".emmyrc.json",
+        ".luarc.json",
+        ".emmyrc.lua",
+        ".git"
+      ]
+    }
+  }
+}
