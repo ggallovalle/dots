@@ -1,0 +1,21 @@
+#!/usr/bin/env -S uv run --script
+# vim: ft=python
+# /// script
+# requires-python = ">=3.11"
+# dependencies = [
+#   "tomlkit>=0.13.0",
+# ]
+# ///
+
+from kbkitty.keymaptoolkit import KeymapsBuilder
+
+def main() -> None:
+    builder = KeymapsBuilder()
+    builder.map_launch_shell("ctrl+x", title="whoami", script='echo "world"')
+
+    print("# Hello from kbkittens!")
+    print(builder)
+
+
+if __name__ == "__main__":
+    main()

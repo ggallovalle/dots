@@ -140,6 +140,7 @@ function H.lsp_config()
       ".git"
     },
     settings = {
+-- https://github.com/tamasfe/taplo/blob/b673b44df2773db8673a00df2e7654b769f7fde7/editors/vscode/package.json#L160
       evenBetterToml = {
         schema = {
           enabled = true,

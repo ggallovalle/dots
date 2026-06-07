@@ -1,6 +1,14 @@
 #!/usr/bin/env python3
+import os
 import subprocess
+import sys
 from pathlib import Path
+
+SCRIPT_DIR = Path(__file__).resolve().parent
+if str(SCRIPT_DIR) not in sys.path:
+    sys.path.insert(0, str(SCRIPT_DIR))
+
+from kbkitty.keymaptoolkit import KeymapsBuilder
 
 # do not remove this ever
 # from kitty.config import commented_out_default_config
@@ -16,15 +24,12 @@ class ChezmoiActions:
             source_path = Path(str(output))
         self.source_path = source_path
 
-    def edit_dot_config(self, program: str) -> str:
-        target = self.source_path / "dot_config" / program
-        # action = f"""nvim -c :ChezmoiEnable {target} """
-        action = f"""{USER_SHELL} -lc 'cd {target}; nvim -c :ChezmoiEnable' """
-        # action = f"""{USER_SHELL} -lc 'cd {target}; pwd' """
-        return action
-
-    def keymaps(self) -> list[str]:
-        return [f"""map ctrl+shift+f2 launch --type=tab --title="chezmoi kitty" {self.edit_dot_config("kitty")} """]
+    def keymaps(self) -> KeymapsBuilder:
+        builder = KeymapsBuilder(launch_cwd=self.source_path, launch_where="tab")
+        target = os.path.join("dot_config", "kitty")
+        builder.map_launch("ctrl+shift+f2", "nvim", "-c", ":ChezmoiEnable", target, title="chezmoi kitty")
+        return builder
+        # return [f"""map ctrl+shift+f2 launch --type=tab --cwd={self.source_path} --title="chezmoi kitty" {self.edit_dot_config("kitty")} """]
 
 HOME = Path.home()
 KITTY_CONFIG_DIR = HOME / ".config/kitty"
@@ -60,10 +65,6 @@ CUSTOM_KEYMAPS: list[str] = [
     f"""map ctrl+shift+f10 launch --type=tab --title "kitty keymaps" {USER_SHELL} -lc 'python "{KEYMAPS_PY}" | nvim -R -' """,
 ]
 
-def chezmoi_keymaps() -> list[str]:
-    chezmoi = ChezmoiActions()
-    return [f"map ctrl+shift+f2 {chezmoi.edit_dot_config("kitty")}"]
-
 
 def main() -> None:
     print(DOC_LINES)
@@ -74,8 +75,7 @@ def main() -> None:
         print(line)
 
     chezmoi = ChezmoiActions(source_path=HOME / "dots/home")
-    for line in chezmoi.keymaps():
-        print(line)
+    print(chezmoi.keymaps())
     print()
 
 
