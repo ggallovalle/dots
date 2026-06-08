@@ -50,7 +50,7 @@ local FFF = {
 ---@type LazyPluginSpec
 local Snacks = {
   url = "https://github.com/folke/snacks.nvim.git",
-  lazy = true,
+  lazy = false,
   ---@type snacks.Config
   opts = {},
   keys = {

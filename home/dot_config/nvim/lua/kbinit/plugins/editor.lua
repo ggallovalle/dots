@@ -28,4 +28,38 @@ local AnsiNvim = {
   }
 }
 
-return { Surround, AutoPairs, AnsiNvim }
+local HTextObjects = {}
+
+function HTextObjects.select(query)
+  return function ()
+    local textobject = require("nvim-treesitter-textobjects.select")
+
+      textobject.select_textobject(query, "textobjects")
+  end
+end
+
+---@type LazyPluginSpec
+local TreesitterTextObjects = {
+  url = "https://github.com/nvim-treesitter/nvim-treesitter-textobjects",
+  init = function ()
+    vim.g.no_plugin_maps = true
+  end,
+  opts = {
+    lookahead = true,
+    selection_modes = {
+      ['@parameter.outer'] = "v", -- charwise
+      ['@function.outer'] = "V"   -- linewise
+      -- ['@class.outer'] = '<c-v>', -- blockwise
+    }
+  },
+  keys = {
+    {
+      "aa",
+      HTextObjects.select("@parameter.outer"),
+      mode = { "x", "o" },
+      desc = "[A]rgument [A]rround"
+    }
+  }
+}
+
+return { Surround, AutoPairs, AnsiNvim, TreesitterTextObjects }
