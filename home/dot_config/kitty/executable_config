@@ -1,0 +1,23 @@
+#!/usr/bin/env -S uv run --script
+# vim: ft=python
+# /// script
+# requires-python = ">=3.11"
+# dependencies = [
+#   "tomlkit>=0.13.0",
+# ]
+# ///
+
+from kbkitty.keymaptoolkit import KeymapsBuilder
+import keymap
+
+
+
+def main() -> None:
+    builder = KeymapsBuilder(shell=f"{keymap.USER_SHELL} -lc")
+    builder.setting("kitty_mod", "ctrl+shift")
+    keymap.custom_keymaps(builder)
+    keymap.chezmoi_keymaps(builder, source_path=keymap.HOME / "dots/home")
+    print(builder)
+
+if __name__ == "__main__":
+    main()
