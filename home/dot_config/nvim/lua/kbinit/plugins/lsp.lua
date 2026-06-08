@@ -1,36 +1,4 @@
 ---@type LazyPluginSpec
-local BlinkLib = { url = "https://github.com/saghen/blink.lib.git" }
-
-local HBlink = {}
-function HBlink.select_and_accept()
-  local cmp = require("blink.cmp")
-  return cmp.select_and_accept({
-    callback = function ()
-      cmp.show_signature()
-      cmp.show_documentation()
-    end
-  })
-end
-
-function HBlink.tab()
-  local cmp = require("blink.cmp")
-  if cmp.snippet_active() then
-    return cmp.accept()
-  end
-  return HBlink.select_and_accept()
-end
-
----@type LazyPluginSpec
-local FileMention = {
-  url = "https://github.com/not-manu/filemention.nvim",
-  event = "InsertEnter",
-  opts = {
-    finder = "fff",
-    filetypes = { "markdown", "text", "gitcommit", "typst" } -- or "*" if you live dangerously
-  }
-}
-
----@type LazyPluginSpec
 local Conform = {
   url = "https://github.com/stevearc/conform.nvim",
   opts = function ()
@@ -75,94 +43,6 @@ local Conform = {
         require("conform").format({})
       end,
       desc = "[D]ocument [F]ormat"
-    }
-  }
-}
-
----@type LazyPluginSpec
-local FFF = {
-  url = "https://github.com/dmtrKovalenko/fff",
-  build = function ()
-    -- downloads a prebuilt binary or falls back to cargo build
-    require("fff.download").download_or_build_binary()
-  end,
-  -- for nixos:
-    -- build = "nix run .#release",
-  opts = {
-    debug = {
-      enabled = false,
-      show_scores = false
-    },
-    keymaps = {
-      move_up = { "<Up>", "<C-p>", "<C-k>" },
-      move_down = { "<Down>", "<C-n>", "<C-j>" }
-    }
-  },
-  -- v0.9.2+ fixes home-dir init crash for find_files
-  keys = {
-    {
-      "<leader>sf",
-      function ()
-        require("fff").find_files()
-      end,
-      desc = "[F]iles"
-    },
-    {
-      "<leader>sg",
-      function ()
-        require("fff").live_grep({
-          grep = {
-            modes = { "fuzzy", "plain" }
-          }
-        })
-      end,
-      desc = "[F]uzzy grep"
-    },
-    {
-      "<leader>sw",
-      function ()
-        require("fff").live_grep({ query = vim.fn.expand("<cword>") })
-      end,
-      desc = "[W]ord"
-    },
-  }
-}
-
----@type LazyPluginSpec
-local BlinkCmp = {
-  url = "https://github.com/saghen/blink.cmp.git",
-  dependencies = {
-    BlinkLib
-  },
-  build = function ()
-    require("blink.cmp")
-      .build()
-      :wait(60000)
-  end,
-  ---@diagnostic disable-next-line: missing-fields
-  ---@type blink.cmp.ConfigStrict
-  opts = {
-    ---@diagnostic disable-next-line: missing-fields
-    sources = {
-      default = { "filemention", "lsp", "path", "snippets", "buffer" },
-      providers = {
-        filemention = {
-          name = "filemention",
-          module = "filemention.sources.blink"
-        }
-      }
-    },
-    keymap = {
-      preset = "default",
-      ["<C-y>"] = { HBlink.select_and_accept, "fallback" },
-      ["<CR>"] = { HBlink.select_and_accept, "fallback" },
-      ["<Tab>"] = { HBlink.tab, "snippet_forward", "fallback" },
-      ["<S-Tab>"] = { "snippet_backward", "fallback" },
-      ["<C-j>"] = { "select_next", "fallback_to_mappings" },
-      ["<C-k>"] = { "select_prev", "fallback_to_mappings" },
-      ["<C-d>"] = { "scroll_documentation_down" },
-      ["<C-u>"] = { "scroll_documentation_up" },
-      ["<C-h>"] = { "show_signature", "hide_signature", "fallback" }
     }
   }
 }
@@ -274,7 +154,4 @@ local Treesitter = {
   end
 }
 
-return {
-  BlinkCmp, Mason, NvimLspconfig, MasonLspconfig, Treesitter, FileMention, FFF,
-  Conform
-}
+return { Mason, NvimLspconfig, MasonLspconfig, Treesitter, Conform }

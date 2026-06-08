@@ -1,4 +1,3 @@
-
 local M = {}
 
 ---@return { start_lnum: integer, start_col: integer, end_lnum: integer, end_col: integer, text: string } | nil

@@ -13,10 +13,6 @@ function H.diagnostic()
 end
 
 function H.lsp_config()
-  vim.lsp.config("emmylua_ls", {
-    root_markers = { ".emmyrc.json" }
-  })
-
   local mason_path = xdg.data:join("mason", "packages")
 
   local vue_path = mason_path:join("vue-language-server", "node_modules", "@vue", "language-server")
@@ -140,7 +136,7 @@ function H.lsp_config()
       ".git"
     },
     settings = {
--- https://github.com/tamasfe/taplo/blob/b673b44df2773db8673a00df2e7654b769f7fde7/editors/vscode/package.json#L160
+      -- https://github.com/tamasfe/taplo/blob/b673b44df2773db8673a00df2e7654b769f7fde7/editors/vscode/package.json#L160
       evenBetterToml = {
         schema = {
           enabled = true,

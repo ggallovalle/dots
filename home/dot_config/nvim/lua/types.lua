@@ -16,4 +16,3 @@
 --- see: ~/.local/share/nvim/lazy/nvim-autopairs/lua/nvim-autopairs.lua
 
 ---@class kbinit.autopairs.Config
-

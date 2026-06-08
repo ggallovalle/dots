@@ -28,7 +28,10 @@ function H.lazy_plugins()
 
   ---@diagnostic disable-next-line: undefined-field
   require("lazy").setup({
-    spec = { import = "kbinit.plugins" }
+    spec = { import = "kbinit.plugins" },
+    change_detection = {
+      enabled = false
+    }
   })
 end
 
