@@ -2,6 +2,21 @@ local M = {}
 
 local H = {}
 
+function H.autocd()
+  vim.api.nvim_create_autocmd("BufEnter", {
+    once = true,
+    callback = function ()
+      ---@diagnostic disable-next-line: assign-type-mismatch
+      ---@type string
+      local arg = vim.fn.argv(0)
+
+      if arg ~= "" and vim.fn.isdirectory(arg) == 1 then
+        vim.cmd.cd(vim.fn.fnameescape(arg))
+      end
+    end
+  })
+end
+
 function H.lazy_plugins()
   local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
   if not vim.uv.fs_stat(lazypath) then
@@ -89,7 +104,9 @@ end
 
 function M.setup()
   require("vim._core.ui2").enable({})
+
   H.options()
+  H.autocd()
   H.lazy_plugins()
   H.kb_plugins()
 
