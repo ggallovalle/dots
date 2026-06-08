@@ -63,7 +63,29 @@ local Catppuccin = {
 ---@type LazyPluginSpec
 local WhichKey = {
   url = "https://github.com/folke/which-key.nvim.git",
-  config = true
+  config = function (_spec, opts)
+    local wk = require("which-key")
+    wk.setup(opts)
+    wk.add({
+      ---@diagnostic disable-next-line: assign-type-mismatch
+      { "gr", group = "[G]o to LSP" },
+      ---@diagnostic disable-next-line: assign-type-mismatch
+      { "<leader>c", group = "[C]ode" },
+      { "<leader>i", group = "[I]nsert" },
+      { "<leader>it", group = "[T]ime", icon = "󰥔" },
+      { "<leader>f", group = "[F]ile" },
+      { "<leader>g", group = "[G]it" },
+      { "<leader>a", group = "[A]I" },
+      { "<leader>s", group = "[S]earch" },
+      { "<leader>d", group = "[D]ocument" },
+      { "grn", desc = "Re[n]ame" },
+      { "gra", desc = "Code [A]ction" },
+      { "grx", desc = "Code [X]Lens" },
+      { "grr", desc = "[R]eferences" },
+      { "gri", desc = "[I]mplementation" },
+      { "grt", desc = "[T]ype Definition" }
+    })
+  end
 }
 
 ---@type LazyPluginSpec
@@ -154,15 +176,6 @@ local Snacks = {
           .lsp_symbols()
       end,
       desc = "[S]ymbols"
-    },
-    {
-      "<leader>gl",
-      function ()
-        require("snacks")
-          .lazygit
-          .open()
-      end,
-      desc = "[L]azygit"
     }
   }
 }

@@ -1,4 +1,3 @@
-local snacks = require("snacks")
 
 local M = {}
 
@@ -228,6 +227,7 @@ function M.convert_visual()
     return
   end
 
+  local snacks = require("snacks")
   snacks.picker.pick({
     title = "Time Convert",
     prompt = " ",

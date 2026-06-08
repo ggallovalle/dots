@@ -124,7 +124,7 @@ local FFF = {
         require("fff").live_grep({ query = vim.fn.expand("<cword>") })
       end,
       desc = "[W]ord"
-    }
+    },
   }
 }
 
