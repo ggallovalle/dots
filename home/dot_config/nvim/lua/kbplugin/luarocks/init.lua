@@ -89,58 +89,60 @@ function Runtime.wire_paths(luarocks, lua_version, cb)
     luarocks, "--lua-version", lua_version, "path", "--lr-cpath"
   }
 
-  process.execute_text(process.make(path_cmd[1], vim.list_slice(path_cmd, 2)), function (
-    err, path_result
-  )
-    if err ~= nil or path_result == nil or path_result.code ~= 0 then
-      cb(false, "failed to read luarocks path: "
-        .. vim.trim((path_result and path_result.stderr) or tostring(err or "")))
-      return
-    end
-
-    process.execute_text(
-      process.make(cpath_cmd[1], vim.list_slice(cpath_cmd, 2)),
-      function (err2, cpath_result)
-        if err2 ~= nil or cpath_result == nil or cpath_result.code ~= 0 then
-          cb(false, "failed to read luarocks cpath: "
-            .. vim.trim((cpath_result and cpath_result.stderr)
-              or tostring(err2 or "")))
-          return
-        end
-
-        local wired_path_count = 0
-        local wired_cpath_count = 0
-
-        for _, p in ipairs(vim.split(
-          vim.trim(path_result.stdout or ""),
-          ";",
-          {
-            trimempty = true
-          }
-        )) do
-          local changed, value = Runtime.prepend_unique(package.path, p)
-          if changed and value ~= nil then
-            package.path = value
-            wired_path_count = wired_path_count + 1
-          end
-        end
-
-        for _, p in ipairs(vim.split(vim.trim(cpath_result.stdout or ""), ";", {
-          trimempty = true
-        })) do
-          local changed, value = Runtime.prepend_unique(package.cpath, p)
-          if changed and value ~= nil then
-            package.cpath = value
-            wired_cpath_count = wired_cpath_count + 1
-          end
-        end
-
-        State.data.wired_path_count = wired_path_count
-        State.data.wired_cpath_count = wired_cpath_count
-        cb(true, nil)
+  process.execute_text(
+    process.make(path_cmd[1], vim.list_slice(path_cmd, 2)),
+    function (err, path_result)
+      if err ~= nil or path_result == nil or path_result.code ~= 0 then
+        cb(false, "failed to read luarocks path: "
+          .. vim.trim((path_result and path_result.stderr)
+            or tostring(err or "")))
+        return
       end
-    )
-  end)
+
+      process.execute_text(
+        process.make(cpath_cmd[1], vim.list_slice(cpath_cmd, 2)),
+        function (err2, cpath_result)
+          if err2 ~= nil or cpath_result == nil or cpath_result.code ~= 0 then
+            cb(false, "failed to read luarocks cpath: "
+              .. vim.trim((cpath_result and cpath_result.stderr)
+                or tostring(err2 or "")))
+            return
+          end
+
+          local wired_path_count = 0
+          local wired_cpath_count = 0
+
+          for _, p in ipairs(vim.split(vim.trim(path_result.stdout or ""), ";", {
+            trimempty = true
+          })) do
+            local changed, value = Runtime.prepend_unique(package.path, p)
+            if changed and value ~= nil then
+              package.path = value
+              wired_path_count = wired_path_count + 1
+            end
+          end
+
+          for _, p in ipairs(vim.split(
+            vim.trim(cpath_result.stdout or ""),
+            ";",
+            {
+              trimempty = true
+            }
+          )) do
+            local changed, value = Runtime.prepend_unique(package.cpath, p)
+            if changed and value ~= nil then
+              package.cpath = value
+              wired_cpath_count = wired_cpath_count + 1
+            end
+          end
+
+          State.data.wired_path_count = wired_path_count
+          State.data.wired_cpath_count = wired_cpath_count
+          cb(true, nil)
+        end
+      )
+    end
+  )
 end
 
 local Installer = {}
@@ -263,15 +265,17 @@ function M.setup(opts)
       finish_error(install_err or "unknown install error")
       return
     end
-    Runtime.wire_paths(luarocks, State.data.lua_version, function (
-      wired_ok, wire_err
-    )
-      if not wired_ok then
-        finish_error(wire_err or "path wiring failed")
-        return
+    Runtime.wire_paths(
+      luarocks,
+      State.data.lua_version,
+      function (wired_ok, wire_err)
+        if not wired_ok then
+          finish_error(wire_err or "path wiring failed")
+          return
+        end
+        finish_success()
       end
-      finish_success()
-    end)
+    )
   end)
 end
 

@@ -10,7 +10,8 @@ local Conform = {
         kdl = { "kdlfmt" },
         lua = { "luafmt" },
         json = { lsp_format = "fallback" },
-        zig = { lsp_format = "fallback" }
+        zig = { lsp_format = "fallback" },
+        python = { lsp_format = "fallback" }
       },
       formatters = {
         ---@type conform.FileFormatterConfig

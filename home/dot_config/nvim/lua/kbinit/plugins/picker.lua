@@ -119,6 +119,24 @@ local Snacks = {
           .lsp_symbols()
       end,
       desc = "[S]ymbols"
+    },
+    {
+      "<leader>gL",
+      function ()
+        require("snacks")
+          .lazygit
+          .open()
+      end,
+      desc = "[L]azygit"
+    },
+    {
+      "<leader>gl",
+      function ()
+        require("snacks")
+          .lazygit
+          .log_file()
+      end,
+      desc = "[L]og"
     }
   }
 }

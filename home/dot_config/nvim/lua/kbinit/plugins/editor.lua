@@ -34,10 +34,12 @@ function HTextObjects.select(query)
   return function ()
     local textobject = require("nvim-treesitter-textobjects.select")
 
-      textobject.select_textobject(query, "textobjects")
+    textobject.select_textobject(query, "textobjects")
   end
 end
 
+-- https://github.com/nvim-treesitter/nvim-treesitter-textobjects/blob/main/BUILTIN_TEXTOBJECTS.md
+-- https://github.com/nvim-treesitter/nvim-treesitter-textobjects
 ---@type LazyPluginSpec
 local TreesitterTextObjects = {
   url = "https://github.com/nvim-treesitter/nvim-treesitter-textobjects",
@@ -57,7 +59,49 @@ local TreesitterTextObjects = {
       "aa",
       HTextObjects.select("@parameter.outer"),
       mode = { "x", "o" },
-      desc = "[A]rgument [A]rround"
+      desc = "[A]rgument"
+    },
+    {
+      "ia",
+      HTextObjects.select("@parameter.inner"),
+      mode = { "x", "o" },
+      desc = "[A]rgument"
+    },
+    {
+      "aA",
+      HTextObjects.select("@call.outer"),
+      mode = { "x", "o" },
+      desc = "c[A]ll"
+    },
+    {
+      "iA",
+      HTextObjects.select("@call.inner"),
+      mode = { "x", "o" },
+      desc = "c[A]ll"
+    },
+    {
+      "ac",
+      HTextObjects.select("@class.outer"),
+      mode = { "x", "o" },
+      desc = "[C]class"
+    },
+    {
+      "ic",
+      HTextObjects.select("@class.inner"),
+      mode = { "x", "o" },
+      desc = "[C]class"
+    },
+    {
+      "af",
+      HTextObjects.select("@function.outer"),
+      mode = { "x", "o" },
+      desc = "[F]unction"
+    },
+    {
+      "if",
+      HTextObjects.select("@function.inner"),
+      mode = { "x", "o" },
+      desc = "[F]unction"
     }
   }
 }
