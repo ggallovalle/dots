@@ -1,31 +1,48 @@
 # Usage Notes
 
-## Core Spec Shapes
+## Context-Dependent Completions
 
-- `cmd "name"` defines a command or subcommand.
-- `arg "<name>"` defines a positional argument.
-- `flag "-s --long <value>"` defines a flag.
-- `complete "<arg>" run="..."` defines custom completion output.
-- `config { ... }` defines config files, defaults, and aliases.
+1. Define `complete <arg> run="..."` at root level — it cascades into every `cmd` that has that arg name.
 
-## Common Patterns
+2. In the `run` script, use Tera to materialise the current command line:
+   ```
+   set -- {% for word in words %}{{ word }}{% if not loop.last %} {% endif %}{% endfor %}
+   ```
 
-- Use nested `cmd` blocks to mirror the CLI tree.
-- Prefer the compact `flag` form when the CLI is straightforward.
-- Use the expanded `flag` block when alias, argument, or hide behavior is easier to read.
-- Mark hidden aliases with `hide=#true`.
-- Use `descriptions=#true` when completion output is `value:description`.
-- Skip `descriptions=#true` when the description would just repeat the value.
-- Use the template `words` list to make completions depend on earlier flags or args, such as `--lua-version`.
+3. Walk `$@` with a `case` loop to extract the relevant flag value:
+   ```
+   value=
+   while [ $# -gt 0 ]; do
+     case $1 in
+       --flag)   shift; value=${1-};  break ;;
+       --flag=*) value=${1#*=};       break ;;
+     esac
+     shift
+   done
+   ```
+    Break after the first hit — only guaranteed match in practice.
 
-## KDL Intricacies
+4. Build the completion command conditionally:
+   ```
+   cmd --json ${value:+--flag "$value"} | jq ...
+   ```
+   `${value:+--flag "$value"}` expands to the flag only when `$value` is non-empty.
 
-- Quote strings that contain spaces or reserved characters.
-- Prefer raw strings for multi-line examples, shell snippets, and long help text.
-- Use line continuations only when a single node must span lines cleanly.
-- Remember that argument order matters; property order does not.
-- Use child nodes when ordering or grouping is semantically important.
-- Treat `/-` as a structural comment that removes the node from the parsed document.
+### KDL string notes
+
+- Prefer `"""..."""` multi-line strings over `\"` escaping — they avoid quote-escalation entirely. Open with `run="""` and a newline immediately after.
+- `$` is NOT special in KDL double-quoted or multi-line strings — use it literally (`$1`, `$vault`, `${1-}`).
+- Use `\"` only when a single-line `"..."` string must contain shell double quotes.
+- `\$` is NOT a valid KDL escape — will cause a parse error.
+
+### When to use
+
+This pattern is worth it when:
+- The completion depends on a flag that selects between data sources (vault, profile, environment, server).
+- The command exposes a machine-readable output format that can be filtered programmatically.
+- The number of values is unbounded or dynamic (file system, DB, API).
+
+Skip it when the completion targets a static or small enumerated set — use `choices` or a simple `run` script instead.
 
 ## Recursive Authoring
 
@@ -45,24 +62,4 @@ The repo's zsh integration uses `home/dot_config/zsh/functions/gen-compusage`:
 3. Install the generated completion into the shell's completion directory.
 4. Re-run after spec changes.
 
-## Validation
-
-Use the `usage` CLI to validate specs before generating downstream artifacts:
-
-- `usage lint <file>` catches common spec problems quickly.
-- `usage lint -W <file>` treats warnings as failures.
-- `usage lint -f json <file>` gives machine-readable output.
-- `usage generate json -f <file>` is a good parse-and-normalize smoke test.
-- `usage generate manpage -f <file>` confirms the rendered manpage shape.
-
-Known quirk:
-
-- `usage lint` can still emit `missing-cmd-help` for the root command node even when the top-level spec has `about` / `before_help` / `before_long_help`. Treat that as an informational lint quirk unless the generated output is actually wrong.
-
-The example `home/dot_config/zsh/usage/herdr.kdl` shows a complete spec with:
-
-- metadata (`name`, `bin`, `about`, `version`)
-- global flags
-- nested command trees
-- args, flags, and completions
-- config-aware behavior
+Examples under `home/dot_config/zsh/usage/` show complete specs with metadata, global flags, nested command trees, args, flags, completions, and config-aware behavior.

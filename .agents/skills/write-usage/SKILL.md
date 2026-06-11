@@ -1,27 +1,18 @@
 ---
 name: write-usage
-description: Convert CLI `--help` output and man pages into Usage KDL, including recursive subcommand discovery, flags, args, completions, config, KDL validation, and local generation flow. Use when building or updating `usage/*.kdl` specs from an existing command's help text or man page output.
+description: Derive Usage KDL specs from `--help` and man pages. Use for authoring or updating `usage/*.kdl` files.
 ---
 
 # Write Usage
 
 ## Workflow
 
-1. Start at the root command.
-2. Read `--help` and record:
-   - command names and nesting
-   - positional args
-   - flags, aliases, defaults, env vars, config keys
-   - examples and hidden/global behavior
-3. Recurse into every subcommand branch by running each child with `--help` too.
-   - example: `luarocks --help`
-   - then: `luarocks show --help`
-   - then: `luarocks install --help`
-   - continue until leaf commands are covered
-4. Use `man` pages to fill gaps, confirm defaults, and capture details omitted by `--help`.
-5. Normalize everything into `usage` KDL.
-6. Write one spec file per command tree or entrypoint, mirroring the CLI layout.
-7. Run the local generation flow to install completions or other derived output.
+1. Start at root command, run `--help`.
+2. Record: cmd names, nesting, positional args, flags, aliases, defaults, env, config keys, examples.
+3. Recurse into every subcommand — see Recursive Authoring.
+4. Map CLI concepts to KDL nodes per Mapping Rules below.
+5. Write one spec file per command tree.
+6. Run local generation flow to produce shell completions.
 
 ## Mapping Rules
 
@@ -47,33 +38,58 @@ If the CLI has recursive subcommands, treat help from each subcommand as authori
 
 ## Local Flow
 
-Use the repo's usage authoring pattern as the system-of-record for output. The zsh flow in `home/dot_config/zsh/functions/gen-compusage` shows the intended install step:
-
-- keep authored specs in `home/dot_config/zsh/usage/`
-- generate shell completion from the spec with `usage generate completion zsh <cmd> -f <spec>`
-- regenerate after spec edits
+Keep specs in `home/dot_config/zsh/usage/`. Generate completions with `usage generate completion zsh <cmd> -f <spec>`. See Local Generation Flow in usage-notes for details.
 
 ## Validate KDL
 
-Use the `usage` CLI itself as the primary validator before generating artifacts:
+Run `usage complete-word --shell zsh -f <spec.kdl> -- <cmd> <partial>` to confirm completions return the expected values. This shells out for each completion — it catches logic errors in `run` scripts that `usage lint` can't.
 
-- run `usage lint <file>` for a fast parse and rule check
-- add `-W` to turn warnings into failures when you want stricter review
-- use `-f json` when you need machine-readable output for automation
-- smoke-test the spec with `usage generate json -f <file>` if you want to inspect the normalized spec
-- generate docs with `usage generate manpage -f <file>` when you want to confirm the rendered manual text
+Run `usage lint <file>` for syntax checks. Note: may report `missing-cmd-help` on root node even with `about` set — ignore unless generated docs are actually wrong.
 
-Note: `usage lint` currently reports `missing-cmd-help` for the root command node even when the top-level spec already has `about` / `before_help` / `before_long_help`. Treat that info as a CLI lint quirk unless the generated docs are actually missing the intended top-level help text.
+
+
+## Verify Completions
+
+Before generating the final shell completion file, smoke-test the spec directly with `usage complete-word`:
+
+```
+usage complete-word --shell zsh -f <spec.kdl> -- <cmd> <partial-cmdline>
+```
+
+- sets the shell profile (`--shell zsh`, `--shell fish`, `--shell bash`)
+- `-f <spec>` points at the authored KDL file
+- `--` separates `usage` flags from the simulated command line
+- everything after `--` is the fake command line usage uses to compute completions
+- append `''` (empty string) as the final token to get completions for the next word
+- omit the trailing space but include enough words to reach the completion context you want to test
+
+Examples:
+
+```
+# List notes for default vault
+usage complete-word --shell zsh -f spec.kdl -- zen read ''
+
+# List notes after --vault <name>
+usage complete-word --shell zsh -f spec.kdl -- zen read --vault kbbit ''
+
+# List folders after --folder
+usage complete-word --shell zsh -f spec.kdl -- zen list --folder ''
+```
+
+This runs the `run` script inline (shelling out for each completion) without touching any installed completion file or real zsh state.
 
 ## KDL Notes
 
-Keep KDL readable and valid as a document language, not just as a CLI spec:
+This spec uses **KDL 2.0**. See the [KDL spec](https://kdl.dev/spec/) for full language reference.
 
-- quote any string that contains spaces, punctuation, or reserved KDL characters
-- prefer raw strings for multi-line help text, examples, or shell snippets
+Key KDL 2.0 details for usage specs:
+
+- Boolean values are `#true`, `#false`; null is `#null`
+- quote strings with spaces or reserved KDL characters
+- prefer raw strings for multi-line examples, shell snippets, and long help text
 - use line continuations only when a single node must span multiple lines
-- remember that arguments are ordered, but properties are not
-- use children blocks when ordering matters or the structure is nested
-- use `/-` or `//` only for comments; do not rely on commented-out nodes to contribute data
+- arguments are ordered; properties are not
+- use child blocks when nesting or ordering matters
+- `/-` removes the node from the parsed document (structural comment)
 
-See [Usage Notes](references/usage-notes.md) for the spec summary and the local authoring flow.
+See [Usage Notes](references/usage-notes.md) for context-dependent completions, recursive authoring, and the local generation flow.
