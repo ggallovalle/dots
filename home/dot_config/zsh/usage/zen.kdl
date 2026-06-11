@@ -1,0 +1,210 @@
+name zen
+bin zen
+about "ZenNotes CLI - capture, search, edit your vault from any terminal"
+version "0.1.0"
+
+flag "--help -h" help="Show this help" global=#true
+flag "--version" help="Print the CLI version" global=#true
+flag "--vault <vault>" help="Target a specific vault (name or path)" global=#true
+flag "--json" help="Emit machine-readable JSON output" global=#true
+flag "--no-color" help="Disable ANSI color even on a TTY" global=#true
+
+// List known vaults for `--vault <vault>` completion
+// Runs `zen vault list --json` and extracts name + root path
+// Default vault gets a `(default)` suffix
+complete vault run="zen vault list --json 2>/dev/null | jq -r '.[] | .name + \":\" + .root + (if .isDefault then \" (default)\" else \"\" end)'" descriptions=#true
+
+// Complete note paths for any `arg <note>` across all subcommands
+//
+// How it works:
+// 1. Tera template (`{% for word in words %}`) injects the current
+//    command-line words into a `set --` statement at runtime.
+//    Example: typing `zen read --vault kbbit ` produces:
+//      set -- zen read --vault kbbit
+//
+// 2. Shell loop parses `$@` looking for `--vault <name>` or
+//    `--vault=<name>`. Extracted value stored in `$vault`.
+//
+// 3. Calls `zen list --json`, passing `--vault` only if one was found
+//    (POSIX `${var:+value}` expands value only when var is non-empty).
+//
+// 4. `jq` extracts and sorts the `.path` field from every note.
+complete note run="""
+set -- {% for word in words %}{{ word }}{% if not loop.last %} {% endif %}{% endfor %}
+
+vault=
+while [ $# -gt 0 ]; do
+  case $1 in
+    --vault)   shift; vault=${1-};  break ;;
+    --vault=*) vault=${1#*=};       break ;;
+  esac
+  shift
+done
+
+zen list --json ${vault:+--vault \"$vault\"} \
+  | jq -r 'sort_by(.path) | .[].path' 2>/dev/null
+"""
+
+cmd list help="List notes, most recent first" {
+    flag "--folder <f>" help="Filter by folder"
+    flag "--tag <t>" help="Filter by tag"
+    flag "--limit <n>" help="Max results"
+    flag "--json" help="JSON output"
+}
+
+cmd read help="Print a note body to stdout" {
+    arg <note> help="Note path"
+    flag "--meta" help="Include metadata"
+    flag "--json" help="JSON output"
+}
+
+cmd create help="Create a new note" {
+    flag "--title <t>" help="Note title"
+    flag "--folder <f>" help="Target folder (inbox, quick, archive)"
+    flag "--subpath <p>" help="Subfolder path"
+    flag "--tag <t>" help="Tag the note"
+    flag "--body <text>" help="Body ('-' for stdin)"
+}
+
+cmd write help="Replace a note body" {
+    arg <note> help="Note path"
+    flag "--body <text>" help="New body ('-' for stdin)"
+}
+
+cmd append help="Append text to the end of a note" {
+    arg <note> help="Note path"
+    flag "--body <text>" help="Text to append ('-' for stdin)"
+
+}
+
+cmd prepend help="Insert text at the top, after frontmatter" {
+    arg <note> help="Note path"
+    flag "--body <text>" help="Text to insert ('-' for stdin)"
+
+}
+
+cmd rename help="Rename a note (filename only)" {
+    arg <note> help="Note path"
+    flag "--to <title>" help="New title"
+
+}
+
+cmd move help="Move a note to a different folder" {
+    arg <note> help="Note path"
+    flag "--folder <f>" help="Target folder"
+    flag "--subpath <p>" help="Subfolder path"
+
+}
+
+cmd archive help="Move a note into archive/" {
+    arg <note> help="Note path"
+
+}
+
+cmd unarchive help="Move a note back from archive/" {
+    arg <note> help="Note path"
+
+}
+
+cmd trash help="Soft-delete a note; reversible via restore" {
+    arg <note> help="Note path"
+
+}
+
+cmd restore help="Restore a trashed note to inbox" {
+    arg <note> help="Note path"
+
+}
+
+cmd delete help="Permanently delete a note" {
+    arg <note> help="Note path"
+    flag "--yes" help="Skip confirmation"
+
+}
+
+cmd duplicate help="Copy a note next to itself" {
+    arg <note> help="Note path"
+
+}
+
+cmd search help="Full-text search across live notes" {
+    arg <query> help="Search query"
+    flag "--limit <n>" help="Max results"
+    flag "--json" help="JSON output"
+}
+
+cmd search-title help="Match notes by title (substring)" {
+    arg <q> help="Title query"
+    flag "--json" help="JSON output"
+}
+
+cmd backlinks help="Notes linking to this one via [[wikilink]]" {
+    arg <note> help="Note path"
+    flag "--json" help="JSON output"
+
+}
+
+cmd folder help="Manage subfolders" {
+    cmd list help="List every subfolder in the vault" {
+        flag "--json" help="JSON output"
+    }
+    cmd create help="Create a subfolder" {
+        arg <p> help="Folder path, e.g. inbox/Work"
+    }
+    cmd rename help="Rename a subfolder in place" {
+        arg <p> help="Folder path"
+        flag "--to <path>" help="New folder path"
+    }
+    cmd delete help="Delete a subfolder and everything in it" {
+        arg <p> help="Folder path"
+        flag "--yes" help="Skip confirmation"
+    }
+}
+
+cmd tag help="Manage tags" {
+    cmd list help="Every #tag with its note count" {
+        flag "--json" help="JSON output"
+    }
+    cmd find help="Notes carrying this #tag" {
+        arg <tag> help="Tag name"
+        flag "--limit <n>" help="Max results"
+        flag "--json" help="JSON output"
+    }
+}
+
+cmd task help="Manage tasks" {
+    cmd list help="Open checkbox tasks across all notes" {
+        flag "--unchecked" help="Only unchecked tasks"
+        flag "--all" help="All tasks (checked and unchecked)"
+        flag "--tag <t>" help="Filter by tag"
+        flag "--json" help="JSON output"
+    }
+    cmd toggle help="Flip a task checkbox by stable id" {
+        arg <id> help="Task id from zen task list"
+    }
+}
+
+cmd vault help="Manage vaults" {
+    cmd info help="Vault path + per-folder counts" {
+        flag "--json" help="JSON output"
+    }
+    cmd list help="Known vaults; default marked with *" {
+        flag "--json" help="JSON output"
+    }
+}
+
+cmd capture help="Quick add. Pipes stdin if no positional" {
+    arg "<text>" help="Text to capture"
+    flag "--folder <f>" help="Target folder"
+    flag "--tag <t>" help="Tag the note"
+    flag "--title <t>" help="Note title"
+    flag "--json" help="JSON output"
+}
+
+cmd open help="Open markdown files in the ZenNotes app" {
+    arg "<file.md>..." help="File paths to open; repeatable"
+}
+
+cmd mcp help="Start the MCP stdio server (Claude / Codex)" {
+
+}
