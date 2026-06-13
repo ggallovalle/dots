@@ -55,16 +55,6 @@ local Snacks = {
   opts = {},
   keys = {
     {
-      "<leader>fe",
-      function ()
-        require("snacks")
-          .explorer
-          .open()
-      end,
-      desc = "[E]xplorer"
-    },
-
-    {
       "<leader>s:",
       function ()
         local snacks = require("snacks")
@@ -92,31 +82,6 @@ local Snacks = {
             nofile = false
           })
       end,
-      -- function ()
-      --   local snacks = require("snacks")
-      --
-      --   snacks.picker.buffers({
-      --     confirm = function (picker, item)
-      --       picker:close()
-      --       if item then
-      --         for _, win in ipairs(vim.api.nvim_list_wins()) do
-      --           if vim.api.nvim_win_get_buf(win) == item.buf then
-      --             vim.api.nvim_set_current_win(win)
-      --             return
-      --           end
-      --         end
-      --         vim.cmd.buffer({ bang = true, count = item.buf })
-      --       end
-      --     end,
-      --     win = {
-      --       list = {
-      --         keys = {
-      --           ["dd"] = "bufdelete"
-      --         }
-      --       }
-      --     }
-      --   })
-      -- end,
       desc = "[B]uffers"
     },
     {
@@ -149,4 +114,50 @@ local Snacks = {
   }
 }
 
-return { FFF, Snacks }
+---@type LazyPluginSpec
+local Fyler = {
+  url = "https://github.com/A7Lavinraj/fyler.nvim",
+  lazy = false, -- Necessary for `default_explorer` to work properly
+  ---@type FylerSetup
+  opts = {
+    integrations = {
+      icon = "nvim_web_devicons",
+      winpick = "snacks"
+    },
+    views = {
+ ---@diagnostic disable-next-line: missing-fields
+      finder = {
+        columns = {
+          permission = {
+            enabled = false
+          },
+          size = {
+            enabled = false
+          }
+        }
+      }
+    }
+  },
+  keys = {
+    {
+      "<leader>fe",
+      function ()
+        local fyler = require("fyler")
+        fyler.open({
+          kind = "split_left_most"
+        })
+      end,
+      desc = "[E]xplorer"
+    },
+    {
+      "<leader>fo",
+      function ()
+        local fyler = require("fyler")
+        fyler.open()
+      end,
+      desc = "[O]il"
+    },
+  }
+}
+
+return { FFF, Snacks, Fyler }

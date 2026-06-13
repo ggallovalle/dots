@@ -1,8 +1,0 @@
-set shell := ["zsh", "-cu"]
-
-lint:
-    selene . --pattern "lua/**/*.lua"
-
-nvim:
-    XDG_CONFIG_HOME="{{ justfile_directory() }}/.." nvim
-
