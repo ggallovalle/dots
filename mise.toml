@@ -1,8 +1,7 @@
 [tools]
-bun = "1.3.13"
 chezmoi = "2.70.2"
 neovim = "0.12.2"
-usage = "3.2.1"
+usage = "3.5.0"
 
 [tasks.format-kdl]
 run = """

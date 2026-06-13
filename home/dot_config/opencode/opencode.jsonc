@@ -16,6 +16,14 @@
         "fff-mcp"
       ],
       "enabled": true
+    },
+    "zen-notes": {
+      "type": "local",
+      "command": [
+        "zen",
+        "mcp"
+      ],
+      "enabled": true
     }
   },
   "agent": {

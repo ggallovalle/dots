@@ -32,6 +32,72 @@ local function open_diagnostic_qf(title, diagnostics)
   vim.cmd.copen()
 end
 
+---@param uri string
+---@return integer
+local function uri_to_bufnr(uri)
+  return vim.uri_to_bufnr(uri)
+end
+
+---@param bufnr integer
+---@return integer?
+local function tab_with_bufnr(bufnr)
+  for _, tabpage in ipairs(vim.api.nvim_list_tabpages()) do
+    for _, win in ipairs(vim.api.nvim_tabpage_list_wins(tabpage)) do
+      if vim.api.nvim_win_get_buf(win) == bufnr then
+        return vim.api.nvim_tabpage_get_number(tabpage)
+      end
+    end
+  end
+  return nil
+end
+
+---@param location lsp.Location|lsp.LocationLink
+local function jump_to_definition_in_tab(location)
+  local uri = location.uri or location.targetUri
+  if uri == nil then
+    return
+  end
+
+  local target_bufnr = uri_to_bufnr(uri)
+  local tabnr = tab_with_bufnr(target_bufnr)
+  if tabnr ~= nil then
+    vim.cmd.tabnext(tabnr)
+  else
+    vim.cmd.tabedit(vim.uri_to_fname(uri))
+  end
+
+  vim.lsp.util.show_document(location, "utf-8", { focus = true })
+end
+
+---@param result lsp.Location|lsp.Location[]|lsp.LocationLink[]|nil
+local function handle_definition_tab_result(result)
+  if result == nil or vim.tbl_isempty(result) then
+    vim.notify("No definition found", vim.log.levels.INFO)
+    return
+  end
+
+  if vim.islist(result) then
+    jump_to_definition_in_tab(result[1])
+    return
+  end
+
+  jump_to_definition_in_tab(result)
+end
+
+local function lsp_definition_tab()
+  local params = vim.lsp.util.make_position_params(0, "utf-8")
+  vim.lsp.buf_request(0, "textDocument/definition", params, function (err, result)
+    if err ~= nil then
+      vim.notify(err.message, vim.log.levels.ERROR)
+      return
+    end
+
+    vim.schedule(function ()
+      handle_definition_tab_result(result)
+    end)
+  end)
+end
+
 function H.file_type()
   vim.api.nvim_create_autocmd("FileType", {
     pattern = "qf",
@@ -87,11 +153,29 @@ function M.setup()
     desc = "Exit Terminal Mode"
   })
 
-  vim.keymap.set({ "n", "v" }, "<leader>y", '"+y', {
+  vim.keymap.set({ "n", "v" }, "<leader>yy", '"+y', {
     desc = "Copy to System Clipboard"
   })
   vim.keymap.set({ "n", "v" }, "<leader>p", '"+p', {
     desc = "Paste from System Clipboard"
+  })
+  vim.keymap.set({ "n", "x" }, "<leader>yl", function ()
+    local path = vim.fn.resolve(vim.fn.fnamemodify(vim.api.nvim_buf_get_name(0), ":p"))
+    local start_line = vim.fn.line(".")
+    local end_line = start_line
+
+    if vim.fn.mode():match("[vV\022]") then
+      start_line = vim.fn.line("v")
+      end_line = vim.fn.line(".")
+    end
+
+    if start_line > end_line then
+      start_line, end_line = end_line, start_line
+    end
+
+    vim.fn.setreg("+", string.format("%s:%d:%d", path, start_line, end_line))
+  end, {
+    desc = "Copy File Location"
   })
   vim.keymap.set("n", "<leader>R", function ()
     require("kbplugin.restart").restart()
@@ -156,11 +240,34 @@ end
 ---@param bufnr        integer
 ---@param client       vim.lsp.Client
 ---@param capabilities lsp.ServerCapabilities
-function M.on_lsp_attach(bufnr, client, capabilities)
+function M.on_lsp_attach(bufnr, _client, capabilities)
   if capabilities.definitionProvider then
-    vim.keymap.set("n", "gd", vim.lsp.buf.definition, {
+    pcall(vim.keymap.del, "n", "gd", { buffer = bufnr })
+
+    vim.keymap.set("n", "gdd", vim.lsp.buf.definition, {
       buffer = bufnr,
       desc = "[D]efinition"
+    })
+
+    vim.keymap.set("n", "gdt", lsp_definition_tab, {
+      buffer = bufnr,
+      desc = "[D]efinition in [T]ab"
+    })
+
+    vim.keymap.set("n", "gds", function ()
+      vim.cmd.split()
+      vim.lsp.buf.definition()
+    end, {
+      buffer = bufnr,
+      desc = "[D]efinition in [S]plit"
+    })
+
+    vim.keymap.set("n", "gdv", function ()
+      vim.cmd.vsplit()
+      vim.lsp.buf.definition()
+    end, {
+      buffer = bufnr,
+      desc = "[D]efinition in [V]ertical Split"
     })
 
     vim.keymap.set("n", "grd", vim.lsp.buf.definition, {

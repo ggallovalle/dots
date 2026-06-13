@@ -1,3 +1,5 @@
 x 2026-06-05 2026-06-04 add a just apply task that given the git modified and untracked files it chezmoi apply them
 x 2026-06-06 2026-06-06 topl lsp mise schema
 2026-06-06 make generate and kittens its uv project +kitty
+2026-06-10 write a skill for writing zsh completions, go to town with the examples at /usr/share/functions
+2026-06-10 +zsh generate things into ZSH_CACHE_DIR

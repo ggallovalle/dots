@@ -15,11 +15,12 @@ _completion_cmds=(
   hl       "hl --shell-completions zsh _hl"
   codex    "codex completion zsh"
   glab     "glab completion -s zsh"
-  bw       "bw completion --shell zsh"
+  # bw       "bw completion --shell zsh"
   tv       "tv completions zsh"
   chezmoi  "chezmoi completion zsh"
   swift    "swift package completion-tool generate-zsh-script"
   ghq      "gh completion -s zsh"
+  omp      "omp completions zsh"
 )
 
 for _complete_this _gen_cmd in ${(kv)_completion_cmds}; do

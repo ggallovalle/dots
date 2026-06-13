@@ -7,7 +7,7 @@ zmodload zsh/zutil
 
 # source ~/.zi/evaled/mise.zsh
 
-fpath+=( ${0:h}/functions ${0:h}/completions )
+fpath+=( ${0:h}/functions ${0:h}/completions "${XDG_DATA_HOME}/zsh/site-functions"  )
 autoload -Uz ${0:h}/functions/*(.:t)
 
 

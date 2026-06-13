@@ -11,7 +11,8 @@ local Conform = {
         lua = { "luafmt" },
         json = { lsp_format = "fallback" },
         zig = { lsp_format = "fallback" },
-        python = { lsp_format = "fallback" }
+        python = { lsp_format = "fallback" },
+        rust = { lsp_format = "fallback" }
       },
       formatters = {
         ---@type conform.FileFormatterConfig
