@@ -1,4 +1,0 @@
-interface:
-  display_name: "Write Purpose Spec"
-  short_description: "Write purpose-oriented Typst specs"
-  default_prompt: "Write or update a purpose-oriented Typst spec with context, design, plan, task files, and Typst HTML verification."
