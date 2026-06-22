@@ -5,12 +5,21 @@ local M = {}
 M.schema = schema.table({
   enabled = schema
     .boolean()
-    :pipe(schema.description("Whether chezmoi autosync plugin is enabled"))
+    :pipe(schema.description("Whether chezmoi autosync plugin is enabled")),
+  chezmoi_config_path = schema
+    .optional(schema
+      .string()
+      :pipe(schema.description("Path to chezmoi config file")))
 })
 
 function M.snapshot()
   local chezmoi = require("kbplugin.chezmoi")
-  return { enabled = chezmoi.is_enabled() }
+  local data = { enabled = chezmoi.is_enabled() }
+  local path = chezmoi.get_chezmoi_config_path()
+  if path then
+    data.chezmoi_config_path = path
+  end
+  return data
 end
 
 function M.restore(data)
@@ -18,7 +27,12 @@ function M.restore(data)
   if type(data) ~= "table" then
     return
   end
-  chezmoi.set_enabled(data.enabled == true)
+  if data.enabled == true then
+    local config_path = data.chezmoi_config_path or ""
+    chezmoi.set_enabled(true, config_path)
+  else
+    chezmoi.disable(true)
+  end
 end
 
 return M

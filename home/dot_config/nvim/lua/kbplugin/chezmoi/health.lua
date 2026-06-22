@@ -28,6 +28,8 @@ function M.check()
       .config
       .auto_apply_after_add))
   vim.health.info("log_level: " .. tostring(status.config.log_level))
+  vim.health.info("chezmoi_config_path: "
+    .. tostring(status.chezmoi_config_path or "default"))
 
   local explore = logger.explorer(plugin.logger())
   explore:health({ title = "log", tail = 10, sink = vim.health.info })

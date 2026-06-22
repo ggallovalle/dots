@@ -8,11 +8,13 @@ local logger = require("std.logger")
 ---@field target_path string?
 
 ---@class kbplugin.chezmoi.RuntimeState
----@field enabled boolean
----@field augroup integer?
----@field buffers table<integer, kbplugin.chezmoi.BufferState>
----@field jobs    table<integer, vim.SystemObj>
----@field config  kbplugin.chezmoi.UserConfig
+---@field enabled              boolean
+---@field augroup              integer?
+---@field buffers              table<integer, kbplugin.chezmoi.BufferState>
+---@field jobs                 table<integer, vim.SystemObj>
+---@field chezmoi_config_path? string
+---@field initial_cwd          string
+---@field config               kbplugin.chezmoi.UserConfig
 
 local M = {}
 
@@ -24,6 +26,8 @@ local state = {
   augroup = nil,
   buffers = {},
   jobs = {},
+  chezmoi_config_path = nil,
+  initial_cwd = vim.fn.getcwd(),
   config = {
     auto_apply_after_add = false,
     log_level = "info"
@@ -42,6 +46,17 @@ end
 
 local function trim(s)
   return (s or ""):gsub("^%s+", ""):gsub("%s+$", "")
+end
+
+local function chezmoi_args(extra_args)
+  if not state.chezmoi_config_path then
+    return extra_args
+  end
+  local args = { "--config", state.chezmoi_config_path }
+  for _, a in ipairs(extra_args) do
+    table.insert(args, a)
+  end
+  return args
 end
 
 local function current_path(bufnr)
@@ -69,7 +84,9 @@ function H.detect_buffer(bufnr, cb)
     return
   end
 
-  local cmd_target = process.make("chezmoi", { "source-path", opened_path })
+  local cmd_target = process.make("chezmoi", chezmoi_args({
+    "source-path", opened_path
+  }))
   process.execute_text(cmd_target, function (err, result)
     if err ~= nil or result == nil then
       set_buffer_state(bufnr, {
@@ -91,11 +108,14 @@ function H.detect_buffer(bufnr, cb)
       return
     end
 
-    local cmd_source = process.make("chezmoi", {
-      "target-path",
-      "--source-path",
-      opened_path
-    })
+    local cmd_source = process.make(
+      "chezmoi",
+      chezmoi_args({
+        "target-path",
+        "--source-path",
+        opened_path
+      })
+    )
     process.execute_text(cmd_source, function (_err2, result2)
       if result2 ~= nil and result2.code == 0 then
         set_buffer_state(bufnr, {
@@ -227,25 +247,31 @@ function H.run_for_buffer(bufnr)
   }
 
   if bs.kind == "source" then
-    local cmd = process.make("chezmoi", {
-      "apply",
-      "--source-path",
-      bs.source_path
-    })
+    local cmd = process.make(
+      "chezmoi",
+      chezmoi_args({
+        "apply",
+        "--source-path",
+        bs.source_path
+      })
+    )
     start_command(bufnr, cmd, base_event)
     return
   end
 
-  local cmd = process.make("chezmoi", { "add", bs.target_path })
+  local cmd = process.make("chezmoi", chezmoi_args({ "add", bs.target_path }))
   start_command(bufnr, cmd, base_event, function (ok)
     if not ok or not state.config.auto_apply_after_add then
       return
     end
-    local apply_cmd = process.make("chezmoi", {
-      "apply",
-      "--source-path",
-      bs.source_path
-    })
+    local apply_cmd = process.make(
+      "chezmoi",
+      chezmoi_args({
+        "apply",
+        "--source-path",
+        bs.source_path
+      })
+    )
     start_command(bufnr, apply_cmd, base_event)
   end)
 end
@@ -275,10 +301,23 @@ local function on_wipeout(args)
   state.buffers[bufnr] = nil
 end
 
----@param force_all boolean
-function M.enable(force_all)
+---@param force_all    boolean
+---@param config_path? string
+function M.enable(force_all, config_path)
+  if config_path and config_path ~= "" then
+    local resolved
+    if config_path:sub(1, 1) == "/" then
+      resolved = vim.uv.fs_realpath(config_path) or config_path
+    else
+      local abs = vim.fn.fnamemodify(state.initial_cwd .. "/" .. config_path, ":p")
+      resolved = vim.uv.fs_realpath(abs) or abs
+    end
+    state.chezmoi_config_path = resolved
+  end
   if state.enabled and not force_all then
-    return
+    if not config_path or config_path == "" then
+      return
+    end
   end
   state.enabled = true
 
@@ -351,10 +390,16 @@ function M.is_enabled()
   return state.enabled
 end
 
----@param enabled boolean
-function M.set_enabled(enabled)
+function M.get_chezmoi_config_path()
+  return state.chezmoi_config_path
+end
+
+---@param enabled      boolean
+---@param config_path? string
+function M.set_enabled(enabled, config_path)
   if enabled then
-    M.enable(false)
+    local path = config_path or state.chezmoi_config_path
+    M.enable(false, path)
   else
     M.disable(true)
   end
@@ -362,9 +407,9 @@ end
 
 function M.register_commands()
   vim.api.nvim_create_user_command("ChezmoiEnable", function (args)
-    M.enable(args.bang)
+    M.enable(args.bang, args.args)
     notify("enabled")
-  end, { bang = true }
+  end, { bang = true, nargs = "?" }
   )
 
   vim.api.nvim_create_user_command("ChezmoiDisable", function (args)
@@ -410,6 +455,7 @@ function M.health()
     enabled = state.enabled,
     tracked_buffers = vim.tbl_count(state.buffers),
     in_flight_jobs = vim.tbl_count(state.jobs),
+    chezmoi_config_path = state.chezmoi_config_path,
     config = vim.deepcopy(state.config)
   }
 end
