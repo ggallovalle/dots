@@ -103,7 +103,7 @@ local TypstPreview = {
       tinymist = "tinymist",
       websocat = "websocat"
     },
-    open_cmd = "firefox %s"
+    open_cmd = "zen-browser %s"
   }
 }
 

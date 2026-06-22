@@ -125,7 +125,7 @@ local Fyler = {
       winpick = "snacks"
     },
     views = {
- ---@diagnostic disable-next-line: missing-fields
+      ---@diagnostic disable-next-line: missing-fields
       finder = {
         columns = {
           permission = {
@@ -156,7 +156,7 @@ local Fyler = {
         fyler.open()
       end,
       desc = "[O]il"
-    },
+    }
   }
 }
 
