@@ -4,11 +4,10 @@
   // "model": "openai/gpt-5.3-codex",
   "model": "opencode/deepseek-v4-flash-free",
   "autoupdate": true,
-  "plugin": ["@mohak34/opencode-notifier@latest"],
+  // "plugin": ["@mohak34/opencode-notifier@latest"],
   "server": {
     "port": 4096
   },
-  "default_agent": "build",
   "mcp": {
     "fff": {
       "type": "local",
@@ -26,23 +25,23 @@
       "enabled": true
     }
   },
-  "agent": {
-    "build": {
-      "permission": {
-        "external_directory": {
-          "/tmp/**": "allow",
-          "$HOME/dev/kbroom/**": "allow",
-          "$HOME/.config/**": "allow",
-          "$HOME/.local/share/go/**": "allow",
-          "$HOME/.local/share/mise/installs/**": "allow",
-          "$HOME/.luarocks/**": "allow",
-          "$HOME/dotfiles/**": "allow",
-          "$HOME/.zi/**": "allow",
-          "$HOME/.local/share/opencode/**": "allow",
-          "$HOME/ghq/**": "allow",
-          "$HOME/.local/share/nvim/**": "allow"
-        }
-      }
-    }
-  }
+  // "agent": {
+  //   "build": {
+  //     "permission": {
+  //       "external_directory": {
+  //         "/tmp/**": "allow",
+  //         "$HOME/dev/kbroom/**": "allow",
+  //         "$HOME/.config/**": "allow",
+  //         "$HOME/.local/share/go/**": "allow",
+  //         "$HOME/.local/share/mise/installs/**": "allow",
+  //         "$HOME/.luarocks/**": "allow",
+  //         "$HOME/dotfiles/**": "allow",
+  //         "$HOME/.zi/**": "allow",
+  //         "$HOME/.local/share/opencode/**": "allow",
+  //         "$HOME/ghq/**": "allow",
+  //         "$HOME/.local/share/nvim/**": "allow"
+  //       }
+  //     }
+  //   }
+  // }
 }
