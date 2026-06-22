@@ -24,6 +24,18 @@
         ".emmyrc.lua",
         ".git"
       ]
+    },
+    "zls": {
+      "command": "zls",
+      "args": [],
+      "fileTypes": [
+        ".zig",
+        ".zir"
+      ],
+      "rootMarkers": [
+        "build.zig",
+        ".git"
+      ]
     }
-  }
-}
+   }
+ }
