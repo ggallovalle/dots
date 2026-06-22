@@ -144,6 +144,47 @@ function H.file_type()
     end
   })
 end
+local scope_types = {
+  class_definition = true, class_declaration = true, class = true,
+  function_definition = true, function_declaration = true,
+  method_definition = true, method_declaration = true, method = true,
+  impl_item = true, struct_item = true, enum_item = true,
+  trait_item = true, interface_declaration = true,
+  module = true, module_declaration = true, mod_item = true,
+  fn = true, function_item = true,
+}
+
+function H.treesitter_context()
+  local bufnr = 0
+  local ok, parser = pcall(vim.treesitter.get_parser, bufnr)
+  if not ok or not parser then return " <none>" end
+  parser:parse()
+  local node = vim.treesitter.get_node({ bufnr = bufnr })
+  if not node then return " <none>" end
+
+  local parts = {}
+  while node do
+    if scope_types[node:type()] then
+      -- Try "name" field first, fallback to "type" (e.g. impl_item in Rust)
+      local name_fields = node:field("name")
+      if #name_fields == 0 then
+        name_fields = node:field("type")
+      end
+      if #name_fields > 0 then
+        local text = vim.treesitter.get_node_text(name_fields[1], 0)
+        if text and text ~= "" then
+          table.insert(parts, 1, text)
+        end
+      end
+    end
+    node = node:parent()
+  end
+
+  if #parts == 0 then return " <none>" end
+  if #parts == 1 then return " ::" .. parts[1] end
+  local inner = table.remove(parts)
+  return " ::" .. table.concat(parts, "::") .. ">" .. inner
+end
 
 function M.setup()
   H.file_type()
@@ -177,6 +218,27 @@ function M.setup()
   end, {
     desc = "Copy File Location"
   })
+  vim.keymap.set(
+    { "n", "x" }, "<leader>yc",
+    function()
+      local path = vim.fn.resolve(vim.fn.fnamemodify(vim.api.nvim_buf_get_name(0), ":p"))
+      local start_line = vim.fn.line(".")
+      local end_line = start_line
+
+      if vim.fn.mode():match("[vV\022]") then
+        start_line = vim.fn.line("v")
+        end_line = vim.fn.line(".")
+      end
+
+      if start_line > end_line then
+        start_line, end_line = end_line, start_line
+      end
+
+      local ctx = H.treesitter_context()
+      vim.fn.setreg("+", string.format("%s:%d:%d%s", path, start_line, end_line, ctx))
+    end,
+    { desc = "Copy File Location with Context" }
+  )
   vim.keymap.set("n", "<leader>R", function ()
     require("kbplugin.restart").restart()
   end, { desc = "Restart" }
