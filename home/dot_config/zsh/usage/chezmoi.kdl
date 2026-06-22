@@ -1,0 +1,184 @@
+name chezmoi
+bin chezmoi
+about "Manage your dotfiles across multiple diverse machines, securely"
+
+// Global flags
+flag "--age-recipient <string>" help="Override age recipient" global=#true
+flag "--age-recipient-file <string>" help="Override age recipient file" global=#true
+flag "--cache <path>" help="Set cache directory" global=#true
+flag "--color" help="Colorize output" global=#true
+flag "-c --config <path>" help="Set config file" global=#true
+flag "--config-format <format>" help="Set config file format (json|toml|yaml)" global=#true
+flag "--debug" help="Include debug information" global=#true
+flag "--destination -D <path>" help="Set destination directory" global=#true
+flag "-h --help" help="Show help" global=#true
+flag "--interactive" help="Prompt for all changes" global=#true
+flag "-k --keep-going" help="Keep going as far as possible after an error" global=#true
+flag "--less-interactive" help="Prompt only for changed or pre-existing targets" global=#true
+flag "--mode <file|symlink>" help="Mode for created entries (file|symlink)" global=#true
+flag "-n --dry-run" help="Do not make modifications to destination" global=#true
+flag "-o --output <path>" help="Write output to path instead of stdout" global=#true
+flag "--override-data <string>" help="Override template data" global=#true
+flag "--override-data-file <path>" help="Override template data with file" global=#true
+flag "--persistent-state <path>" help="Set persistent state file" global=#true
+flag "--progress" help="Display progress bars" global=#true
+flag "--refresh-externals" help="Refresh external cache (always|auto|never)" global=#true
+flag "--source-path" help="Specify targets by source path" global=#true
+flag "--source -S <path>" help="Set source directory" global=#true
+flag "--use-builtin-age" help="Use builtin age" global=#true
+flag "--use-builtin-diff" help="Use builtin diff" global=#true
+flag "--use-builtin-git" help="Use builtin git" global=#true
+flag "--version" help="Print version" global=#true
+flag "--verbose -v" help="Make output more verbose" global=#true
+flag "--working-tree -W <path>" help="Set working tree directory" global=#true
+
+complete target run="""
+set -- {% for word in words %}{{ word }}{% if not loop.last %} {% endif %}{% endfor %}
+
+config_arg=''
+prev=''
+for word in "$@"; do
+  case "$word" in
+    --config)
+      prev='--config'
+      continue
+      ;;
+    --config=*)
+      config_arg=${word#--config=}
+      break
+      ;;
+    -c)
+      prev='-c'
+      continue
+      ;;
+    -c*)
+      config_arg=${word#-c}
+      break
+      ;;
+    *)
+      if [ "$prev" = "--config" ] || [ "$prev" = "-c" ]; then
+        config_arg="$word"
+        break
+      fi
+      prev=''
+      ;;
+  esac
+done
+
+# assemble dump command, include --config if provided
+dump_cmd="chezmoi dump --format json"
+if [ -n "$config_arg" ]; then
+  dump_cmd="$dump_cmd --config \"$config_arg\""
+fi
+
+eval $dump_cmd 2>/dev/null | jq -r 'keys[]' | sed -E -e 's|^/home/[^/]+|~|' -e 's|^~|~|' -e 's|^[^~]|~/&|'
+""" descriptions=#true
+
+cmd init help="Initialize source directory and optionally apply to destination." {
+  arg <repo>
+  flag --apply -a help="Apply after init"
+  flag --purge -p help="Purge config and source after running"
+  flag --purge-binary help="Remove chezmoi binary after running"
+  flag --guess-repo-url -g help="Guess git repo URL"
+  flag --ssh help="Prefer ssh when guessing repo URL"
+  example "chezmoi init user --apply"
+}
+
+cmd apply help="Update destination directory to match target state." {
+  arg <target>...
+  flag --recursive -r help="Recurse into subdirs"
+  flag --parent-dirs -P help="Apply parent directories"
+  example "chezmoi apply ~/.bashrc"
+}
+
+cmd add help="Add existing file, directory, or symlink to source state." {
+  arg <targets>...
+  flag --autotemplate -a help="Generate template when adding"
+  flag --create help="Add files that should exist, irrespective of contents"
+  flag --encrypt help="Encrypt added files"
+  flag --exact help="Add directories exactly"
+  flag --follow -f help="Add symlink targets instead of symlinks"
+  flag --new help="Create new file if target does not exist"
+  flag --prompt -p help="Prompt before adding each entry"
+  flag --quiet -q help="Suppress warnings"
+  flag --recursive -r help="Recurse into subdirectories"
+  flag --secrets help="Secrets scanning policy (error|ignore|warning)"
+  flag --template -T help="Add files as templates"
+  example "chezmoi add ~/.gitconfig --template"
+}
+
+cmd edit help="Edit the source state of targets; handles encrypted files." {
+  arg <targets>...
+  flag --apply -a help="Apply after editing"
+  flag --hardlink help="Invoke editor with a hardlink to the source file"
+  flag --watch help="Apply on save"
+  example "chezmoi edit ~/.bashrc --apply"
+}
+
+cmd diff help="Print diff between target state and destination state." {
+  arg <target>...
+  flag --exclude -x help="Exclude entry types"
+  flag --include -i help="Include entry types"
+  flag --init help="Recreate config file from template"
+  flag --pager help="Set pager"
+  flag --parent-dirs -P help="Print diff of parent directories"
+  flag --recursive -r help="Recurse into subdirectories"
+  flag --reverse help="Reverse diff direction"
+  flag --script-contents help="Show script contents"
+  example "chezmoi diff ~/.bashrc"
+}
+
+cmd status help="Show status of targets (git-like columns)." {
+  arg <target>...
+  flag --exclude -x help="Exclude entry types"
+  flag --include -i help="Include entry types"
+  flag --init help="Recreate config file from template"
+  flag --parent-dirs -P help="Show status of parent directories"
+  flag --path-style -p <style> help="Path style: absolute|relative"
+  flag --recursive -r help="Recurse into subdirectories"
+  example "chezmoi status"
+}
+
+cmd update help="Pull changes from source repo and apply." {
+  flag --apply -a help="Apply after pulling"
+  flag --exclude -x help="Exclude entry types"
+  flag --include -i help="Include entry types"
+  flag --init help="Recreate config file from template"
+  flag --parent-dirs -P help="Update all parent directories"
+  flag --recurse-submodules help="Recursively update submodules"
+  flag --recursive -r help="Recurse into subdirectories"
+  example "chezmoi update --apply"
+}
+
+cmd generate help="Generate helper outputs (install scripts, commit messages)." {
+  cmd install.sh help="Generate install script"
+  cmd install-init-shell.sh help="Generate install script that also executes a shell"
+  cmd git-commit-message help="Generate git commit message"
+}
+
+cmd completion help="Generate shell completion code." {
+  arg <shell> help="bash|fish|powershell|zsh"
+  flag --output -o <path> help="Write completion to path"
+  example "chezmoi completion zsh --output=~/.config/zsh/_chezmoi"
+}
+
+cmd cat help="Write computed target contents of files/scripts/symlinks to stdout." {
+  arg <targets>...
+  flag --output -o <path> help="Write output to path instead of stdout"
+  example "chezmoi cat ~/.bashrc"
+}
+
+cmd data help="Print the template data used by chezmoi." {
+  flag --format -f <fmt> help="Output format: json|yaml"
+  example "chezmoi data --format=yaml"
+}
+
+cmd execute-template help="Execute templates; useful for testing templates." {
+  arg <template>...
+  flag --file -f help="Treat arguments as filenames"
+  flag --init -i help="Simulate chezmoi init"
+  example "chezmoi execute-template '{{ .chezmoi.sourceDir }}'"
+}
+
+// Examples
+example "chezmoi apply --dry-run --verbose"
