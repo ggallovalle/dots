@@ -107,6 +107,30 @@ local TypstPreview = {
   }
 }
 
+---@type LazyPluginSpec
+local LuaLine = {
+  url = "https://github.com/nvim-lualine/lualine.nvim",
+  opts = function(_, opts)
+    opts.sections = opts.sections or {}
+    opts.sections.lualine_c = opts.sections.lualine_c or {}
+    local trouble = require("trouble")
+    local symbols = trouble.statusline({
+      mode = "lsp_document_symbols",
+      groups = {},
+      title = false,
+      filter = { range = true },
+      format = "{kind_icon}{symbol.name:Normal}",
+      -- The following line is needed to fix the background color
+      -- Set it to the lualine section you want to use
+      hl_group = "lualine_c_normal",
+    })
+    table.insert(opts.sections.lualine_c, {
+      symbols.get,
+      cond = symbols.has,
+    })
+  end,
+}
+
 return {
-  Screenkey, Devicons, Catppuccin, WhichKey, RenderMarkdown, TypstPreview
+  Screenkey, Devicons, Catppuccin, WhichKey, RenderMarkdown, TypstPreview, LuaLine
 }

@@ -1,37 +1,6 @@
 local M = {}
 local H = {}
 
-local function open_diagnostic_qf(title, diagnostics)
-  if #diagnostics == 0 then
-    return
-  end
-
-  local items = vim.tbl_map(function (diagnostic)
-    local source = diagnostic.source
-    local text = diagnostic.message
-
-    if source and source ~= "" then
-      text = string.format("[%s] %s", source, text)
-    end
-
-    return {
-      bufnr = diagnostic.bufnr,
-      lnum = diagnostic.lnum + 1,
-      col = diagnostic.col + 1,
-      end_lnum = diagnostic.end_lnum and (diagnostic.end_lnum + 1) or nil,
-      end_col = diagnostic.end_col and (diagnostic.end_col + 1) or nil,
-      severity = diagnostic.severity,
-      text = text
-    }
-  end, diagnostics)
-
-  vim.fn.setqflist({}, " ", {
-    title = title,
-    items = items
-  })
-  vim.cmd.copen()
-end
-
 ---@param uri string
 ---@return integer
 local function uri_to_bufnr(uri)
@@ -337,38 +306,6 @@ function M.on_lsp_attach(bufnr, _client, capabilities)
       desc = "[D]efinition"
     })
   end
-
-  vim.keymap.set(
-    "n", "<leader>dd",
-    function ()
-      open_diagnostic_qf(
-        string.format(
-          "Diagnostics for %s",
-          vim
-            .api
-            .nvim_buf_get_name(bufnr)
-        ),
-        vim
-          .diagnostic
-          .get(0)
-      )
-    end,
-    {
-      buffer = bufnr,
-      desc = "[D]ocument [D]iagnostics"
-    }
-  )
-
-  vim.keymap.set(
-    "n", "<leader>wd",
-    function ()
-      open_diagnostic_qf("Workspace Diagnostics", vim.diagnostic.get())
-    end,
-    {
-      buffer = bufnr,
-      desc = "[W]orkspace [D]iagnostics"
-    }
-  )
 
   if capabilities.hoverProvider then
     vim.keymap.set("n", "K", vim.lsp.buf.hover, {

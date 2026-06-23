@@ -66,4 +66,54 @@ local Treesitter = {
   end
 }
 
-return { Mason, NvimLspconfig, MasonLspconfig, Treesitter, Conform }
+---@type LazyPluginSpec
+local Trouble = {
+  url = "https://github.com/folke/trouble.nvim",
+  cmd = "Trouble",
+  keys = {
+    {
+      "<leader>dd",
+      function ()
+        local trouble = require("trouble")
+        trouble.toggle({
+          mode = "diagnostics",
+          filter = {
+            buf = 0
+          }
+        })
+      end,
+      desc = "[D]ocument [D]iagnostics"
+    },
+    {
+      "<leader>ds",
+      function ()
+        local trouble = require("trouble")
+        trouble.toggle({
+          mode = "symbols",
+          pinned = true,
+          focus = true,
+          auto_close = true,
+          win = {
+            type = "split",
+            relative = "win",
+            position = "right",
+            size = 50
+          }
+        })
+      end,
+      desc = "[D]ocument [S]symbols"
+    },
+    {
+      "<leader>wd",
+      function ()
+        local trouble = require("trouble")
+        trouble.toggle({
+          mode = "diagnostics"
+        })
+      end,
+      desc = "[W]orkspace [D]iagnostics"
+    }
+  }
+}
+
+return { Mason, NvimLspconfig, MasonLspconfig, Treesitter, Conform, Trouble }

@@ -127,6 +127,8 @@ local Fyler = {
     views = {
       ---@diagnostic disable-next-line: missing-fields
       finder = {
+        show_hidden = false,
+        show_ignored = false,
         columns = {
           permission = {
             enabled = false
