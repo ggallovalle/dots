@@ -1,0 +1,6 @@
+return {
+  treesitter = {
+    "elixir",
+    "eex"
+  }
+}

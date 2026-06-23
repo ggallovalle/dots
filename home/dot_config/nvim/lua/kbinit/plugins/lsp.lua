@@ -2,41 +2,8 @@
 local Conform = {
   url = "https://github.com/stevearc/conform.nvim",
   opts = function ()
-    local conform = require("conform.util")
-    local luafmt_cwd = conform.root_file({ "luafmt.toml", ".luafmt.toml" })
-    local kdlfmt_cwd = conform.root_file({ "kdlfmt.kdl", ".kdlfmtignore" })
-    return {
-      formatters_by_ft = {
-        kdl = { "kdlfmt" },
-        lua = { "luafmt" },
-        json = { lsp_format = "fallback" },
-        zig = { lsp_format = "fallback" },
-        python = { lsp_format = "fallback" },
-        rust = { lsp_format = "fallback" }
-      },
-      formatters = {
-        ---@type conform.FileFormatterConfig
-        luafmt = {
-          meta = {
-            url = "https://github.com/EmmyLuaLs/emmylua-analyzer-rust/blob/main/docs/emmylua_formatter/tutorial_EN.md",
-            description = "EmmyLuaLs formatter"
-          },
-          command = "luafmt",
-          args = { "--stdin" },
-          cwd = luafmt_cwd
-        },
-        ---@type conform.FileFormatterConfig
-        kdlfmt = {
-          meta = {
-            url = "https://github.com/hougesen/kdlfmt",
-            description = "a formatter for kdl documents."
-          },
-          command = "kdlfmt",
-          args = { "format", "--kdl-version", "v1", "--stdin" },
-          cwd = kdlfmt_cwd
-        }
-      }
-    }
+    local languages = require("kbinit.languages")
+    return languages.get_conform_config()
   end,
   keys = {
     {
@@ -68,23 +35,7 @@ local MasonLspconfig = {
   ---@type MasonLspconfigSettings
   opts = {
     automatic_enable = true,
-    ensure_installed = {
-      "emmylua_ls",
-      "vtsls",
-      "vue_ls",
-      "svelte",
-      "gopls",
-      "rust_analyzer",
-      "zls",
-      -- "pyright",
-      "jsonls",
-      "yamlls",
-      "taplo",
-      "tinymist",
-      "just",
-      "basedpyright",
-      "ruff"
-    }
+    ensure_installed = require("kbinit.languages").get_mason_ensure_installed()
   }
 }
 
@@ -100,48 +51,7 @@ local Treesitter = {
       local tree = require("nvim-treesitter")
 
       tree.setup(opts)
-      tree.install({
-        -- general
-        "markdown",
-        "markdown_inline",
-        "typst",
-        "gitignore",
-        "sql",
-        --
-        "rust",
-        "zig",
-        "swift",
-        --
-        "lua",
-        --
-        "python",
-        -- javascript and web
-        "javascript",
-        "typescript",
-        "jsx",
-        "tsx",
-        "vue",
-        "css",
-        "html",
-        -- elixir
-        "elixir",
-        "eex",
-        -- data transport
-        "json",
-        "kdl",
-        "yaml",
-        "xml",
-        "csv",
-        "toml",
-        "hcl",
-        -- terminal
-        "bash",
-        "fish",
-        "zsh",
-        "powershell",
-        "dockerfile",
-        "just"
-      })
+      tree.install(require("kbinit.languages").get_treesitter_parsers())
     end
 
     if vim.v.vim_did_enter == 1 and #vim.api.nvim_list_uis() > 0 then
