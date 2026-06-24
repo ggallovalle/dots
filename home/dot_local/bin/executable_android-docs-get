@@ -1,0 +1,97 @@
+#!/usr/bin/env -S uv run --script
+# vim: ft=python
+# /// script
+# requires-python = ">=3.11"
+# dependencies = []
+# ///
+
+import subprocess
+import re
+import sys
+from pathlib import Path
+
+OUTPUT_DIR = Path("/home/kbroom/Vaults/kbandroid")
+
+
+def run_android_docs(args: list[str]) -> str:
+    result = subprocess.run(
+        ["android"] + args,
+        capture_output=True,
+        text=True
+    )
+    return result.stdout
+
+
+def parse_urls(search_output: str) -> list[tuple[str, str]]:
+    """Parse numbered search results. Returns list of (url, title)."""
+    urls = []
+    # Match lines like: "1. Title\n   URL: kb://android/..."
+    pattern = r'^\d+\.\s+(.+?)\n\s+URL:\s+(kb://.+?)$'
+    for match in re.finditer(pattern, search_output, re.MULTILINE):
+        title = match.group(1).strip()
+        url = match.group(2).strip()
+        urls.append((url, title))
+    return urls
+
+
+def fetch_doc(url: str) -> str:
+    """Fetch doc content via android docs fetch."""
+    # Pass the full URL with kb:// prefix
+    return run_android_docs(["docs", "fetch", url])
+
+
+def extract_title(full_output: str) -> str:
+    """Extract title from CLI output (before --- separator)."""
+    # Split at the separator line
+    header = full_output.split("---")[0]
+    # Find Title: line
+    for line in header.split("\n"):
+        if line.startswith("Title:"):
+            # Extract and clean the title for filename
+            title = line[6:].strip()
+            # Remove/replace chars invalid in filenames
+            title = title.replace("/", "-").replace(":", "").replace("\\", "-")
+            # Limit length
+            return title[:50]
+    return "untitled"
+
+
+def save_doc(url: str, content: str) -> Path:
+    """Save doc to Vault. Returns saved path."""
+    title = extract_title(content)
+    filename = f"{title}.md"
+    
+    # Strip CLI header - keep only content after ---
+    # CLI output: "Waiting..." / "Fetching..." / "Title..." / "---" / CONTENT
+    body = content.split("---")[-1].strip()
+    
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    filepath = OUTPUT_DIR / filename
+    filepath.write_text(body)
+    return filepath
+
+
+def main() -> None:
+    if len(sys.argv) < 2:
+        print("Usage: android-docs-get <query>")
+        sys.exit(1)
+    
+    query = " ".join(sys.argv[1:])
+    print(f"Searching for: {query}")
+    
+    output = run_android_docs(["docs", "search", query])
+    urls = parse_urls(output)
+    
+    print(f"Found {len(urls)} results, fetching...")
+    
+    for url, title in urls:
+        print(f"  Fetching: {title}")
+        content = fetch_doc(url)
+        path = save_doc(url, content)
+        print(f"    Saved: {path}")
+    
+    print("Done!")
+
+
+if __name__ == "__main__":
+    main()
