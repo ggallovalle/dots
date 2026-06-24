@@ -10,7 +10,9 @@ import re
 import sys
 from pathlib import Path
 
-OUTPUT_DIR = Path("/home/kbroom/Vaults/kbandroid")
+OUTPUT_DIR = Path("/home/kbroom/Vaults/kbandroid/inbox")
+DOCS_DIR = OUTPUT_DIR / "docs"
+QUERIES_DIR = OUTPUT_DIR / "queries"
 
 
 def run_android_docs(args: list[str]) -> str:
@@ -56,18 +58,35 @@ def extract_title(full_output: str) -> str:
     return "untitled"
 
 
-def save_doc(url: str, content: str) -> Path:
-    """Save doc to Vault. Returns saved path."""
+def save_doc(url: str, content: str) -> tuple[Path, str]:
+    """Save doc to Vault. Returns (path, title)."""
     title = extract_title(content)
     filename = f"{title}.md"
     
     # Strip CLI header - keep only content after ---
-    # CLI output: "Waiting..." / "Fetching..." / "Title..." / "---" / CONTENT
     body = content.split("---")[-1].strip()
     
-    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-    filepath = OUTPUT_DIR / filename
+    DOCS_DIR.mkdir(parents=True, exist_ok=True)
+    filepath = DOCS_DIR / filename
     filepath.write_text(body)
+    return filepath, title
+
+
+def save_query_index(query: str, docs: list[tuple[Path, str]]) -> Path:
+    """Save query index with links to fetched docs."""
+    # Generate query filename
+    query_filename = query.replace(" ", "-")[:50] + ".md"
+    QUERIES_DIR.mkdir(parents=True, exist_ok=True)
+    filepath = QUERIES_DIR / query_filename
+    
+    # Build Obsidian-style wiki links
+    lines = [f"# {query}\n", f"> Query results from `android docs search {query}`\n"]
+    for path, title in docs:
+        # Link to doc relative to queries dir
+        rel_path = f"../docs/{path.name}"
+        lines.append(f"- [[{path.stem}|{title}]]")
+    
+    filepath.write_text("\n".join(lines))
     return filepath
 
 
@@ -84,12 +103,17 @@ def main() -> None:
     
     print(f"Found {len(urls)} results, fetching...")
     
+    saved_docs = []
     for url, title in urls:
         print(f"  Fetching: {title}")
         content = fetch_doc(url)
-        path = save_doc(url, content)
+        path, doc_title = save_doc(url, content)
+        saved_docs.append((path, doc_title))
         print(f"    Saved: {path}")
     
+    # Save query index
+    index_path = save_query_index(query, saved_docs)
+    print(f"Query index: {index_path}")
     print("Done!")
 
 
