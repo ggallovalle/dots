@@ -20,14 +20,21 @@ name = "catppuccin"
 # green = "#a6e3a1"
 
 [keys]
+prefix = "alt+;"
+# indexed jumps
+switch_tab = "prefix+1..9"
+switch_workspace = "prefix+shift+1..9"
+focus_agent = "prefix+alt+1..9"
+
 # Prefix key to enter navigate mode (default: "ctrl+b")
 # Examples: "ctrl+b", "f12", "esc", "-"
 # Accepted syntax: plain keys, ctrl/shift/alt/cmd/super modifiers, and special keys like enter/tab/esc/left/right/up/down
 # Most reliable bindings are plain keys, ctrl+letter, esc/tab/enter, and function keys.
 # alt+..., cmd/super, and punctuation-with-modifiers may depend on your terminal/tmux setup.
-prefix = "alt+;"
 
 # Navigate-mode actions
+navigate_workspace_up = "shift+k"
+navigate_workspace_down = "shift+j"
 # new_workspace = "n"
 # rename_workspace = "shift+n"
 # close_workspace = "shift+d"
@@ -64,13 +71,6 @@ edit_scrollback = "alt+e"    # optional, opens focused pane scrollback in $EDITO
 # type = "pane"
 # command = "lazygit"
 
-# Optional modifier-only shortcuts expanded over number keys 1-9.
-# Empty means disabled. Examples: "ctrl", "ctrl+shift", "alt".
-# [keys.indexed]
-# tabs = ""       # e.g. "ctrl" makes ctrl+1..9 switch tabs
-# workspaces = "" # e.g. "ctrl+shift" makes ctrl+shift+1..9 switch workspaces
-# agents = ""     # e.g. "alt" makes alt+1..9 focus agent rows
-
 [ui]
 # Sidebar width (auto-scaled based on workspace names, this sets the default)
 # sidebar_width = 26
@@ -85,7 +85,7 @@ edit_scrollback = "alt+e"    # optional, opens focused pane scrollback in $EDITO
 
 # Ask for a tab name before creating a new tab.
 # Set false to create tabs immediately with generated names.
-# prompt_new_tab_name = true
+prompt_new_tab_name = false
 
 # Show detected/reported agent labels in split pane borders when no manual pane name is set.
 # show_agent_labels_on_pane_borders = false
@@ -103,7 +103,7 @@ edit_scrollback = "alt+e"    # optional, opens focused pane scrollback in $EDITO
 # herdr = show top-right in-app toasts
 # terminal = ask the outer terminal to show a desktop notification
 # system = ask the OS notification service directly
-# delivery = "off"
+delivery = "terminal"
 
 # Play sounds when agents change state in background workspaces
 [ui.sound]
