@@ -1,3 +1,4 @@
+local Xdg = require("std.xdg")
 local M = {}
 
 local H = {}
@@ -68,12 +69,25 @@ function H.options()
   vim.g.mapleader = " "
   vim.g.maplocalleader = " "
 
+  -- Scrollof
+  local scrollof = math.floor(vim.o.lines / 2) - 3
+  vim.opt.scrolloff = scrollof
+
+  -- Better highlighting
+  vim.opt.hlsearch = false
+  vim.opt.incsearch = true
+
+  -- No wrap
+  vim.opt.autoindent = true
+
+  -- Line numbers
   vim.opt.number = true
   vim.opt.relativenumber = true
   vim.opt.cursorline = true
   vim.opt.cursorlineopt = "number" -- > line, screenline, both (i.e., "number,line")
   vim.opt.cursorcolumn = true
 
+  -- Tabs
   vim.opt.softtabstop = 0   -- > How many chracters the /cursor moves/ with <TAB> and <BS> -- 0 to disable
   vim.opt.expandtab = true  -- > Use space instead of tab
   vim.opt.shiftwidth = 2    -- > Number of spaces to use for auto-indentation, <<, >>, etc.
@@ -94,10 +108,13 @@ function H.options()
   vim.o.ignorecase = true
   vim.o.smartcase = true
 
-  -- Enable yaml filetype detection for .yml files
+
+  -- Enable yaml, mermaid and typst filetype detection
   vim.filetype.add({
     pattern = {
-      ["%.yml$"] = "yaml"
+      ["%.yml$"] = "yaml",
+      ["%.typ$"] = "typst",
+      ["%.mmd$"] = "mermaid",
     }
   })
 end
