@@ -67,6 +67,124 @@ local function lsp_definition_tab()
   end)
 end
 
+local function visual_lines()
+  local start_line = vim.fn.line(".")
+  local end_line = start_line
+
+  if vim.fn.mode():match("[vV\022]") then
+    start_line = vim.fn.line("v")
+    end_line = vim.fn.line(".")
+  end
+
+  if start_line > end_line then
+    start_line, end_line = end_line, start_line
+  end
+
+  return start_line, end_line
+end
+
+local function file_path(absolute)
+  local buf = vim.fn.resolve(vim.fn.fnamemodify(vim.api.nvim_buf_get_name(0), ":p"))
+  if absolute then return buf end
+  return vim.fn.fnamemodify(buf, ":~:.")
+end
+
+function H.yank()
+  vim.keymap.set({ "n", "v" }, "<leader>yy", '"+y', {
+    desc = "Copy to System Clipboard"
+  })
+  vim.keymap.set({ "n", "v" }, "<leader>p", '"+p', {
+    desc = "Paste from System Clipboard"
+  })
+  vim.keymap.set({ "n", "x" }, "<leader>yl", function()
+    local s, e = visual_lines()
+    vim.fn.setreg("+", string.format("%s:%d:%d", file_path(false), s, e))
+  end, {
+    desc = "Copy File Location (relative)"
+  })
+  vim.keymap.set({ "n", "x" }, "<leader>yL", function()
+    local s, e = visual_lines()
+    vim.fn.setreg("+", string.format("%s:%d:%d", file_path(true), s, e))
+  end, {
+    desc = "Copy File Location (absolute)"
+  })
+  vim.keymap.set({ "n", "x" }, "<leader>yc", function()
+    local s, e = visual_lines()
+    local ctx = H.treesitter_context()
+    vim.fn.setreg("+", string.format("%s:%d:%d%s", file_path(false), s, e, ctx))
+  end, {
+    desc = "Copy File Location with Context (relative)"
+  })
+  vim.keymap.set({ "n", "x" }, "<leader>yC", function()
+    local s, e = visual_lines()
+    local ctx = H.treesitter_context()
+    vim.fn.setreg("+", string.format("%s:%d:%d%s", file_path(true), s, e, ctx))
+  end, {
+    desc = "Copy File Location with Context (absolute)"
+  })
+  vim.keymap.set({ "n", "x" }, "<leader>ys", function()
+    local s, e = visual_lines()
+    local path = file_path(false)
+    local ctx = H.treesitter_context()
+    local ft = vim.bo.filetype
+    local content = table.concat(vim.api.nvim_buf_get_lines(0, s - 1, e, false), "\n")
+    vim.fn.setreg("+", string.format("@%s:%d:%d%s\n```%s\n%s\n```\n", path, s, e, ctx, ft, content))
+  end, {
+    desc = "Copy as Fenced Snippet (relative path)"
+  })
+  vim.keymap.set({ "n", "x" }, "<leader>yS", function()
+    local s, e = visual_lines()
+    local path = file_path(true)
+    local ctx = H.treesitter_context()
+    local ft = vim.bo.filetype
+    local content = table.concat(vim.api.nvim_buf_get_lines(0, s - 1, e, false), "\n")
+    vim.fn.setreg("+", string.format("@%s:%d:%d%s\n```%s\n%s\n```\n", path, s, e, ctx, ft, content))
+  end, {
+    desc = "Copy as Fenced Snippet (absolute path)"
+  })
+  vim.keymap.set(
+    { "n", "x" }, "<leader>yg",
+    function()
+      local git_root = vim.fn.system("git rev-parse --show-toplevel"):gsub("%s+$", "")
+      if vim.v.shell_error ~= 0 then
+        return vim.notify("Not in a git repo", vim.log.levels.ERROR)
+      end
+
+      local file = vim.fn.expand("%:p")
+      local rel = file:sub(#git_root + 2)
+
+      local remote = vim.fn.system("git remote get-url origin"):gsub("%s+$", "")
+      local repo = remote:match("github%.com[:/](.+%.git)$")
+        or remote:match("github%.com[:/](.+)$")
+      if not repo then
+        return vim.notify("No GitHub remote", vim.log.levels.ERROR)
+      end
+      repo = repo:gsub("%.git$", "")
+
+      local ref = vim.fn.system("git describe --exact-match --tags HEAD 2>/dev/null"):gsub("%s+$", "")
+      if vim.v.shell_error ~= 0 then
+        ref = vim.fn.system("git symbolic-ref --short HEAD 2>/dev/null"):gsub("%s+$", "")
+        if vim.v.shell_error ~= 0 then
+          ref = vim.fn.system("git rev-parse HEAD"):gsub("%s+$", "")
+        end
+      end
+
+      local s, e = visual_lines()
+      local anchor = ""
+      if s == e then
+        anchor = "#L" .. s
+      else
+        anchor = "#L" .. s .. "-L" .. e
+      end
+
+      local url = string.format("https://github.com/%s/blob/%s/%s%s", repo, ref, rel, anchor)
+      vim.fn.setreg("+", url)
+      vim.notify("Copied: " .. url)
+    end,
+    { desc = "Copy GitHub URL" }
+  )
+end
+
 function H.file_type()
   vim.api.nvim_create_autocmd("FileType", {
     pattern = "qf",
@@ -157,57 +275,13 @@ end
 
 function M.setup()
   H.file_type()
+  H.yank()
 
   vim.keymap.set("n", "<ESC>", "<CMD>nohlsearch<CR>")
   vim.keymap.set("t", "<ESC><ESC>", "<C-\\><C-n>", {
     desc = "Exit Terminal Mode"
   })
 
-  vim.keymap.set({ "n", "v" }, "<leader>yy", '"+y', {
-    desc = "Copy to System Clipboard"
-  })
-  vim.keymap.set({ "n", "v" }, "<leader>p", '"+p', {
-    desc = "Paste from System Clipboard"
-  })
-  vim.keymap.set({ "n", "x" }, "<leader>yl", function ()
-    local path = vim.fn.resolve(vim.fn.fnamemodify(vim.api.nvim_buf_get_name(0), ":p"))
-    local start_line = vim.fn.line(".")
-    local end_line = start_line
-
-    if vim.fn.mode():match("[vV\022]") then
-      start_line = vim.fn.line("v")
-      end_line = vim.fn.line(".")
-    end
-
-    if start_line > end_line then
-      start_line, end_line = end_line, start_line
-    end
-
-    vim.fn.setreg("+", string.format("%s:%d:%d", path, start_line, end_line))
-  end, {
-    desc = "Copy File Location"
-  })
-  vim.keymap.set(
-    { "n", "x" }, "<leader>yc",
-    function()
-      local path = vim.fn.resolve(vim.fn.fnamemodify(vim.api.nvim_buf_get_name(0), ":p"))
-      local start_line = vim.fn.line(".")
-      local end_line = start_line
-
-      if vim.fn.mode():match("[vV\022]") then
-        start_line = vim.fn.line("v")
-        end_line = vim.fn.line(".")
-      end
-
-      if start_line > end_line then
-        start_line, end_line = end_line, start_line
-      end
-
-      local ctx = H.treesitter_context()
-      vim.fn.setreg("+", string.format("%s:%d:%d%s", path, start_line, end_line, ctx))
-    end,
-    { desc = "Copy File Location with Context" }
-  )
   vim.keymap.set("n", "<leader>R", function ()
     require("kbplugin.restart").restart()
   end, { desc = "Restart" }
