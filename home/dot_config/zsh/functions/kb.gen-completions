@@ -21,6 +21,7 @@ _completion_cmds=(
   swift    "swift package completion-tool generate-zsh-script"
   ghq      "gh completion -s zsh"
   omp      "omp completions zsh"
+  dotnet   "dotnet completions script zsh"
 )
 
 for _complete_this _gen_cmd in ${(kv)_completion_cmds}; do
