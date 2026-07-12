@@ -91,7 +91,9 @@ local WhichKey = {
 ---@type LazyPluginSpec
 local RenderMarkdown = {
   url = "https://github.com/MeanderingProgrammer/render-markdown.nvim.git",
-  config = true
+  opts = {
+    completions = { lsp = { enabled = true } },
+  }
 }
 
 ---@type LazyPluginSpec
