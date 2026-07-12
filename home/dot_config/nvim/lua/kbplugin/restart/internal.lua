@@ -180,6 +180,8 @@ function M.restart()
     providers = providers_payload
   })
 
+  cleanup_files()
+  vim.cmd("enew | %bwipeout!")
   vim.cmd.restart("source " .. esc(state.files.session))
 end
 
