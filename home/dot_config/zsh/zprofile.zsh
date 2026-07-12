@@ -16,9 +16,23 @@ path+=(
   "${XDG_DATA_HOME}/nvim/mason/bin" 
   "${HOME}/.local/bin"
   "${XDG_DATA_HOME}/mise/shims"
+  "${ANDROID_HOME}/cmdline-tools/latest/bin"
+  "${ANDROID_HOME}/platform-tools"
 )
 
-# some programs read this
+# jdk
+export JAVA_HOME="/usr/lib/jvm/default"
+
+# android sdk
+export ANDROID_HOME="$HOME/Android/Sdk"
+export ANDROID_SDK_ROOT="$HOME/Android/Sdk"
+
+# qt 5 wayland integration
 export QT_QPA_PLATFORMTHEME=gtk3
+
+# so that `android emulator start <device>` works
+export QT_QPA_PLATFORM=xcb
+# export QT_QPA_PLATFORM=wayland
+
 export EZA_STRICT=1
 
