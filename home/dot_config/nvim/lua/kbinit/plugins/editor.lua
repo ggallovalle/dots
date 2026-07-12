@@ -29,6 +29,17 @@ local AnsiNvim = {
 }
 
 ---@type LazyPluginSpec
+local Atone = {
+  url = "https://github.com/XXiaoA/atone.nvim",
+  cmd = "Atone",
+  --- @type AtoneConfig
+  opts = {},
+  keys = {
+    {"<leader>du", ":Atone toggle<CR>", desc = "[U]ndo tree"}
+  }
+}
+
+---@type LazyPluginSpec
 local LuaSnip = {
   url = "https://github.com/L3MON4D3/LuaSnip",
   event = "InsertEnter",
@@ -115,4 +126,4 @@ local TreesitterTextObjects = {
   }
 }
 
-return { Surround, AutoPairs, AnsiNvim, TreesitterTextObjects, LuaSnip }
+return { Surround, AutoPairs, AnsiNvim, TreesitterTextObjects, Atone, LuaSnip }
