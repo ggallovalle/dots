@@ -26,7 +26,7 @@ if (( ${+commands[eza]} )); then
   alias lt2='eza --git-ignore --group-directories-first -TL 2'
   alias lt3='eza --git-ignore --group-directories-first -TL 3'
   alias lt4='eza --git-ignore --group-directories-first -TL 4'
-  alias lta='eza --git-ignore -ATL 3'
+  alias lta='eza --git-ignore --group-directories-first -ATL 3'
   alias ltaa='eza -ATL 3'
 fi
 
@@ -35,4 +35,5 @@ if (( ${+commands[chezmoi]} )); then
   abbr add -q cah='chezmoi apply ~/%'
   abbr add -q ca='chezmoi apply'
   abbr add -q ca.='chezmoi apply --source-path $PWD/%'
+  abbr add -q -g icat='kitty +kitten icat'
 fi
