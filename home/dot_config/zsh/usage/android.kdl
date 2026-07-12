@@ -1,0 +1,194 @@
+name android
+bin android
+about "Android CLI - create, build, deploy, and debug Android projects"
+long_about #"""
+Environment variables read
+  ANDROID_HOME=<path sdk installation directory>
+  ANDROID_SDK_ROOT=<legacy name of ANDROID_HOME>
+"""#
+
+version "1.0.15498356"
+
+flag "--help -h" help="Show this help" global=#true
+flag "--version -V" help="Print version information" global=#true
+flag "--sdk <path>" help="Path to the Android SDK" global=#true
+
+complete device run=#"android emulator list 2>/dev/null"#
+complete skill run=#"android skills list 2>/dev/null"#
+complete pkg-name run=#"android sdk list 2>/dev/null | awk '/^  [^ ]/ {print $1}' | sort"#
+
+cmd create help="Create a new Android project" {
+    arg "<template-name>" help="The template name"
+    complete template-name run=#"android create --list 2>/dev/null | awk 'NR>1 {print $1}'"#
+    flag "--name <name>" help="The name of the application (e.g. 'My Application')"
+    flag "--minSdk <api>" help="The minSdk supported by the application"
+    flag "--output -o <path>" help="The destination project directory path" default="."
+    flag "--verbose" help="Enables verbose output"
+    flag "--list" help="List all available templates"
+}
+
+cmd describe help="Analyze an Android project to generate descriptive metadata" {
+    flag "--project_dir <dir>" help="The project directory to describe"
+}
+
+cmd docs help="Android documentation commands" {
+    cmd search help="Search Android documentation" {
+        arg "<query>" help="The query to search the documentation for"
+        example "android docs search rememberNavController" header="Search for a function"
+        example "android docs search ComponentActivity" header="Search for a class"
+    }
+    cmd fetch help="Fetch Android documentation" {
+        arg "<url>" help="The knowledge base URL to fetch documentation for"
+    }
+}
+
+cmd emulator help="Emulator commands" {
+    cmd create help="Creates a virtual device" {
+        arg "<profile>" help="Device profile (watch, phone, XR, etc.)"
+        complete profile run=#"android emulator create --list-profiles 2>/dev/null"#
+        flag "--list-profiles" help="List device profiles that can be used"
+    }
+    cmd start help="Launch the specified virtual device" {
+        arg "<device>" help="The device (avd) to start"
+        flag "--cold" help="Start without loading from a snapshot"
+    }
+    cmd stop help="Stop the specified virtual device" {
+        arg "<device>" help="Emulator name or serial number"
+    }
+    cmd list help="List available virtual devices" {
+        flag "--long" help="Give more detailed information"
+    }
+    cmd remove help="Delete a virtual device" {
+        arg "<device>" help="The device (avd) to remove"
+        flag "--force" help="Force removal even if .avd directory missing"
+    }
+}
+
+cmd help help="Shows the help of all commands" {
+    arg "<command>" help="The command to show help for"
+}
+
+cmd info help="Print environment information (SDK Location, etc.)" {
+    arg "<field>" help="The specific field to print"
+}
+
+cmd init help="Initializes the environment (eg. skills) for Android CLI"
+
+cmd layout help="Returns the layout tree of an application" {
+    flag "--diff -d" help="Return flat list of layout elements changed since last dump"
+    flag "--device <device>" help="The device serial number"
+    flag "--output -o <path>" help="Write layout tree to file or directory"
+    flag "--pretty -p" help="Pretty-print the returned JSON"
+}
+
+cmd run help="Deploy an Android Application" {
+    flag "--activity <name>" help="The activity name"
+    flag "--apks <path>..." help="Paths to the APKs"
+    flag "--debug" help="Run in debug mode"
+    flag "--device <device>" help="The device serial number"
+    flag "--type <type>" help="The component type (ACTIVITY, SERVICE, etc.)"
+    complete type run=#"printf '%s\n' ACTIVITY SERVICE BROADCAST_RECEIVER CONTENT_PROVIDER"#
+}
+
+cmd screen help="Commands to view the device" {
+    cmd capture help="Outputs the device screen to a PNG" {
+        flag "--annotate -a" help="Draw labeled bounding boxes around UI elements"
+        flag "--output -o <path>" help="Write screenshot to file or directory"
+    }
+    cmd resolve help="Target UI elements visually" {
+        flag "--screenshot <path>" help="Annotated screenshot from 'screen --annotate'"
+        flag "--string <template>" help="String with #N placeholders to substitute"
+    }
+}
+
+cmd sdk help="Download and list SDK packages" {
+    cmd install help="Install SDK packages" {
+        arg "<pkg>" help="Package(s) to install (append @version for a specific version)"
+        complete pkg run=#"android sdk list --all 2>/dev/null | awk '/^  [^ ]/ {print $1}' | sort"#
+        flag "--beta" help="Include beta packages"
+        flag "--canary" help="Include canary packages"
+        flag "--force" help="Force downgrading to an older version"
+    }
+    cmd update help="Update one or all packages to the latest version" {
+        arg "<pkg-name>" help="Name of the package to update (optional)"
+        flag "--beta" help="Include beta packages"
+        flag "--canary" help="Include canary packages"
+        flag "--force" help="Force downgrading to an older version"
+    }
+    cmd remove help="Remove a package from the SDK" {
+        arg "<pkg-name>" help="Name of the package to remove"
+    }
+    cmd list help="List installed and available SDK packages" {
+        arg "<pattern>" help="Filter packages by pattern (supports *)"
+        flag "--all" help="Show all packages available in the repository"
+        flag "--all-versions" help="Show all versions for each package"
+        flag "--beta" help="Include beta packages"
+        flag "--canary" help="Include canary packages"
+    }
+}
+
+cmd skills help="Manage skills" {
+    cmd add help="Install a skill" {
+        arg "<skill>" help="The name of the skill to install"
+        flag "--agent <agents>" help="Comma-separated agents to install for"
+        flag "--all" help="Install all skills"
+        flag "--project <path>" help="Project root in which to install"
+    }
+    cmd remove help="Remove a skill" {
+        arg "<skill>" help="The name of the skill to remove"
+        flag "--agent <agents>" help="Comma-separated agents to remove from"
+        flag "--project <path>" help="Project root from which to remove"
+    }
+    cmd list help="List available skills" {
+        flag "--long" help="Use long output format"
+        flag "--project <path>" help="Project root for which to list installed skills"
+    }
+    cmd find help="Find skills by keyword" {
+        arg "<keyword>" help="Keyword to search for"
+    }
+}
+
+cmd studio help="Android Studio commands" {
+    cmd find-declaration help="Find declaration of a symbol" {
+        arg "<symbol>" help="The symbol to find the declaration for"
+        flag "--context-file <path>" help="Path to a file containing a reference to the symbol"
+        flag "--pid <n>" help="PID of the Android Studio instance to connect to"
+        flag "--project <name>" help="Name or path of the project open in Studio"
+        flag "--short" help="Only show the location in files with matches"
+    }
+    cmd find-usages help="Find usages of a symbol" {
+        arg "<symbol>" help="The symbol to find usages for"
+        flag "--pid <n>" help="PID of the Android Studio instance to connect to"
+        flag "--project <name>" help="Name or path of the project open in Studio"
+        flag "--short" help="Only show the location in files with matches"
+    }
+    cmd open-file help="Open a file in Android Studio" {
+        arg "<path>" help="Path of the file to open"
+        flag "--pid <n>" help="PID of the Android Studio instance to connect to"
+        flag "--project <name>" help="Name or path of the project open in Studio"
+    }
+    cmd check help="Check the status of running Studio instances"
+    cmd analyze-file help="Analyze a file in Android Studio" {
+        arg "<path>" help="Path of the file to analyze"
+        flag "--pid <n>" help="PID of the Android Studio instance to connect to"
+        flag "--project <name>" help="Name or path of the project open in Studio"
+    }
+    cmd render-compose-preview help="Render a Compose preview in Android Studio" {
+        arg "<path>" help="Path of the file containing the Compose preview"
+        arg "<composable>" help="The name of the composable"
+        flag "--output-image-file <path>" help="Filename to write the resulting image to"
+        flag "--pid <n>" help="PID of the Android Studio instance to connect to"
+        flag "--print-semantics" help="Print out the semantics tree"
+        flag "--project <name>" help="Name or path of the project open in Studio"
+    }
+    cmd version-lookup help="Look up latest available versions of artifacts" {
+        arg "<artifact>" help="Space-separated identifiers (groupId:artifactId, gradle, studio, agp, etc.)"
+        complete artifact run=#"printf '%s\n' gradle studio agp ndk sdk emulator adb compose kotlin android platform-tools cmdline-tools build-tools"#
+        flag "--pid <n>" help="PID of the Android Studio instance to connect to"
+        flag "--project <name>" help="Name or path of the project open in Studio"
+    }
+}
+
+cmd update help="Update the Android CLI" {
+    flag "--url <url>" help="The URL to download the update from"
+}
