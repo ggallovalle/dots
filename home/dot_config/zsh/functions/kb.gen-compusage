@@ -7,21 +7,27 @@ generated_completions_count=0
 
 typeset -a _usage_files
 _usage_files=("${kbroom[ZDOTDIR]}"/usage/*.kdl(N))
+_man_dir="${HOME}/.local/share/man"
 
 for _usage_file in "${_usage_files[@]}"; do
   _complete_this="${${_usage_file:t}:r}"
   _target="${HOME}/.zi/completions/_${_complete_this}"
+  _man_target="${_man_dir}/man1/${_complete_this}.1"
 
   _gen_cmd=(usage generate completion zsh "$_complete_this" -f "$_usage_file")
+  _man_cmd=(usage generate manpage -f "$_usage_file" -o "$_man_target")
 
   if (( ${+commands[$_complete_this]} )); then
     print -r -- $'\e[2m$ '"${(j: :)${(q+)_gen_cmd[@]}}"$'\e[0m'
-
     "${_gen_cmd[@]}" >| "$_target"
     (( generated_completions_count++ ))
+
+    print -r -- $'\e[2m$ '"${(j: :)${(q+)_man_cmd[@]}}"$'\e[0m'
+    mkdir -p "${_man_target:h}"
+    "${_man_cmd[@]}"
   fi
 done
 
 if (( generated_completions_count > 0 )); then
-  print -r -- "Generated ${generated_completions_count} completions from usage"
+  print -r -- "Generated ${generated_completions_count} completions & manpages from usage"
 fi
