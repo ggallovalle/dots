@@ -1,4 +1,4 @@
 ---@type LazyPluginSpec
-local HerdrNvim = { dir = "~/persona/kbroomstd/herdr.nvim" }
+local HerdrNvim = { dir = "~/ghq/github.com/kbroomstd/herdr.nvim" }
 
 return { HerdrNvim }
