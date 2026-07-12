@@ -28,6 +28,15 @@ local AnsiNvim = {
   }
 }
 
+---@type LazyPluginSpec
+local LuaSnip = {
+  url = "https://github.com/L3MON4D3/LuaSnip",
+  event = "InsertEnter",
+  config = function ()
+    require("kbinit.languages").setup_snippets()
+  end
+}
+
 local HTextObjects = {}
 
 function HTextObjects.select(query)
@@ -106,4 +115,4 @@ local TreesitterTextObjects = {
   }
 }
 
-return { Surround, AutoPairs, AnsiNvim, TreesitterTextObjects }
+return { Surround, AutoPairs, AnsiNvim, TreesitterTextObjects, LuaSnip }
