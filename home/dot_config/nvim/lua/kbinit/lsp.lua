@@ -14,6 +14,10 @@ function H.lsp_config()
   require("kbinit.languages").setup_lsp()
 end
 
+function H.lsp_snippets()
+  require("kbinit.languages").setup_snippets()
+end
+
 function H.lsp_keymaps()
   ---@type string
   local completion = vim.g.completion_mode or "blink"
@@ -55,6 +59,7 @@ function M.setup()
   H.diagnostic()
   H.lsp_config()
   H.lsp_keymaps()
+  H.lsp_snippets()
 end
 
 return M

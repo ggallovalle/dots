@@ -78,4 +78,33 @@ function M.get_conform_config()
   return { formatters_by_ft = by_ft, formatters = formatters }
 end
 
+local _snippets_built = false
+
+local function build_snippets(luasnip)
+  for _, lang in ipairs(specs()) do
+    if type(lang.snippets) == "table" then
+      for _, builder in pairs(lang.snippets) do
+        if type(builder) == "function" then builder(luasnip) end
+      end
+    end
+  end
+  _snippets_built = true
+end
+
+function M.setup_snippets()
+  local has_luasnip, luasnip = pcall(require, "luasnip")
+  if has_luasnip then
+    if not _snippets_built then build_snippets(luasnip) end
+    return
+  end
+  vim.api.nvim_create_autocmd("User", {
+    pattern = "LuaSnip",
+    callback = function ()
+      local ok, ls = pcall(require, "luasnip")
+      if ok and not _snippets_built then build_snippets(ls) end
+    end,
+    once = true,
+  })
+end
+
 return M
