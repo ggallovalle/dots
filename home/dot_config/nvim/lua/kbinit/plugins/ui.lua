@@ -124,10 +124,13 @@ local LuaLine = {
       -- Set it to the lualine section you want to use
       hl_group = "lualine_c_normal",
     })
-    table.insert(opts.sections.lualine_c, {
-      symbols.get,
-      cond = symbols.has,
-    })
+
+    return {
+      sections = {
+        lualine_c = {"filename", {symbols.get, cond = symbols.has}},
+        lualine_x = {"filetype"}
+      }
+    }
   end,
 }
 
