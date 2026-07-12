@@ -38,7 +38,8 @@ return {
           schema = {
             enabled = true,
             associations = {
-              ["mise.toml"] = "https://mise.en.dev/schema/mise.json"
+              ["mise.toml"] = "https://mise.en.dev/schema/mise.json",
+              ["mise.local.toml"] = "https://mise.en.dev/schema/mise.json"
             }
           }
         }
