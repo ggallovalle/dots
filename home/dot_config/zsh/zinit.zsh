@@ -40,7 +40,8 @@ zi snippet https://github.com/PEMessage/opencode-zsh-completion/blob/main/_openc
 zinit ice lucid nocompile
 zinit load MenkeTechnologies/zsh-cargo-completion
 
-
+zinit ice lucid nocompile
+zinit load gradle/gradle-completion
 
 # https://github.com/z-shell/F-Sy-H
 # syntax highlighting for zsh terminal with support for themes
