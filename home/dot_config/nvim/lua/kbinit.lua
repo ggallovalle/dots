@@ -63,7 +63,7 @@ function H.kb_plugins()
   require("kbplugin.luarocks").setup({
     dependencies = { "kbstd == dev-1" }
   })
-  require("kbplugin.mdlink").setup({})
+  require("kbplugin.mdtyp").setup({})
 end
 
 function H.options()
