@@ -39,7 +39,7 @@ local BlinkCmp = {
   build = function ()
     require("blink.cmp")
       .build()
-      :wait(60000)
+      :pwait()
   end,
   ---@diagnostic disable-next-line: missing-fields
   ---@type blink.cmp.ConfigStrict
