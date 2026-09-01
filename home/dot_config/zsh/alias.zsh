@@ -15,6 +15,7 @@ alias xgh='cd $HOME/ghq/github.com'
 
 if (( ${+commands[eza]} )); then
   export EZA_STRICT=1
+  alias eza='eza --group-directories-first'
   alias l='eza --group-directories-first --git-ignore'
   alias la='eza -A --group-directories-first --git-ignore'
   alias laa='eza -A --group-directories-first'

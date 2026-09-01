@@ -10,22 +10,22 @@ export STARSHIP_CONFIG="${XDG_CONFIG_HOME}/zsh/starship.toml"
 export DOTFILES="${HOME}/dots"
 export GHQ_ROOT="${HOME}/ghq"
 
-typeset -U path
-path+=( 
-  "${XDG_CONFIG_HOME}/zsh/bin" 
-  "${XDG_DATA_HOME}/nvim/mason/bin" 
-  "${HOME}/.local/bin"
-  "${XDG_DATA_HOME}/mise/shims"
-  "${ANDROID_HOME}/cmdline-tools/latest/bin"
-  "${ANDROID_HOME}/platform-tools"
-)
-
 # jdk
 export JAVA_HOME="/usr/lib/jvm/default"
 
 # android sdk
 export ANDROID_HOME="$HOME/Android/Sdk"
-export ANDROID_SDK_ROOT="$HOME/Android/Sdk"
+export ANDROID_SDK_ROOT="$ANDROID_HOME"
+
+typeset -U path
+path+=(
+  "${XDG_CONFIG_HOME}/zsh/bin"
+  "${XDG_DATA_HOME}/nvim/mason/bin"
+  "${HOME}/.local/bin"
+  "${XDG_DATA_HOME}/mise/shims"
+  "${ANDROID_HOME}/cmdline-tools/latest/bin"
+  "${ANDROID_HOME}/platform-tools"
+)
 
 # qt 5 wayland integration
 export QT_QPA_PLATFORMTHEME=gtk3
