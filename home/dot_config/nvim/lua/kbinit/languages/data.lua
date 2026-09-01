@@ -1,15 +1,18 @@
 return {
   lsp = {
-    jsonls = {
-      filetypes = { "json", "jsonc" },
-      root_markers = { "package.json", "tsconfig.json", ".git" },
-      settings = {
-        json = {
-          format = { enabled = true },
-          validate = { enabled = true }
+    jsonls = function ()
+      return {
+        filetypes = { "json", "jsonc" },
+        root_markers = { "package.json", "tsconfig.json", ".git" },
+        settings = {
+          json = {
+            format = { enable = true },
+            validate = { enable = true },
+            schemas = require("schemastore").json.schemas()
+          }
         }
       }
-    },
+    end,
     yamlls = {
       filetypes = { "yaml", "yml" },
       root_markers = { ".yaml", ".yml", ".git" },

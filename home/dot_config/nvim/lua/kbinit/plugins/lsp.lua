@@ -26,6 +26,9 @@ local Mason = {
 local NvimLspconfig = { url = "https://github.com/neovim/nvim-lspconfig.git" }
 
 ---@type LazyPluginSpec
+local SchemaStore = { url = "https://github.com/b0o/SchemaStore.nvim.git" }
+
+---@type LazyPluginSpec
 local MasonLspconfig = {
   url = "https://github.com/williamboman/mason-lspconfig.nvim.git",
   dependencies = {
@@ -116,4 +119,4 @@ local Trouble = {
   }
 }
 
-return { Mason, NvimLspconfig, MasonLspconfig, Treesitter, Conform, Trouble }
+return { Mason, NvimLspconfig, MasonLspconfig, SchemaStore, Treesitter, Conform, Trouble }
