@@ -62,9 +62,18 @@ return {
       cmd = { "tinymist" },
       filetypes = { "typst" },
       root_markers = { ".git" }
-    }
+    },
+    mdx_analyzer = {
+      filetypes = { "mdx" },
+      root_markers = { "package.json", ".git" },
+      init_options = {
+        typescript = {
+          enabled = true,
+        },
+      },
+    },
   },
-  mason = { "tinymist" },
+  mason = { "tinymist", "mdx_analyzer" },
   treesitter = {
     "typst",
     "markdown",

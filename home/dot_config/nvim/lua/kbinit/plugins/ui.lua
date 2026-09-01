@@ -92,6 +92,7 @@ local WhichKey = {
 local RenderMarkdown = {
   url = "https://github.com/MeanderingProgrammer/render-markdown.nvim.git",
   opts = {
+    file_types = { "markdown", "mdx" },
     completions = { lsp = { enabled = true } },
   }
 }
@@ -113,8 +114,6 @@ local TypstPreview = {
 local LuaLine = {
   url = "https://github.com/nvim-lualine/lualine.nvim",
   opts = function(_, opts)
-    opts.sections = opts.sections or {}
-    opts.sections.lualine_c = opts.sections.lualine_c or {}
     local trouble = require("trouble")
     local symbols = trouble.statusline({
       mode = "lsp_document_symbols",
@@ -129,8 +128,22 @@ local LuaLine = {
 
     return {
       sections = {
+        lualine_a = {
+          {
+            "mode",
+            fmt = function(mode)
+              local short = {
+                n = "N", no = "N", i = "I", ic = "I",
+                v = "V", V = "V", ["\22"] = "V",
+                c = "C", R = "R", Rc = "R",
+                s = "S", S = "S", ["\19"] = "S", t = "T"
+              }
+              return short[mode] or mode:sub(1, 1):upper()
+            end,
+          },
+        },
         lualine_c = {"filename", {symbols.get, cond = symbols.has}},
-        lualine_x = {"filetype"}
+        lualine_x = {"lsp_clients", "filetype"}
       }
     }
   end,

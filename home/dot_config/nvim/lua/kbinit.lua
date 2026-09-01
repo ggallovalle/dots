@@ -60,9 +60,9 @@ function H.kb_plugins()
     providers = { "kbplugin.chezmoi" },
     log_level = "info"
   })
-  require("kbplugin.luarocks").setup({
-    dependencies = { "kbstd == dev-1" }
-  })
+  -- require("kbplugin.luarocks").setup({
+  --   dependencies = { "kbstd == dev-1" }
+  -- })
   require("kbplugin.mdtyp").setup({})
 end
 
@@ -110,14 +110,20 @@ function H.options()
   vim.o.smartcase = true
 
 
-  -- Enable yaml, mermaid and typst filetype detection
+  -- Enable yaml, mermaid, typst and mdx filetype detection
   vim.filetype.add({
+    extension = {
+      mdx = "mdx",
+    },
     pattern = {
       ["%.yml$"] = "yaml",
       ["%.typ$"] = "typst",
       ["%.mmd$"] = "mermaid",
     }
   })
+
+  -- No dedicated MDX parser; reuse markdown + injection queries in after/queries/
+  vim.treesitter.language.register("markdown", "mdx")
 end
 
 function M.setup()
