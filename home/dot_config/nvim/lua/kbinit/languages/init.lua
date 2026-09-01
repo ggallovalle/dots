@@ -9,6 +9,18 @@ local function module_dir(modname)
   end
 end
 
+--- Keys that identify a single language config
+local CONFIG_KEYS = { "lsp", "mason", "treesitter", "conform", "snippets" }
+
+--- A module returns either one config table or a list of config tables
+local function is_config(spec)
+  if type(spec) ~= "table" then return true end
+  for _, key in ipairs(CONFIG_KEYS) do
+    if spec[key] ~= nil then return true end
+  end
+  return false
+end
+
 --- Scan languages/*.lua, require each, return list of specs
 local function collect()
   local specs = {}
@@ -20,7 +32,14 @@ local function collect()
     if not name then break end
     if ftype == "file" and name ~= "init.lua" and name:match("%.lua$") then
       local mod = name:gsub("%.lua$", "")
-      specs[#specs + 1] = require("kbinit.languages." .. mod)
+      local result = require("kbinit.languages." .. mod)
+      if is_config(result) then
+        specs[#specs + 1] = result
+      else
+        for _, spec in ipairs(result) do
+          specs[#specs + 1] = spec
+        end
+      end
     end
   end
   return specs

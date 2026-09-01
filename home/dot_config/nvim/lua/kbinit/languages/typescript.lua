@@ -1,16 +1,8 @@
-return {
+local Vue = {
   lsp = {
     vtsls = function ()
       local xdg = require("std.xdg")
-      local mason_path = xdg.data:join("mason", "packages")
-      local vue_path = mason_path:join("vue-language-server", "node_modules", "@vue", "language-server")
-
-      local vue_plugin = {
-        name = "@vue/typescript-plugin",
-        location = tostring(vue_path),
-        languages = { "vue" },
-        configNamespace = "typescript"
-      }
+      local vue_path = xdg.data:join("mason", "packages", "vue-language-server", "node_modules", "@vue", "language-server")
 
       return {
         cmd = { "vtsls", "--stdio" },
@@ -28,13 +20,18 @@ return {
           "bunfig.toml",
           ".git"
         },
-        init_options = {
-          hostInfo = "neovim"
-        },
+        init_options = { hostInfo = "neovim" },
         settings = {
           vtsls = {
             tsserver = {
-              globalPlugins = { vue_plugin }
+              globalPlugins = {
+                {
+                  name = "@vue/typescript-plugin",
+                  location = tostring(vue_path),
+                  languages = { "vue" },
+                  configNamespace = "typescript"
+                }
+              }
             }
           }
         }
@@ -45,11 +42,18 @@ return {
       filetypes = { "vue" },
       root_markers = { "package.json", ".git" },
       init_options = {
-        vue = {
-          hybridMode = true
-        }
+        vue = { hybridMode = true }
       }
-    },
+    }
+  },
+  mason = { "vtsls", "vue_ls" },
+  treesitter = {
+    "vue",
+  }
+}
+
+local Svelte = {
+  lsp = {
     svelte = {
       cmd = { "svelteserver", "--stdio" },
       filetypes = { "svelte" },
@@ -71,18 +75,23 @@ return {
       }
     }
   },
-  mason = {
-    "vtsls",
-    "vue_ls",
-    "svelte"
+  mason = { "svelte" },
+  treesitter = { "svelte" }
+}
+
+local Typescript = {
+  lsp = {
+    tsc = true
   },
   treesitter = {
-    "javascript",
     "typescript",
+    "javascript",
     "jsx",
     "tsx",
-    "vue",
     "css",
     "html"
-  }
+  },
+  mason = { "tsc" }
 }
+
+return { Vue, Svelte, Typescript }
