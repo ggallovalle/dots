@@ -124,6 +124,11 @@ function H.options()
 
   -- No dedicated MDX parser; reuse markdown + injection queries in after/queries/
   vim.treesitter.language.register("markdown", "mdx")
+  -- Gate after/queries/markdown MDX injections to mdx filetype.
+  -- #match? is very-magic: `<` = word-start, so unescaped `<` tagged every markdown inline as TSX.
+  vim.treesitter.query.add_predicate("mdx?", function(_, _, bufnr)
+    return type(bufnr) == "number" and vim.bo[bufnr].filetype == "mdx"
+  end, { force = true })
 end
 
 function M.setup()
