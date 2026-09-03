@@ -37,7 +37,9 @@ local MasonLspconfig = {
   },
   ---@type MasonLspconfigSettings
   opts = {
-    automatic_enable = true,
+    automatic_enable = {
+      exclude = { "biome" }
+    },
     ensure_installed = require("kbinit.languages").get_mason_ensure_installed()
   }
 }

@@ -66,7 +66,8 @@ return {
     return {
       formatters_by_ft = {
         kdl = { "kdlfmt" },
-        json = { lsp_format = "fallback" }
+        json = { "biome", lsp_format = "fallback" },
+        jsonc = { "biome", lsp_format = "fallback" }
       },
       formatters = {
         ---@type conform.FileFormatterConfig

@@ -49,6 +49,11 @@ local Vue = {
   mason = { "vtsls", "vue_ls" },
   treesitter = {
     "vue",
+  },
+  conform = {
+    formatters_by_ft = {
+      vue = { "biome" }
+    }
   }
 }
 
@@ -91,7 +96,16 @@ local Typescript = {
     "css",
     "html"
   },
-  mason = { "tsc" }
+  mason = { "tsc", "biome" },
+  conform = {
+    formatters_by_ft = {
+      javascript = { "biome" },
+      javascriptreact = { "biome" },
+      typescript = { "biome" },
+      typescriptreact = { "biome" },
+      css = { "biome" }
+    }
+  }
 }
 
 return { Vue, Svelte, Typescript }
