@@ -12,6 +12,10 @@ autoload -Uz ${0:h}/functions/*(.:t)
 
 
 if [[ -o interactive ]]; then
+  autoload -Uz add-zsh-hook
+  add-zsh-hook chpwd kb.git-root-named-dir
+  kb.git-root-named-dir
+
   if [[ -n "$KITTY_INSTALLATION_DIR" ]]; then
     export KITTY_SHELL_INTEGRATION="enabled"
     autoload -Uz -- "$KITTY_INSTALLATION_DIR"/shell-integration/zsh/kitty-integration

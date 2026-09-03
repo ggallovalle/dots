@@ -1,0 +1,10 @@
+#!/usr/bin/env zsh
+
+emulate -L zsh
+
+local root
+if root=$(command git rev-parse --show-toplevel 2>/dev/null) && [[ -n $root ]]; then
+  hash -d -- "g=${root}"
+else
+  unhash -d -- g 2>/dev/null || true
+fi
